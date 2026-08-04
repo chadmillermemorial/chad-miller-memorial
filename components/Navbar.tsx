@@ -1,50 +1,40 @@
 import Link from "next/link";
 
+const navItems = [
+  { href: "/about", label: "About" },
+  { href: "/tournament", label: "Tournament" },
+  { href: "/sponsors", label: "Sponsors" },
+  { href: "/register", label: "Register" },
+  { href: "/contact", label: "Contact" },
+];
+
 export default function Navbar() {
   return (
-    <nav className="sticky top-0 z-50 w-full bg-white/90 backdrop-blur shadow-sm">
-      <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
+    <nav className="sticky top-0 z-50 border-b border-black/5 bg-white/95 backdrop-blur">
+      <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
         <Link
           href="/"
-          className="font-semibold tracking-wide text-gray-900"
+          className="max-w-[220px] text-sm font-semibold leading-tight tracking-wide text-[var(--brand-navy)] sm:max-w-none"
         >
-          Chad Miller Memorial
+          SGM Chad Miller Memorial
         </Link>
 
-        <div className="hidden gap-6 md:flex">
-          <Link
-            href="/about"
-            className="text-sm text-gray-700 hover:text-teal-600"
-          >
-            About
-          </Link>
-
-          <Link
-            href="/tournament"
-            className="text-sm text-gray-700 hover:text-teal-600"
-          >
-            Tournament
-          </Link>
-
-          <Link
-            href="/sponsors"
-            className="text-sm text-gray-700 hover:text-teal-600"
-          >
-            Sponsors
-          </Link>
+        <div className="hidden items-center gap-7 md:flex">
+          {navItems.map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              className="text-sm font-medium text-slate-600 transition hover:text-[var(--brand-blue)]"
+            >
+              {item.label}
+            </Link>
+          ))}
 
           <Link
             href="/register"
-            className="text-sm text-gray-700 hover:text-teal-600"
+            className="rounded-full bg-[var(--brand-blue)] px-5 py-2.5 text-sm font-semibold text-white transition hover:opacity-90"
           >
             Register
-          </Link>
-
-          <Link
-            href="/contact"
-            className="text-sm text-gray-700 hover:text-teal-600"
-          >
-            Contact
           </Link>
         </div>
       </div>
