@@ -14,7 +14,9 @@
   --muted: #667085;
 }
 
-* {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
 }
 
@@ -26,11 +28,37 @@ body {
   margin: 0;
   background: var(--background);
   color: var(--foreground);
+  overflow-x: hidden;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-display), serif;
 }
 
 a {
   color: inherit;
   text-decoration: none;
+  transition: all 0.25s ease;
+}
+
+button {
+  transition: all 0.25s ease;
+}
+
+img {
+  transition: transform 0.45s ease;
+}
+
+article {
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+article:hover {
+  transform: translateY(-6px);
 }
 
 ::selection {

@@ -1,98 +1,125 @@
-import Link from "next/link";
+import Image from "next/image";
+import Container from "@/components/ui/Container";
+import SectionHeading from "@/components/ui/SectionHeading";
 
-export default function Home() {
+export default function AboutPage() {
   return (
-    <main>
-      <section className="relative isolate overflow-hidden bg-[var(--brand-navy)] px-6 py-28 text-white md:py-36">
-        <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top_right,rgba(42,165,161,0.3),transparent_35%),linear-gradient(to_bottom_right,rgba(23,107,135,0.35),transparent_45%)]" />
+    <>
+      <section className="bg-[var(--brand-navy)] py-20 text-white md:py-28">
+        <Container>
+          <div className="grid items-center gap-12 lg:grid-cols-[0.9fr_1.1fr]">
+            <div className="mx-auto w-full max-w-md overflow-hidden rounded-3xl bg-white shadow-2xl">
+              <Image
+                src="/images/chad/chad-headshot.jpg"
+                alt="Sergeant Major Chad Miller"
+                width={900}
+                height={1100}
+                priority
+                className="h-auto w-full"
+              />
+            </div>
 
-        <div className="mx-auto max-w-6xl">
-          <div className="max-w-4xl">
-            <p className="text-sm font-semibold uppercase tracking-[0.28em] text-[var(--brand-teal)]">
-              Southern Pines, North Carolina
-            </p>
+            <div>
+              <p className="text-sm font-semibold uppercase tracking-[0.3em] text-[var(--brand-teal)]">
+                Remembering Sergeant Major Chad Miller
+              </p>
 
-            <h1 className="mt-6 text-5xl font-bold leading-[1.05] tracking-tight sm:text-6xl md:text-7xl">
-              Sergeant Major Chad Miller Memorial Golf Tournament
-            </h1>
+              <h1 className="mt-5 text-5xl font-bold leading-tight md:text-7xl">
+                A Life of Leadership, Service, and Family
+              </h1>
 
-            <p className="mt-8 max-w-2xl text-lg leading-8 text-slate-300">
-              A day of golf, remembrance, and community in support of The Honor
-              Foundation Fort Bragg Chapters and the Joint Special Operations
-              community.
-            </p>
-
-            <div className="mt-10 flex flex-col gap-4 sm:flex-row">
-              <Link
-                href="/register"
-                className="rounded-full bg-[var(--brand-teal)] px-7 py-3.5 text-center font-semibold text-white transition hover:opacity-90"
-              >
-                Register to Play
-              </Link>
-
-              <Link
-                href="/sponsors"
-                className="rounded-full border border-white/30 px-7 py-3.5 text-center font-semibold text-white transition hover:bg-white hover:text-[var(--brand-navy)]"
-              >
-                Become a Sponsor
-              </Link>
+              <p className="mt-8 max-w-2xl text-xl leading-9 text-slate-300">
+                The Sergeant Major Chad Miller Memorial Golf Tournament honors
+                a remarkable leader, devoted family man, mentor, and friend
+                whose influence continues to inspire the people who knew and
+                served beside him.
+              </p>
             </div>
           </div>
-        </div>
+        </Container>
       </section>
 
-      <section className="px-6 py-20">
-        <div className="mx-auto grid max-w-6xl gap-12 md:grid-cols-[1.2fr_0.8fr] md:items-center">
-          <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.25em] text-[var(--brand-blue)]">
-              Honoring Chad’s Legacy
-            </p>
+      <section className="py-24">
+        <Container>
+          <div className="grid gap-16 lg:grid-cols-2 lg:items-center">
+            <Image
+              src="/images/chad/chad-family.jpg"
+              alt="Chad Miller with his family"
+              width={900}
+              height={700}
+              className="h-auto w-full rounded-3xl shadow-xl"
+            />
 
-            <h2 className="mt-4 text-4xl font-bold tracking-tight text-[var(--brand-navy)] md:text-5xl">
-              Leadership, service, and a lasting commitment to others.
-            </h2>
-
-            <p className="mt-6 text-lg leading-8 text-slate-600">
-              The tournament brings together friends, teammates, sponsors, and
-              supporters to celebrate Chad’s life and continue the impact he
-              made throughout the Special Operations community.
-            </p>
-
-            <Link
-              href="/about"
-              className="mt-8 inline-flex font-semibold text-[var(--brand-blue)] hover:underline"
+            <SectionHeading
+              eyebrow="More Than a Soldier"
+              title="A husband, father, mentor, and friend."
             >
-              Read Chad’s story →
-            </Link>
+              <p>
+                Chad’s military career reflected exceptional leadership, but
+                those closest to him remember something even greater: his
+                commitment to his family, his teammates, and the people around
+                him. His legacy lives on through the countless lives he
+                influenced both in and out of uniform.
+              </p>
+            </SectionHeading>
           </div>
-
-          <div className="rounded-3xl bg-[var(--sand)] p-8">
-            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[var(--golf-green)]">
-              Tournament Venue
-            </p>
-
-            <h3 className="mt-3 text-3xl font-bold text-[var(--brand-navy)]">
-              Hyland Golf Club
-            </h3>
-
-            <p className="mt-4 leading-7 text-slate-600">
-              Southern Pines, North Carolina
-            </p>
-
-            <p className="mt-6 leading-7 text-slate-600">
-              Join us in the Sandhills for golf, fellowship, remembrance, and
-              support of a meaningful mission.
-            </p>
-
-            <Link
-              href="/tournament"
-              className="mt-8 inline-flex rounded-full bg-[var(--golf-green)] px-6 py-3 font-semibold text-white transition hover:opacity-90"
-            >
-              View Tournament Details
-            </Link>
-          </div>
-        </div>
+        </Container>
       </section>
-    </main>
+
+      <section className="bg-slate-50 py-24">
+        <Container>
+          <div className="grid gap-16 lg:grid-cols-2 lg:items-center">
+            <div>
+              <SectionHeading
+                eyebrow="Military Service"
+                title="Leading from the front."
+              >
+                <p>
+                  Chad dedicated his career to serving the Nation and leading
+                  Soldiers with humility, professionalism, and unwavering
+                  integrity. Those who served with him remember not only his
+                  accomplishments, but the way he made the people around him
+                  better.
+                </p>
+              </SectionHeading>
+            </div>
+
+            <Image
+              src="/images/chad/chad-team.jpg"
+              alt="Chad Miller with his military team"
+              width={900}
+              height={650}
+              className="h-auto w-full rounded-3xl shadow-xl"
+            />
+          </div>
+        </Container>
+      </section>
+
+      <section className="py-24">
+        <Container>
+          <div className="grid gap-16 lg:grid-cols-2 lg:items-center">
+            <Image
+              src="/images/chad/chad-motorcycle-group.jpg"
+              alt="Chad Miller with friends on a motorcycle trip"
+              width={900}
+              height={650}
+              className="h-auto w-full rounded-3xl shadow-xl"
+            />
+
+            <SectionHeading
+              eyebrow="Beyond the Uniform"
+              title="Friendship, adventure, and a full life."
+            >
+              <p>
+                Chad’s life was defined by more than his military service. He
+                valued friendship, family, adventure, and the shared experiences
+                that bring people together. The tournament reflects that same
+                spirit through fellowship, remembrance, and community.
+              </p>
+            </SectionHeading>
+          </div>
+        </Container>
+      </section>
+    </>
   );
 }

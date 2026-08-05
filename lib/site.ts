@@ -1,18 +1,47 @@
+import { tournament } from "./tournament";
+
 export const siteConfig = {
-  name: "Sergeant Major Chad Miller Memorial Golf Tournament",
-  shortName: "SGM Chad Miller Memorial",
+  name: tournament.name,
+
   description:
-    "A memorial golf tournament supporting The Honor Foundation Fort Bragg Chapters and the Joint Special Operations community.",
+    "Honoring Sergeant Major Chad Miller through a memorial golf tournament supporting The Honor Foundation Fort Bragg Chapters.",
+
   location: {
-    course: "Hyland Golf Club",
-    city: "Southern Pines",
-    state: "North Carolina",
+    venue: tournament.venue.name,
+    city: tournament.venue.city,
+    state: tournament.venue.state,
   },
+
   navigation: [
-    { href: "/about", label: "About" },
-    { href: "/tournament", label: "Tournament" },
-    { href: "/sponsors", label: "Sponsors" },
-    { href: "/register", label: "Register" },
-    { href: "/contact", label: "Contact" },
+    {
+      href: "/",
+      label: "Home",
+    },
+    {
+      href: "/about",
+      label: "About",
+    },
+    {
+      href: "/tournament",
+      label: "Tournament",
+    },
+    {
+      href: "/sponsors",
+      label: "Sponsors",
+    },
+    {
+      href: "/register",
+      label: "Get Involved",
+    },
+    {
+      href: "/contact",
+      label: "Contact",
+    },
   ],
+
+  social: {
+    facebook: "",
+    instagram: "",
+    linkedin: "",
+  },
 };
