@@ -7,6 +7,7 @@ import { useState } from "react";
 
 const navItems = [
   { href: "/about", label: "About" },
+  { href: "/mission", label: "Mission" },
   { href: "/tournament", label: "Tournament" },
   { href: "/sponsors", label: "Sponsors" },
   { href: "/register", label: "Join Us" },
@@ -37,7 +38,7 @@ export default function Navbar() {
           </span>
         </Link>
 
-        <div className="hidden items-center gap-7 md:flex">
+        <div className="hidden items-center gap-6 md:flex">
           {navItems.map((item) => (
             <Link
               key={item.href}

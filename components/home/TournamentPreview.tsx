@@ -10,7 +10,7 @@ export default function TournamentPreview() {
       <Container>
         <SectionHeading
           eyebrow="Tournament"
-          title={siteConfig.location.course}
+          title={siteConfig.location.venue}
         >
           <p>
             Join us in {siteConfig.location.city},{" "}
@@ -27,7 +27,7 @@ export default function TournamentPreview() {
 
             <p className="mt-4 text-slate-600">
               Registration, schedule, sponsorship opportunities, and event
-              details will be announced soon.
+              details are available on the Tournament page.
             </p>
 
             <Link

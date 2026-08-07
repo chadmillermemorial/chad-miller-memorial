@@ -22,8 +22,7 @@ export default function TournamentPage() {
           <div className="relative flex min-h-[650px] items-end pb-20">
             <div className="max-w-3xl text-white">
               <p className="text-sm font-semibold uppercase tracking-[0.3em] text-[var(--brand-teal)]">
-                {tournament.venue.name} • {tournament.venue.city},{" "}
-                {tournament.venue.state}
+                {tournament.date} • {tournament.venue.name}
               </p>
 
               <h1 className="mt-5 text-5xl font-bold leading-tight md:text-7xl">
@@ -33,7 +32,7 @@ export default function TournamentPage() {
               </h1>
 
               <p className="mt-8 max-w-2xl text-xl leading-9 text-slate-200">
-                A day of golf, camaraderie, and remembrance supporting{" "}
+                A four-person scramble in Southern Pines supporting{" "}
                 {tournament.beneficiary}.
               </p>
 
@@ -102,7 +101,7 @@ export default function TournamentPage() {
                   {tournament.venue.city}, {tournament.venue.state}
                 </li>
                 <li>Classic Sandhills golf setting</li>
-                <li>Practice facilities</li>
+                <li>Practice range opens at 7:00 AM</li>
                 <li>Longleaf pines and rolling terrain</li>
               </ul>
             </article>
@@ -154,11 +153,11 @@ export default function TournamentPage() {
         <Container>
           <SectionHeading
             eyebrow="Event Schedule"
-            title="A full day of golf and fellowship."
+            title="A full day of golf, fellowship, and tribute."
           >
             <p>
-              Final event times will be added once the tournament schedule is
-              confirmed.
+              Volunteers begin setup at 6:00 AM, with player registration and
+              breakfast beginning at 7:00 AM.
             </p>
           </SectionHeading>
 
@@ -168,7 +167,7 @@ export default function TournamentPage() {
             <div className="space-y-8">
               {tournament.schedule.map((item) => (
                 <div
-                  key={item.event}
+                  key={`${item.time}-${item.event}`}
                   className="relative grid gap-3 pl-10 md:grid-cols-[130px_1fr] md:pl-0"
                 >
                   <div className="absolute left-0 top-2 h-4 w-4 rounded-full border-4 border-white bg-[var(--brand-teal)] shadow md:left-[152px]" />
@@ -185,6 +184,87 @@ export default function TournamentPage() {
                 </div>
               ))}
             </div>
+          </div>
+        </Container>
+      </section>
+
+      <section className="py-24">
+        <Container>
+          <SectionHeading
+            eyebrow="Food and Fellowship"
+            title="Local food throughout the day."
+          >
+            <p>
+              Breakfast and lunch are included with player registration.
+            </p>
+          </SectionHeading>
+
+          <div className="mt-14 grid gap-8 lg:grid-cols-2">
+            <article className="rounded-3xl bg-[var(--sand)] p-9 shadow-lg">
+              <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[var(--golf-green)]">
+                Breakfast
+              </p>
+
+              <h2 className="mt-4 text-3xl font-bold text-[var(--brand-navy)]">
+                Provided by {tournament.food.breakfast.provider}
+              </h2>
+
+              <p className="mt-5 leading-7 text-slate-600">
+                {tournament.food.breakfast.description}
+              </p>
+            </article>
+
+            <article className="rounded-3xl bg-[var(--brand-sky)] p-9 shadow-lg">
+              <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[var(--brand-blue)]">
+                Lunch
+              </p>
+
+              <h2 className="mt-4 text-3xl font-bold text-[var(--brand-navy)]">
+                Provided by {tournament.food.lunch.provider}
+              </h2>
+
+              <p className="mt-5 leading-7 text-slate-600">
+                {tournament.food.lunch.description}
+              </p>
+            </article>
+          </div>
+        </Container>
+      </section>
+
+      <section className="bg-slate-50 py-24">
+        <Container>
+          <div className="grid gap-8 lg:grid-cols-2">
+            <article className="rounded-3xl bg-white p-9 shadow-lg">
+              <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[var(--brand-blue)]">
+                Dress Code
+              </p>
+
+              <h2 className="mt-4 text-3xl font-bold text-[var(--brand-navy)]">
+                {tournament.dressCode.title}
+              </h2>
+
+              <p className="mt-6 leading-8 text-slate-600">
+                {tournament.dressCode.description}
+              </p>
+            </article>
+
+            <article className="rounded-3xl bg-white p-9 shadow-lg">
+              <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[var(--brand-blue)]">
+                Weather
+              </p>
+
+              <h2 className="mt-4 text-3xl font-bold text-[var(--brand-navy)]">
+                {tournament.rainPolicy.title}
+              </h2>
+
+              <div className="mt-6 space-y-4 text-slate-600">
+                {tournament.rainPolicy.paragraphs.map((paragraph) => (
+                  <p key={paragraph} className="leading-7">
+                    {paragraph}
+                  </p>
+                ))}
+              </div>
+            </article>
           </div>
         </Container>
       </section>
@@ -225,7 +305,7 @@ export default function TournamentPage() {
       <section className="bg-[var(--brand-sky)] py-24 text-center">
         <Container>
           <h2 className="mx-auto max-w-3xl text-4xl font-bold text-[var(--brand-navy)] md:text-5xl">
-            Join us in honoring Sergeant Major Chad Miller.
+            Join us on {tournament.date}.
           </h2>
 
           <p className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-slate-600">
