@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Container from "@/components/ui/Container";
 
 const shirtSizes = ["S", "M", "L", "XL", "2XL", "3XL"];
@@ -132,10 +132,6 @@ function PlayerFields({
               </option>
             ))}
           </select>
-
-          <p className="mt-2 text-sm text-slate-500">
-            Shirts use men&apos;s/unisex sizing.
-          </p>
         </label>
 
         <label className="block">
@@ -160,12 +156,50 @@ export default function PlayerRegistrationPage() {
   const [registrationType, setRegistrationType] =
     useState<RegistrationType>("individual");
 
+  const [remainingSpots, setRemainingSpots] =
+    useState<number | null>(null);
+
+  const [capacityError, setCapacityError] =
+    useState(false);
+
+  useEffect(() => {
+    async function loadCapacity() {
+      try {
+        const response = await fetch("/api/player-capacity", {
+          cache: "no-store",
+        });
+
+        const result = await response.json();
+
+        if (!result.ok) {
+          throw new Error("Capacity unavailable.");
+        }
+
+        setRemainingSpots(result.remaining);
+      } catch (error) {
+        console.error("Unable to load capacity:", error);
+        setCapacityError(true);
+      }
+    }
+
+    loadCapacity();
+  }, []);
+
   const selectedOption = registrationOptions.find(
     (option) => option.type === registrationType
   )!;
 
   const playerCount = selectedOption.players;
   const registrationTotal = selectedOption.price;
+
+  const registrationFull = remainingSpots === 0;
+
+  function optionUnavailable(players: number) {
+    return (
+      remainingSpots !== null &&
+      players > remainingSpots
+    );
+  }
 
   return (
     <>
@@ -217,19 +251,49 @@ export default function PlayerRegistrationPage() {
               value={playerCount}
             />
 
-            <input
-              type="hidden"
-              name="registrationTotal"
-              value={registrationTotal}
-            />
+            <div className="mb-8 rounded-3xl bg-white p-8 text-center shadow-sm">
+              {remainingSpots === null && !capacityError && (
+                <p className="text-lg font-semibold text-slate-600">
+                  Checking tournament availability...
+                </p>
+              )}
 
-            {playerCount < 4 && (
-              <input
-                type="hidden"
-                name="needsPairing"
-                value="on"
-              />
-            )}
+              {remainingSpots !== null && remainingSpots > 0 && (
+                <>
+                  <p className="text-sm font-semibold uppercase tracking-[0.25em] text-[var(--brand-blue)]">
+                    Tournament Availability
+                  </p>
+
+                  <p className="mt-3 text-4xl font-bold text-[var(--brand-navy)]">
+                    {remainingSpots}{" "}
+                    {remainingSpots === 1 ? "spot" : "spots"} remaining
+                  </p>
+
+                  <p className="mt-2 text-slate-500">
+                    Maximum field: 128 golfers
+                  </p>
+                </>
+              )}
+
+              {registrationFull && (
+                <>
+                  <p className="text-sm font-semibold uppercase tracking-[0.25em] text-red-600">
+                    Registration Full
+                  </p>
+
+                  <p className="mt-3 text-3xl font-bold text-[var(--brand-navy)]">
+                    The 128-player field is full.
+                  </p>
+                </>
+              )}
+
+              {capacityError && (
+                <p className="text-slate-600">
+                  Live availability could not be displayed. Final availability
+                  will be confirmed before checkout.
+                </p>
+              )}
+            </div>
 
             <div className="rounded-3xl bg-white p-8 shadow-lg md:p-10">
               <p className="text-sm font-semibold uppercase tracking-[0.25em] text-[var(--brand-blue)]">
@@ -241,193 +305,220 @@ export default function PlayerRegistrationPage() {
               </h2>
 
               <div className="mt-8 grid gap-5 md:grid-cols-2">
-                {registrationOptions.map((option) => (
-                  <button
-                    key={option.type}
-                    type="button"
-                    onClick={() => setRegistrationType(option.type)}
-                    className={`rounded-3xl border-2 p-7 text-left transition ${
-                      registrationType === option.type
-                        ? "border-[var(--brand-blue)] bg-[var(--brand-sky)]"
-                        : "border-slate-200 bg-white hover:border-slate-300"
-                    }`}
-                  >
-                    <p className="text-2xl font-bold text-[var(--brand-navy)]">
-                      {option.title}
-                    </p>
+                {registrationOptions.map((option) => {
+                  const unavailable = optionUnavailable(
+                    option.players
+                  );
 
-                    <p className="mt-2 text-slate-600">
-                      {option.description}
-                    </p>
+                  return (
+                    <button
+                      key={option.type}
+                      type="button"
+                      disabled={unavailable}
+                      onClick={() =>
+                        setRegistrationType(option.type)
+                      }
+                      className={`rounded-3xl border-2 p-7 text-left transition ${
+                        unavailable
+                          ? "cursor-not-allowed border-slate-200 bg-slate-100 opacity-50"
+                          : registrationType === option.type
+                          ? "border-[var(--brand-blue)] bg-[var(--brand-sky)]"
+                          : "border-slate-200 bg-white hover:border-slate-300"
+                      }`}
+                    >
+                      <p className="text-2xl font-bold text-[var(--brand-navy)]">
+                        {option.title}
+                      </p>
 
-                    <p className="mt-5 text-3xl font-bold text-[var(--brand-blue)]">
-                      ${option.price}
-                    </p>
-                  </button>
-                ))}
+                      <p className="mt-2 text-slate-600">
+                        {option.description}
+                      </p>
+
+                      <p className="mt-5 text-3xl font-bold text-[var(--brand-blue)]">
+                        ${option.price}
+                      </p>
+
+                      {unavailable && (
+                        <p className="mt-3 text-sm font-semibold text-red-600">
+                          Not enough spots remaining
+                        </p>
+                      )}
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
-            <div className="mt-8 rounded-3xl bg-[var(--brand-sky)] p-8">
-              <h2 className="text-3xl font-bold text-[var(--brand-navy)]">
-                Tournament Registration
-              </h2>
-
-              <p className="mt-4 leading-7 text-slate-600">
-                Each $75 player registration includes 18 holes of golf, golf
-                cart, practice range access, breakfast, lunch, player gift,
-                tournament contests, and the post-round tribute and awards
-                program.
-              </p>
-
-              <div className="mt-6 flex items-center justify-between border-t border-[var(--brand-blue)]/20 pt-6">
-                <span className="font-semibold text-[var(--brand-navy)]">
-                  Registration Total
-                </span>
-
-                <span className="text-3xl font-bold text-[var(--brand-blue)]">
-                  ${registrationTotal}
-                </span>
-              </div>
-            </div>
-
-            <div className="mt-8 space-y-8">
-              {Array.from({ length: playerCount }, (_, index) => (
-                <PlayerFields
-                  key={index + 1}
-                  playerNumber={index + 1}
-                />
-              ))}
-            </div>
-
-            {playerCount < 4 && (
-              <div className="mt-8 rounded-3xl bg-white p-8 shadow-sm">
-                <h2 className="text-2xl font-bold text-[var(--brand-navy)]">
-                  Pairing
-                </h2>
-
-                <p className="mt-4 leading-7 text-slate-600">
-                  Your registered group will stay together. We will pair you
-                  with other registered golfers as needed to complete a
-                  foursome.
-                </p>
-              </div>
-            )}
-
-            {playerCount > 1 && (
-              <div className="mt-8 rounded-3xl bg-white p-8 shadow-sm">
-                <h2 className="text-2xl font-bold text-[var(--brand-navy)]">
-                  Team Information
-                </h2>
-
-                <label className="mt-6 block">
-                  <span className="font-semibold">Team Name</span>
-
-                  <input
-                    name="teamName"
-                    type="text"
-                    placeholder="Optional"
-                    className="mt-2 w-full rounded-xl border border-slate-300 px-4 py-3"
-                  />
-                </label>
-              </div>
-            )}
-
-            <div className="mt-8 rounded-3xl bg-white p-8 shadow-sm">
-              <h2 className="text-2xl font-bold text-[var(--brand-navy)]">
-                Emergency Contact
-              </h2>
-
-              <p className="mt-2 text-slate-500">
-                One emergency contact is required for the registration.
-              </p>
-
-              <div className="mt-6 grid gap-6 md:grid-cols-2">
-                <label className="block">
-                  <span className="font-semibold">Contact Name *</span>
-
-                  <input
-                    required
-                    name="emergencyContactName"
-                    type="text"
-                    className="mt-2 w-full rounded-xl border border-slate-300 px-4 py-3"
-                  />
-                </label>
-
-                <label className="block">
-                  <span className="font-semibold">Contact Phone *</span>
-
-                  <input
-                    required
-                    name="emergencyContactPhone"
-                    type="tel"
-                    className="mt-2 w-full rounded-xl border border-slate-300 px-4 py-3"
-                  />
-                </label>
-              </div>
-            </div>
-
-            <div className="mt-8 rounded-3xl bg-white p-8 shadow-sm">
-              <h2 className="text-2xl font-bold text-[var(--brand-navy)]">
-                Acknowledgments
-              </h2>
-
-              <label className="mt-6 flex items-start gap-3">
-                <input
-                  required
-                  name="rulesAcknowledgment"
-                  type="checkbox"
-                  className="mt-1 h-5 w-5"
-                />
-
-                <span className="leading-7 text-slate-600">
-                  I acknowledge the tournament rules, dress code, and weather
-                  policy.
-                </span>
-              </label>
-
-              <label className="mt-5 flex items-start gap-3">
-                <input
-                  required
-                  name="photoRelease"
-                  type="checkbox"
-                  className="mt-1 h-5 w-5"
-                />
-
-                <span className="leading-7 text-slate-600">
-                  I authorize photographs and video taken during the event to
-                  be used for tournament communications, promotion, and future
-                  event materials.
-                </span>
-              </label>
-            </div>
-
-            <div className="mt-10 rounded-3xl bg-[var(--brand-navy)] p-8 text-white md:p-10">
-              <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
-                <div>
-                  <p className="text-sm font-semibold uppercase tracking-[0.25em] text-[var(--brand-teal)]">
-                    Secure Checkout
-                  </p>
-
-                  <h2 className="mt-3 text-3xl font-bold">
-                    Registration Total: ${registrationTotal}
+            {!registrationFull && (
+              <>
+                <div className="mt-8 rounded-3xl bg-[var(--brand-sky)] p-8">
+                  <h2 className="text-3xl font-bold text-[var(--brand-navy)]">
+                    Tournament Registration
                   </h2>
 
-                  <p className="mt-4 max-w-xl leading-7 text-slate-300">
-                    Review all player information before continuing. Your
-                    registration will not be complete until payment is
-                    successfully received.
+                  <p className="mt-4 leading-7 text-slate-600">
+                    Each $75 player registration includes 18 holes of golf,
+                    golf cart, practice range access, breakfast, lunch,
+                    player gift, tournament contests, and the post-round
+                    tribute and awards program.
                   </p>
+
+                  <div className="mt-6 flex items-center justify-between border-t border-[var(--brand-blue)]/20 pt-6">
+                    <span className="font-semibold text-[var(--brand-navy)]">
+                      Registration Total
+                    </span>
+
+                    <span className="text-3xl font-bold text-[var(--brand-blue)]">
+                      ${registrationTotal}
+                    </span>
+                  </div>
                 </div>
 
-                <button
-                  type="submit"
-                  className="shrink-0 rounded-full bg-[var(--brand-teal)] px-8 py-4 font-semibold text-white transition hover:opacity-90"
-                >
-                  Continue to Secure Payment — ${registrationTotal}
-                </button>
-              </div>
-            </div>
+                <div className="mt-8 space-y-8">
+                  {Array.from(
+                    { length: playerCount },
+                    (_, index) => (
+                      <PlayerFields
+                        key={index + 1}
+                        playerNumber={index + 1}
+                      />
+                    )
+                  )}
+                </div>
+
+                {playerCount < 4 && (
+                  <div className="mt-8 rounded-3xl bg-white p-8 shadow-sm">
+                    <h2 className="text-2xl font-bold text-[var(--brand-navy)]">
+                      Pairing
+                    </h2>
+
+                    <p className="mt-4 leading-7 text-slate-600">
+                      Your registered group will stay together. We will pair
+                      you with other registered golfers as needed to complete
+                      a foursome.
+                    </p>
+                  </div>
+                )}
+
+                {playerCount > 1 && (
+                  <div className="mt-8 rounded-3xl bg-white p-8 shadow-sm">
+                    <h2 className="text-2xl font-bold text-[var(--brand-navy)]">
+                      Team Information
+                    </h2>
+
+                    <label className="mt-6 block">
+                      <span className="font-semibold">
+                        Team Name
+                      </span>
+
+                      <input
+                        name="teamName"
+                        type="text"
+                        placeholder="Optional"
+                        className="mt-2 w-full rounded-xl border border-slate-300 px-4 py-3"
+                      />
+                    </label>
+                  </div>
+                )}
+
+                <div className="mt-8 rounded-3xl bg-white p-8 shadow-sm">
+                  <h2 className="text-2xl font-bold text-[var(--brand-navy)]">
+                    Emergency Contact
+                  </h2>
+
+                  <div className="mt-6 grid gap-6 md:grid-cols-2">
+                    <label className="block">
+                      <span className="font-semibold">
+                        Contact Name *
+                      </span>
+
+                      <input
+                        required
+                        name="emergencyContactName"
+                        type="text"
+                        className="mt-2 w-full rounded-xl border border-slate-300 px-4 py-3"
+                      />
+                    </label>
+
+                    <label className="block">
+                      <span className="font-semibold">
+                        Contact Phone *
+                      </span>
+
+                      <input
+                        required
+                        name="emergencyContactPhone"
+                        type="tel"
+                        className="mt-2 w-full rounded-xl border border-slate-300 px-4 py-3"
+                      />
+                    </label>
+                  </div>
+                </div>
+
+                <div className="mt-8 rounded-3xl bg-white p-8 shadow-sm">
+                  <h2 className="text-2xl font-bold text-[var(--brand-navy)]">
+                    Acknowledgments
+                  </h2>
+
+                  <label className="mt-6 flex items-start gap-3">
+                    <input
+                      required
+                      name="rulesAcknowledgment"
+                      type="checkbox"
+                      className="mt-1 h-5 w-5"
+                    />
+
+                    <span className="leading-7 text-slate-600">
+                      I acknowledge the tournament rules, dress code, and
+                      weather policy.
+                    </span>
+                  </label>
+
+                  <label className="mt-5 flex items-start gap-3">
+                    <input
+                      required
+                      name="photoRelease"
+                      type="checkbox"
+                      className="mt-1 h-5 w-5"
+                    />
+
+                    <span className="leading-7 text-slate-600">
+                      I authorize photographs and video taken during the event
+                      to be used for tournament communications, promotion, and
+                      future event materials.
+                    </span>
+                  </label>
+                </div>
+
+                <div className="mt-10 rounded-3xl bg-[var(--brand-navy)] p-8 text-white md:p-10">
+                  <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+                    <div>
+                      <p className="text-sm font-semibold uppercase tracking-[0.25em] text-[var(--brand-teal)]">
+                        Secure Checkout
+                      </p>
+
+                      <h2 className="mt-3 text-3xl font-bold">
+                        Registration Total: ${registrationTotal}
+                      </h2>
+
+                      <p className="mt-4 max-w-xl leading-7 text-slate-300">
+                        Your spots will be held for 30 minutes while you
+                        complete secure payment.
+                      </p>
+                    </div>
+
+                    <button
+                      type="submit"
+                      disabled={optionUnavailable(playerCount)}
+                      className="shrink-0 rounded-full bg-[var(--brand-teal)] px-8 py-4 font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      Continue to Secure Payment — $
+                      {registrationTotal}
+                    </button>
+                  </div>
+                </div>
+              </>
+            )}
           </form>
         </Container>
       </section>
