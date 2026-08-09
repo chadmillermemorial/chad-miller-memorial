@@ -5,6 +5,9 @@ export const runtime = "nodejs";
 
 const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
 
+const GOOGLE_SCRIPT_URL =
+  "https://script.google.com/macros/s/AKfycbzwwzOmHMHnTlPmw8eOQ4RtzOAisgAmEjm1wxc-aK6_bplj8ZYFHxNuCrBSBJlym1UcDg/exec";
+
 type RegistrationType =
   | "individual"
   | "pair"
@@ -19,6 +22,8 @@ const playerCounts: Record<RegistrationType, number> = {
 };
 
 export async function POST(request: Request) {
+  let capacityHoldId = "";
+
   try {
     if (!stripeSecretKey) {
       throw new Error("STRIPE_SECRET_KEY is not configured.");
@@ -40,25 +45,18 @@ export async function POST(request: Request) {
     const players = [1, 2, 3, 4].map((number) => ({
       firstName:
         formData.get(`player${number}FirstName`)?.toString().trim() || "",
-
       lastName:
         formData.get(`player${number}LastName`)?.toString().trim() || "",
-
       email:
         formData.get(`player${number}Email`)?.toString().trim() || "",
-
       phone:
         formData.get(`player${number}Phone`)?.toString().trim() || "",
-
       handicap:
         formData.get(`player${number}Handicap`)?.toString().trim() || "",
-
       ghin:
         formData.get(`player${number}Ghin`)?.toString().trim() || "",
-
       shirtSize:
         formData.get(`player${number}ShirtSize`)?.toString().trim() || "",
-
       teeSelection:
         formData.get(`player${number}TeeSelection`)?.toString().trim() || "",
     }));
@@ -105,6 +103,36 @@ export async function POST(request: Request) {
     const teamName =
       formData.get("teamName")?.toString().trim() || "";
 
+    // Reserve the requested player spots before opening Stripe Checkout.
+    const capacityResponse = await fetch(GOOGLE_SCRIPT_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        action: "reserveCapacity",
+        playerCount,
+      }),
+    });
+
+    const capacityResult = await capacityResponse.json();
+
+    if (!capacityResult.ok) {
+      return NextResponse.json(
+        {
+          ok: false,
+          registrationFull: capacityResult.full || false,
+          remaining: capacityResult.remaining ?? 0,
+          error:
+            capacityResult.message ||
+            "There are not enough tournament spots remaining.",
+        },
+        { status: 409 }
+      );
+    }
+
+    capacityHoldId = capacityResult.holdId;
+
     const metadata: Record<string, string> = {
       registrationType,
       playerCount: String(playerCount),
@@ -114,6 +142,7 @@ export async function POST(request: Request) {
       emergencyContactPhone,
       rulesAcknowledgment: "Yes",
       photoRelease: "Yes",
+      capacityHoldId,
     };
 
     activePlayers.forEach((player, index) => {
@@ -129,21 +158,13 @@ export async function POST(request: Request) {
       metadata[`p${number}Tee`] = player.teeSelection;
     });
 
-    const origin = new URL(request.url).origin;
-
     let registrationLabel = "Individual Registration";
 
-    if (playerCount === 2) {
-      registrationLabel = "Pair Registration";
-    }
+    if (playerCount === 2) registrationLabel = "Pair Registration";
+    if (playerCount === 3) registrationLabel = "Threesome Registration";
+    if (playerCount === 4) registrationLabel = "Foursome Registration";
 
-    if (playerCount === 3) {
-      registrationLabel = "Threesome Registration";
-    }
-
-    if (playerCount === 4) {
-      registrationLabel = "Foursome Registration";
-    }
+    const origin = new URL(request.url).origin;
 
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
@@ -154,15 +175,12 @@ export async function POST(request: Request) {
         {
           price_data: {
             currency: "usd",
-
             product_data: {
               name: "SGM Chad Miller Memorial Golf Tournament",
               description: registrationLabel,
             },
-
             unit_amount: 7500,
           },
-
           quantity: playerCount,
         },
       ],
@@ -174,6 +192,8 @@ export async function POST(request: Request) {
 
       cancel_url:
         `${origin}/register/player`,
+
+      expires_at: Math.floor(Date.now() / 1000) + 30 * 60,
     });
 
     if (!session.url) {
@@ -181,23 +201,36 @@ export async function POST(request: Request) {
     }
 
     return NextResponse.redirect(session.url, 303);
-
   } catch (error) {
-    console.error("Player registration checkout error:", error);
+    // If Stripe fails after we reserved spots, release the hold.
+    if (capacityHoldId) {
+      try {
+        await fetch(GOOGLE_SCRIPT_URL, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            action: "releaseCapacity",
+            holdId: capacityHoldId,
+          }),
+        });
+      } catch (releaseError) {
+        console.error("Could not release capacity hold:", releaseError);
+      }
+    }
 
-    const message =
-      error instanceof Error
-        ? error.message
-        : "An unknown registration error occurred.";
+    console.error("Player registration checkout error:", error);
 
     return NextResponse.json(
       {
         ok: false,
-        error: message,
+        error:
+          error instanceof Error
+            ? error.message
+            : "An unknown registration error occurred.",
       },
-      {
-        status: 500,
-      }
+      { status: 500 }
     );
   }
 }

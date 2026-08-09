@@ -55,7 +55,6 @@ export async function POST(request: Request) {
     }
 
     const metadata = session.metadata || {};
-
     const playerCount = Number(metadata.playerCount || "1");
 
     const players = [];
@@ -73,21 +72,29 @@ export async function POST(request: Request) {
       });
     }
 
+    const totalPaid = (session.amount_total || 0) / 100;
+
+    const amountPerPlayer =
+      playerCount > 0 ? totalPaid / playerCount : 0;
+
     const registration = {
       registrationId: session.id,
+
       paymentStatus: "Paid",
-      paymentAmount: (session.amount_total || 0) / 100,
+      paymentAmount: amountPerPlayer,
 
       teamName: metadata.teamName || "",
 
-      needsPairing:
-        metadata.needsPairing === "Yes",
+      needsPairing: metadata.needsPairing === "Yes",
 
       emergencyContactName:
         metadata.emergencyContactName || "",
 
       emergencyContactPhone:
         metadata.emergencyContactPhone || "",
+
+      capacityHoldId:
+        metadata.capacityHoldId || "",
 
       stripeSessionId: session.id,
 
@@ -112,13 +119,12 @@ export async function POST(request: Request) {
 
     if (!googleResult.ok) {
       throw new Error(
-        googleResult.error || "Google Sheets rejected the registration."
+        googleResult.error ||
+          "Google Sheets rejected the registration."
       );
     }
 
-    console.log(
-      `Paid registration saved: ${session.id}`
-    );
+    console.log(`Paid registration saved: ${session.id}`);
 
     return NextResponse.json({
       received: true,
