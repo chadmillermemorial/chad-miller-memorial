@@ -1,193 +1,134 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
 
-const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
+export const runtime = "nodejs";
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
+
+const GOOGLE_SCRIPT_URL =
+  "https://script.google.com/macros/s/AKfycbzwwzOmHMHnTlPmw8eOQ4RtzOAisgAmEjm1wxc-aK6_bplj8ZYFHxNuCrBSBJlym1UcDg/exec";
 
 export async function POST(request: Request) {
   try {
-    if (!stripeSecretKey) {
-      throw new Error(
-        "STRIPE_SECRET_KEY is missing. Check .env.local and restart npm run dev."
+    const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+
+    if (!webhookSecret) {
+      throw new Error("STRIPE_WEBHOOK_SECRET is not configured.");
+    }
+
+    const signature = request.headers.get("stripe-signature");
+
+    if (!signature) {
+      return NextResponse.json(
+        { error: "Missing Stripe signature." },
+        { status: 400 }
       );
     }
 
-    if (!stripeSecretKey.startsWith("sk_test_")) {
-      throw new Error(
-        `STRIPE_SECRET_KEY is the wrong kind of key. It currently starts with "${stripeSecretKey.slice(
-          0,
-          8
-        )}". For local testing it must start with "sk_test_".`
+    const body = await request.text();
+
+    let event: Stripe.Event;
+
+    try {
+      event = stripe.webhooks.constructEvent(
+        body,
+        signature,
+        webhookSecret
+      );
+    } catch (error) {
+      console.error("Webhook signature verification failed:", error);
+
+      return NextResponse.json(
+        { error: "Invalid webhook signature." },
+        { status: 400 }
       );
     }
 
-    const stripe = new Stripe(stripeSecretKey);
-
-    const formData = await request.formData();
-
-    const registrationType = String(
-      formData.get("registrationType") || "individual"
-    );
-
-    if (
-      registrationType !== "individual" &&
-      registrationType !== "foursome"
-    ) {
-      throw new Error(`Invalid registrationType: ${registrationType}`);
+    if (event.type !== "checkout.session.completed") {
+      return NextResponse.json({ received: true });
     }
 
-    const playerCount = registrationType === "foursome" ? 4 : 1;
+    const session = event.data.object as Stripe.Checkout.Session;
 
-    const players = [1, 2, 3, 4].map((number) => ({
-      firstName: String(formData.get(`player${number}FirstName`) || ""),
-      lastName: String(formData.get(`player${number}LastName`) || ""),
-      email: String(formData.get(`player${number}Email`) || ""),
-      phone: String(formData.get(`player${number}Phone`) || ""),
-      handicap: String(formData.get(`player${number}Handicap`) || ""),
-      ghin: String(formData.get(`player${number}Ghin`) || ""),
-      shirtSize: String(formData.get(`player${number}ShirtSize`) || ""),
-      teeSelection: String(
-        formData.get(`player${number}TeeSelection`) || ""
-      ),
-    }));
-
-    const activePlayers = players.slice(0, playerCount);
-
-    for (let i = 0; i < activePlayers.length; i++) {
-      const player = activePlayers[i];
-
-      if (
-        !player.firstName ||
-        !player.lastName ||
-        !player.email ||
-        !player.phone ||
-        !player.shirtSize ||
-        !player.teeSelection
-      ) {
-        throw new Error(
-          `Player ${i + 1} is missing required information.`
-        );
-      }
+    if (session.payment_status !== "paid") {
+      return NextResponse.json({ received: true });
     }
 
-    const emergencyContactName = String(
-      formData.get("emergencyContactName") || ""
-    );
+    const metadata = session.metadata || {};
+    const playerCount = Number(metadata.playerCount || "1");
 
-    const emergencyContactPhone = String(
-      formData.get("emergencyContactPhone") || ""
-    );
+    const players = [];
 
-    if (!emergencyContactName || !emergencyContactPhone) {
-      throw new Error("Emergency contact information is required.");
+    for (let number = 1; number <= playerCount; number++) {
+      players.push({
+        firstName: metadata[`p${number}FirstName`] || "",
+        lastName: metadata[`p${number}LastName`] || "",
+        email: metadata[`p${number}Email`] || "",
+        phone: metadata[`p${number}Phone`] || "",
+        handicap: metadata[`p${number}Handicap`] || "",
+        ghin: metadata[`p${number}Ghin`] || "",
+        shirtSize: metadata[`p${number}ShirtSize`] || "",
+        teeSelection: metadata[`p${number}Tee`] || "",
+      });
     }
 
-    const rulesAcknowledgment =
-      formData.get("rulesAcknowledgment") === "on";
+    const totalPaid = (session.amount_total || 0) / 100;
+    const amountPerPlayer =
+      playerCount > 0 ? totalPaid / playerCount : 0;
 
-    const photoRelease = formData.get("photoRelease") === "on";
+    const registration = {
+      registrationId: session.id,
+      paymentStatus: "Paid",
+      paymentAmount: amountPerPlayer,
 
-    if (!rulesAcknowledgment) {
-      throw new Error("Tournament rules acknowledgment is required.");
-    }
+      teamName: metadata.teamName || "",
 
-    if (!photoRelease) {
-      throw new Error("Photo release acknowledgment is required.");
-    }
+      needsPairing: metadata.needsPairing === "Yes",
 
-    const teamName = String(formData.get("teamName") || "");
-    const needsPairing = formData.get("needsPairing") === "on";
+      emergencyContactName:
+        metadata.emergencyContactName || "",
 
-    const metadata: Record<string, string> = {
-      registrationType,
-      playerCount: String(playerCount),
-      teamName,
-      needsPairing: needsPairing ? "Yes" : "No",
-      emergencyContactName,
-      emergencyContactPhone,
-      rulesAcknowledgment: "Yes",
-      photoRelease: "Yes",
+      emergencyContactPhone:
+        metadata.emergencyContactPhone || "",
+
+      stripeSessionId: session.id,
+
+      players,
     };
 
-    activePlayers.forEach((player, index) => {
-      const number = index + 1;
-
-      metadata[`p${number}FirstName`] = player.firstName;
-      metadata[`p${number}LastName`] = player.lastName;
-      metadata[`p${number}Email`] = player.email;
-      metadata[`p${number}Phone`] = player.phone;
-      metadata[`p${number}Handicap`] = player.handicap;
-      metadata[`p${number}Ghin`] = player.ghin;
-      metadata[`p${number}ShirtSize`] = player.shirtSize;
-      metadata[`p${number}Tee`] = player.teeSelection;
+    const googleResponse = await fetch(GOOGLE_SCRIPT_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(registration),
     });
 
-    const origin = new URL(request.url).origin;
+    if (!googleResponse.ok) {
+      throw new Error(
+        `Google Sheets returned status ${googleResponse.status}`
+      );
+    }
 
-    const session = await stripe.checkout.sessions.create({
-      mode: "payment",
-      customer_email: activePlayers[0].email,
+    const googleResult = await googleResponse.json();
 
-      line_items: [
-        {
-          price_data: {
-            currency: "usd",
-            product_data: {
-              name: "SGM Chad Miller Memorial Golf Tournament",
-              description:
-                registrationType === "foursome"
-                  ? "Foursome Registration — 4 Players"
-                  : "Individual Player Registration",
-            },
-            unit_amount: 7500,
-          },
-          quantity: playerCount,
-        },
-      ],
+    if (!googleResult.ok) {
+      throw new Error(
+        googleResult.error || "Google Sheets rejected the registration."
+      );
+    }
 
-      metadata,
+    console.log(`Paid registration saved: ${session.id}`);
 
-      success_url: `${origin}/register/player/confirmation?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${origin}/register/player`,
+    return NextResponse.json({
+      received: true,
+      saved: true,
     });
-
-    if (!session.url) {
-      throw new Error("Stripe created a session but did not return a checkout URL.");
-    }
-
-    return NextResponse.redirect(session.url, 303);
-  } catch (error: unknown) {
-    console.error("Stripe checkout diagnostic error:", error);
-
-    let message = "Unknown checkout error";
-
-    if (error instanceof Error) {
-      message = error.message;
-    }
-
-    const stripeError = error as {
-      type?: string;
-      code?: string;
-      decline_code?: string;
-      param?: string;
-      raw?: {
-        message?: string;
-        type?: string;
-        code?: string;
-        param?: string;
-      };
-    };
+  } catch (error) {
+    console.error("Stripe webhook error:", error);
 
     return NextResponse.json(
-      {
-        ok: false,
-        diagnostic: {
-          message,
-          type: stripeError?.type || stripeError?.raw?.type || null,
-          code: stripeError?.code || stripeError?.raw?.code || null,
-          param: stripeError?.param || stripeError?.raw?.param || null,
-          rawMessage: stripeError?.raw?.message || null,
-        },
-      },
+      { error: "Webhook processing failed." },
       { status: 500 }
     );
   }
