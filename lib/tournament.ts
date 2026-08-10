@@ -15,7 +15,7 @@ export const tournament = {
 
   beneficiary: "The Honor Foundation Fort Bragg Chapters",
 
-  contactEmail: "chadmillermemorial@gmail.com",
+  contactEmail: "[chadmillermemorial@gmail.com](mailto\:chadmillermemorial@gmail.com)",
 
   registration: {
     playerLink: "/contact",
@@ -67,7 +67,7 @@ export const tournament = {
       "The tournament will be played rain or shine whenever Hyland Golf Course determines that conditions allow safe play.",
       "If weather causes a delay, tournament officials will work with the golf course to resume play as soon as practical.",
       "If severe weather prevents the tournament from being completed, lunch, the silent auction, the tribute program, and awards may continue when conditions permit.",
-      "Because this is a charitable fundraising event supporting The Honor Foundation Fort Bragg Chapters, registration fees and sponsorship contributions are generally non-refundable.",
+      "Because this is a fundraising event benefiting The Honor Foundation Fort Bragg Chapters, registration fees and sponsorship contributions are generally non-refundable.",
       "Any schedule changes or weather-related decisions will be communicated as quickly as possible.",
     ],
   },
