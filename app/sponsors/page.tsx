@@ -11,19 +11,40 @@ const sponsorLevels = [
     id: "hole" as SponsorLevel,
     name: "Hole Sponsor",
     amount: 500,
-    description: "Support the tournament as a hole sponsor.",
+    description: "Support the tournament with dedicated on-course visibility.",
+    benefits: [
+      "Dedicated sponsor sign at one tournament hole",
+      "Company name or logo on the tournament website",
+      "Recognition as a tournament sponsor",
+    ],
   },
   {
     id: "grey" as SponsorLevel,
     name: "Grey Sponsor",
     amount: 1000,
-    description: "Provide an elevated level of tournament support.",
+    description:
+      "Expanded visibility throughout the tournament and event areas.",
+    benefits: [
+      "Everything included with Hole Sponsorship",
+      "Larger placement on main tournament sponsor signage",
+      "Logo visibility in the registration and lunch areas",
+      "Recognition in tournament communications",
+    ],
   },
   {
     id: "blue" as SponsorLevel,
     name: "Blue Sponsor",
     amount: 2000,
-    description: "Our highest sponsorship level, beginning at $2,000.",
+    description:
+      "Premier event-level partnership with our highest level of recognition.",
+    benefits: [
+      "Everything included with Grey Sponsorship",
+      "Premier logo placement on major event signage",
+      "Company banner placement at the tournament",
+      "Prominent recognition during the tribute and awards program",
+      "Premier website placement",
+      "Opportunity to be associated with a major tournament feature",
+    ],
   },
 ];
 
@@ -108,7 +129,7 @@ export default function SponsorsPage() {
                     key={level.id}
                     type="button"
                     onClick={() => setSponsorLevel(level.id)}
-                    className={`rounded-3xl border-2 p-7 text-left transition ${
+                    className={`flex h-full flex-col rounded-3xl border-2 p-7 text-left transition ${
                       sponsorLevel === level.id
                         ? "border-[var(--brand-blue)] bg-[var(--brand-sky)]"
                         : "border-slate-200 bg-white hover:border-slate-300"
@@ -127,6 +148,27 @@ export default function SponsorsPage() {
                         ? "$2,000+"
                         : `$${level.amount.toLocaleString()}`}
                     </p>
+
+                    <div className="mt-6 border-t border-slate-300/70 pt-5">
+                      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
+                        Includes
+                      </p>
+
+                      <ul className="mt-3 space-y-2 text-sm leading-6 text-slate-600">
+                        {level.benefits.map((benefit) => (
+                          <li key={benefit} className="flex gap-2">
+                            <span
+                              aria-hidden="true"
+                              className="font-bold text-[var(--brand-teal)]"
+                            >
+                              ✓
+                            </span>
+
+                            <span>{benefit}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
                   </button>
                 ))}
               </div>
@@ -139,13 +181,13 @@ export default function SponsorsPage() {
                     </span>
 
                     <p className="mt-1 text-sm text-slate-500">
-                      Minimum $2,000.
+                      Blue Sponsorship begins at $2,000. Sponsors may increase
+                      their contribution to provide additional support to the
+                      tournament.
                     </p>
 
                     <div className="mt-3 flex max-w-sm items-center rounded-xl border border-slate-300 bg-white px-4">
-                      <span className="font-semibold text-slate-500">
-                        $
-                      </span>
+                      <span className="font-semibold text-slate-500">$</span>
 
                       <input
                         type="number"
@@ -161,6 +203,12 @@ export default function SponsorsPage() {
                   </label>
                 </div>
               )}
+
+              <p className="mt-8 text-sm leading-6 text-slate-500">
+                Major tournament-feature recognition for Blue Sponsors will be
+                coordinated with the tournament team based on availability and
+                sponsorship level.
+              </p>
             </div>
 
             <div className="mt-8 rounded-3xl bg-white p-8 shadow-sm md:p-10">
@@ -262,13 +310,12 @@ export default function SponsorsPage() {
                   </p>
 
                   <h2 className="mt-3 text-3xl font-bold">
-                    Sponsorship Total: $
-                    {amount.toLocaleString()}
+                    Sponsorship Total: ${amount.toLocaleString()}
                   </h2>
 
                   <p className="mt-4 max-w-xl leading-7 text-slate-300">
-                    Your sponsorship will be confirmed after secure payment
-                    is successfully completed.
+                    Your sponsorship will be confirmed after secure payment is
+                    successfully completed.
                   </p>
                 </div>
 
@@ -276,8 +323,7 @@ export default function SponsorsPage() {
                   type="submit"
                   className="shrink-0 rounded-full bg-[var(--brand-teal)] px-8 py-4 font-semibold text-white transition hover:opacity-90"
                 >
-                  Continue to Secure Payment — $
-                  {amount.toLocaleString()}
+                  Continue to Secure Payment — ${amount.toLocaleString()}
                 </button>
               </div>
             </div>
