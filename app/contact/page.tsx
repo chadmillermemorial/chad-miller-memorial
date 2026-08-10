@@ -18,9 +18,9 @@ const contactOptions = [
     button: "Email About Sponsorship",
   },
   {
-    title: "Volunteer or Donate",
+    title: "Volunteer or Donation Questions",
     description:
-      "Learn how to volunteer, contribute, or otherwise support the tournament.",
+      "Questions about volunteering, donations, or other ways to support the tournament.",
     href: "mailto:chadmillermemorial@gmail.com?subject=Volunteer or Donation",
     button: "Email the Tournament Team",
   },
@@ -29,7 +29,7 @@ const contactOptions = [
 export default function ContactPage() {
   return (
     <>
-      <section className="bg-[var(--brand-navy)] py-24 text-white md:py-32">
+      <section className="bg-[var(--brand-navy)] py-24 text-white">
         <Container>
           <div className="max-w-4xl">
             <p className="text-sm font-semibold uppercase tracking-[0.3em] text-[var(--brand-teal)]">
