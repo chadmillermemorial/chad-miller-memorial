@@ -36,7 +36,10 @@ export async function POST(request: Request) {
         webhookSecret
       );
     } catch (error) {
-      console.error("Webhook signature verification failed:", error);
+      console.error(
+        "Webhook signature verification failed:",
+        error
+      );
 
       return NextResponse.json(
         { error: "Invalid webhook signature." },
@@ -45,47 +48,127 @@ export async function POST(request: Request) {
     }
 
     if (event.type !== "checkout.session.completed") {
-      return NextResponse.json({ received: true });
-    }
-
-    const session = event.data.object as Stripe.Checkout.Session;
-
-    if (session.payment_status !== "paid") {
-      return NextResponse.json({ received: true });
-    }
-
-    const metadata = session.metadata || {};
-    const playerCount = Number(metadata.playerCount || "1");
-
-    const players = [];
-
-    for (let number = 1; number <= playerCount; number++) {
-      players.push({
-        firstName: metadata[`p${number}FirstName`] || "",
-        lastName: metadata[`p${number}LastName`] || "",
-        email: metadata[`p${number}Email`] || "",
-        phone: metadata[`p${number}Phone`] || "",
-        handicap: metadata[`p${number}Handicap`] || "",
-        ghin: metadata[`p${number}Ghin`] || "",
-        shirtSize: metadata[`p${number}ShirtSize`] || "",
-        teeSelection: metadata[`p${number}Tee`] || "",
+      return NextResponse.json({
+        received: true,
       });
     }
 
-    const totalPaid = (session.amount_total || 0) / 100;
+    const session =
+      event.data.object as Stripe.Checkout.Session;
+
+    if (session.payment_status !== "paid") {
+      return NextResponse.json({
+        received: true,
+      });
+    }
+
+    const metadata = session.metadata || {};
+
+    /*
+     * SPONSORSHIP PAYMENT
+     */
+    if (metadata.paymentType === "sponsorship") {
+      const sponsorship = {
+        paymentType: "sponsorship",
+
+        stripeSessionId: session.id,
+
+        company:
+          metadata.company || "",
+
+        contactName:
+          metadata.contactName || "",
+
+        email:
+          metadata.email || "",
+
+        phone:
+          metadata.phone || "",
+
+        website:
+          metadata.website || "",
+
+        sponsorshipName:
+          metadata.sponsorshipName || "",
+
+        sponsorAmount:
+          (session.amount_total || 0) / 100,
+
+        notes:
+          metadata.notes || "",
+      };
+
+      const googleResult =
+        await sendToGoogleSheets(sponsorship);
+
+      return NextResponse.json({
+        received: true,
+        saved: true,
+        type: "sponsorship",
+        googleResult,
+      });
+    }
+
+    /*
+     * PLAYER REGISTRATION PAYMENT
+     */
+    const playerCount =
+      Number(metadata.playerCount || "1");
+
+    const players = [];
+
+    for (
+      let number = 1;
+      number <= playerCount;
+      number++
+    ) {
+      players.push({
+        firstName:
+          metadata[`p${number}FirstName`] || "",
+
+        lastName:
+          metadata[`p${number}LastName`] || "",
+
+        email:
+          metadata[`p${number}Email`] || "",
+
+        phone:
+          metadata[`p${number}Phone`] || "",
+
+        handicap:
+          metadata[`p${number}Handicap`] || "",
+
+        ghin:
+          metadata[`p${number}Ghin`] || "",
+
+        shirtSize:
+          metadata[`p${number}ShirtSize`] || "",
+
+        teeSelection:
+          metadata[`p${number}Tee`] || "",
+      });
+    }
+
+    const totalPaid =
+      (session.amount_total || 0) / 100;
 
     const amountPerPlayer =
-      playerCount > 0 ? totalPaid / playerCount : 0;
+      playerCount > 0
+        ? totalPaid / playerCount
+        : 0;
 
     const registration = {
       registrationId: session.id,
 
       paymentStatus: "Paid",
+
       paymentAmount: amountPerPlayer,
 
-      teamName: metadata.teamName || "",
+      teamName:
+        metadata.teamName || "",
 
-      needsPairing: metadata.needsPairing === "Yes",
+      needsPairing:
+        metadata.needsPairing === "Yes",
 
       emergencyContactName:
         metadata.emergencyContactName || "",
@@ -96,46 +179,70 @@ export async function POST(request: Request) {
       capacityHoldId:
         metadata.capacityHoldId || "",
 
-      stripeSessionId: session.id,
+      stripeSessionId:
+        session.id,
 
       players,
     };
 
-    const googleResponse = await fetch(GOOGLE_SCRIPT_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(registration),
-    });
-
-    if (!googleResponse.ok) {
-      throw new Error(
-        `Google Sheets returned status ${googleResponse.status}`
-      );
-    }
-
-    const googleResult = await googleResponse.json();
-
-    if (!googleResult.ok) {
-      throw new Error(
-        googleResult.error ||
-          "Google Sheets rejected the registration."
-      );
-    }
-
-    console.log(`Paid registration saved: ${session.id}`);
+    const googleResult =
+      await sendToGoogleSheets(registration);
 
     return NextResponse.json({
       received: true,
       saved: true,
+      type: "player",
+      googleResult,
     });
+
   } catch (error) {
-    console.error("Stripe webhook error:", error);
+    console.error(
+      "Stripe webhook error:",
+      error
+    );
 
     return NextResponse.json(
-      { error: "Webhook processing failed." },
-      { status: 500 }
+      {
+        error:
+          "Webhook processing failed.",
+      },
+      {
+        status: 500,
+      }
     );
   }
+}
+
+async function sendToGoogleSheets(
+  data: Record<string, unknown>
+) {
+  const googleResponse =
+    await fetch(GOOGLE_SCRIPT_URL, {
+      method: "POST",
+
+      headers: {
+        "Content-Type":
+          "application/json",
+      },
+
+      body: JSON.stringify(data),
+    });
+
+  if (!googleResponse.ok) {
+    throw new Error(
+      `Google Sheets returned status ${googleResponse.status}`
+    );
+  }
+
+  const googleResult =
+    await googleResponse.json();
+
+  if (!googleResult.ok) {
+    throw new Error(
+      googleResult.error ||
+        "Google Sheets rejected the payment."
+    );
+  }
+
+  return googleResult;
 }
