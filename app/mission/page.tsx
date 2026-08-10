@@ -6,7 +6,7 @@ import { tournament } from "@/lib/tournament";
 export default function MissionPage() {
   return (
     <>
-      <section className="bg-[var(--brand-navy)] py-24 text-white md:py-32">
+      <section className="bg-[var(--brand-navy)] py-24 text-white">
         <Container>
           <div className="max-w-4xl">
             <p className="text-sm font-semibold uppercase tracking-[0.3em] text-[var(--brand-teal)]">
@@ -104,8 +104,8 @@ export default function MissionPage() {
               title="Supporting Fellows, programs, and lasting connections."
             >
               <p>
-                Proceeds from the {tournament.name} help support each Fellows
-                Cohort as participants prepare for their transition from
+                Proceeds from the {tournament.name} help support each cohort of
+                Fellows as participants prepare for their transition from
                 military service.
               </p>
 
