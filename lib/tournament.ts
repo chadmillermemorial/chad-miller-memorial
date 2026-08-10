@@ -2,11 +2,10 @@ export const tournament = {
   name: "Sergeant Major Chad Miller Memorial Golf Tournament",
   shortName: "SGM Chad Miller Memorial",
   year: 2026,
-
   date: "October 9, 2026",
 
   venue: {
-    name: "Hyland Golf Club",
+    name: "Hyland Golf Course",
     city: "Southern Pines",
     state: "North Carolina",
     address: "Southern Pines, North Carolina",
@@ -30,6 +29,7 @@ export const tournament = {
       description:
         "Breakfast will be provided by Limitless, a Moore County meal preparation and catering company.",
     },
+
     lunch: {
       provider: "Embers",
       description:
@@ -64,7 +64,7 @@ export const tournament = {
   rainPolicy: {
     title: "Rain or Shine",
     paragraphs: [
-      "The tournament will be played rain or shine whenever Hyland Golf Club determines that conditions allow safe play.",
+      "The tournament will be played rain or shine whenever Hyland Golf Course determines that conditions allow safe play.",
       "If weather causes a delay, tournament officials will work with the golf course to resume play as soon as practical.",
       "If severe weather prevents the tournament from being completed, lunch, the silent auction, the tribute program, and awards may continue when conditions permit.",
       "Because this is a charitable fundraising event supporting The Honor Foundation Fort Bragg Chapters, registration fees and sponsorship contributions are generally non-refundable.",
