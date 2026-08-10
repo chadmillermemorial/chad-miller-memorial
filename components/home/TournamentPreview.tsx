@@ -6,7 +6,7 @@ import { siteConfig } from "@/lib/site";
 
 export default function TournamentPreview() {
   return (
-    <section className="bg-slate-50 py-20">
+    <section className="bg-slate-50 py-24">
       <Container>
         <SectionHeading
           eyebrow="Tournament"
