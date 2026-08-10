@@ -1,21 +1,20 @@
 import Link from "next/link";
 
-export default function ConfirmationPage() {
+export default function DonationConfirmationPage() {
   return (
     <main className="min-h-screen bg-slate-50 px-6 py-20">
       <div className="mx-auto max-w-3xl rounded-3xl bg-white p-10 text-center shadow-sm md:p-16">
-
         <p className="mb-6 text-sm font-semibold uppercase tracking-[0.35em] text-teal-600">
-          Registration Complete
+          Donation Complete
         </p>
 
         <h1 className="mb-8 text-4xl font-bold text-slate-900 md:text-6xl">
-          You&apos;re registered.
+          Thank you for your support.
         </h1>
 
         <p className="mx-auto mb-8 max-w-2xl text-lg leading-8 text-slate-600">
-          Thank you for registering for the Sergeant Major Chad Miller
-          Memorial Golf Tournament.
+          Your contribution to the Sergeant Major Chad Miller Memorial Golf
+          Tournament has been successfully received.
         </p>
 
         <div className="mb-10 rounded-2xl bg-teal-50 p-6 text-left">
@@ -24,8 +23,8 @@ export default function ConfirmationPage() {
           </h2>
 
           <p className="leading-7 text-slate-600">
-            Your payment was successfully processed and your player
-            registration has been recorded.
+            Your donation has been recorded and will support the memorial
+            tournament and its mission of benefiting The Honor Foundation.
           </p>
         </div>
 
@@ -35,7 +34,6 @@ export default function ConfirmationPage() {
         >
           Return Home
         </Link>
-
       </div>
     </main>
   );
