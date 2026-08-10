@@ -234,23 +234,7 @@ export default function PlayerRegistrationPage() {
 
       <section className="bg-slate-50 py-20">
         <Container>
-          <form
-            action="/api/player-registration"
-            method="POST"
-            className="mx-auto max-w-5xl"
-          >
-            <input
-              type="hidden"
-              name="registrationType"
-              value={registrationType}
-            />
-
-            <input
-              type="hidden"
-              name="playerCount"
-              value={playerCount}
-            />
-
+          <div className="mx-auto max-w-5xl">
             <div className="mb-8 rounded-3xl bg-white p-8 text-center shadow-sm">
               {remainingSpots === null && !capacityError && (
                 <p className="text-lg font-semibold text-slate-600">
@@ -284,6 +268,11 @@ export default function PlayerRegistrationPage() {
                   <p className="mt-3 text-3xl font-bold text-[var(--brand-navy)]">
                     The 128-player field is full.
                   </p>
+
+                  <p className="mt-3 text-slate-600">
+                    Join the waitlist below and we&apos;ll contact you if
+                    enough space becomes available.
+                  </p>
                 </>
               )}
 
@@ -295,62 +284,182 @@ export default function PlayerRegistrationPage() {
               )}
             </div>
 
-            <div className="rounded-3xl bg-white p-8 shadow-lg md:p-10">
-              <p className="text-sm font-semibold uppercase tracking-[0.25em] text-[var(--brand-blue)]">
-                Registration Type
-              </p>
+            {registrationFull ? (
+              <form
+                action="/api/waitlist-registration"
+                method="POST"
+                className="rounded-3xl bg-white p-8 shadow-lg md:p-10"
+              >
+                <p className="text-sm font-semibold uppercase tracking-[0.25em] text-[var(--brand-blue)]">
+                  Tournament Waitlist
+                </p>
 
-              <h2 className="mt-3 text-3xl font-bold text-[var(--brand-navy)]">
-                How many golfers are you registering?
-              </h2>
+                <h2 className="mt-3 text-3xl font-bold text-[var(--brand-navy)]">
+                  Join the Waitlist
+                </h2>
 
-              <div className="mt-8 grid gap-5 md:grid-cols-2">
-                {registrationOptions.map((option) => {
-                  const unavailable = optionUnavailable(
-                    option.players
-                  );
+                <p className="mt-4 max-w-3xl leading-7 text-slate-600">
+                  Tell us how many golfers you would like to register. If enough
+                  spots become available, we&apos;ll contact you with a limited
+                  registration window.
+                </p>
 
-                  return (
-                    <button
-                      key={option.type}
-                      type="button"
-                      disabled={unavailable}
-                      onClick={() =>
-                        setRegistrationType(option.type)
-                      }
-                      className={`rounded-3xl border-2 p-7 text-left transition ${
-                        unavailable
-                          ? "cursor-not-allowed border-slate-200 bg-slate-100 opacity-50"
-                          : registrationType === option.type
-                          ? "border-[var(--brand-blue)] bg-[var(--brand-sky)]"
-                          : "border-slate-200 bg-white hover:border-slate-300"
-                      }`}
+                <div className="mt-8 grid gap-6 md:grid-cols-2">
+                  <label className="block">
+                    <span className="font-semibold">First Name *</span>
+
+                    <input
+                      required
+                      name="firstName"
+                      type="text"
+                      className="mt-2 w-full rounded-xl border border-slate-300 px-4 py-3"
+                    />
+                  </label>
+
+                  <label className="block">
+                    <span className="font-semibold">Last Name *</span>
+
+                    <input
+                      required
+                      name="lastName"
+                      type="text"
+                      className="mt-2 w-full rounded-xl border border-slate-300 px-4 py-3"
+                    />
+                  </label>
+
+                  <label className="block">
+                    <span className="font-semibold">Email *</span>
+
+                    <input
+                      required
+                      name="email"
+                      type="email"
+                      className="mt-2 w-full rounded-xl border border-slate-300 px-4 py-3"
+                    />
+                  </label>
+
+                  <label className="block">
+                    <span className="font-semibold">Phone *</span>
+
+                    <input
+                      required
+                      name="phone"
+                      type="tel"
+                      className="mt-2 w-full rounded-xl border border-slate-300 px-4 py-3"
+                    />
+                  </label>
+
+                  <label className="block md:col-span-2">
+                    <span className="font-semibold">
+                      Number of Golfers Requested *
+                    </span>
+
+                    <select
+                      required
+                      name="playersRequested"
+                      defaultValue=""
+                      className="mt-2 w-full rounded-xl border border-slate-300 px-4 py-3"
                     >
-                      <p className="text-2xl font-bold text-[var(--brand-navy)]">
-                        {option.title}
-                      </p>
+                      <option value="" disabled>
+                        Select number of golfers
+                      </option>
+                      <option value="1">1 golfer</option>
+                      <option value="2">2 golfers</option>
+                      <option value="3">3 golfers</option>
+                      <option value="4">4 golfers</option>
+                    </select>
+                  </label>
+                </div>
 
-                      <p className="mt-2 text-slate-600">
-                        {option.description}
-                      </p>
+                <div className="mt-8 rounded-2xl bg-[var(--brand-sky)] p-6">
+                  <p className="font-semibold text-[var(--brand-navy)]">
+                    No payment is required to join the waitlist.
+                  </p>
 
-                      <p className="mt-5 text-3xl font-bold text-[var(--brand-blue)]">
-                        ${option.price}
-                      </p>
+                  <p className="mt-2 leading-7 text-slate-600">
+                    Joining the waitlist does not reserve a tournament spot.
+                    Registration is only confirmed after you receive an offer
+                    and complete payment.
+                  </p>
+                </div>
 
-                      {unavailable && (
-                        <p className="mt-3 text-sm font-semibold text-red-600">
-                          Not enough spots remaining
-                        </p>
-                      )}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
+                <button
+                  type="submit"
+                  className="mt-8 w-full rounded-full bg-[var(--brand-navy)] px-8 py-4 font-semibold text-white transition hover:opacity-90 md:w-auto"
+                >
+                  Join Tournament Waitlist
+                </button>
+              </form>
+            ) : (
+              <form
+                action="/api/player-registration"
+                method="POST"
+              >
+                <input
+                  type="hidden"
+                  name="registrationType"
+                  value={registrationType}
+                />
 
-            {!registrationFull && (
-              <>
+                <input
+                  type="hidden"
+                  name="playerCount"
+                  value={playerCount}
+                />
+
+                <div className="rounded-3xl bg-white p-8 shadow-lg md:p-10">
+                  <p className="text-sm font-semibold uppercase tracking-[0.25em] text-[var(--brand-blue)]">
+                    Registration Type
+                  </p>
+
+                  <h2 className="mt-3 text-3xl font-bold text-[var(--brand-navy)]">
+                    How many golfers are you registering?
+                  </h2>
+
+                  <div className="mt-8 grid gap-5 md:grid-cols-2">
+                    {registrationOptions.map((option) => {
+                      const unavailable =
+                        optionUnavailable(option.players);
+
+                      return (
+                        <button
+                          key={option.type}
+                          type="button"
+                          disabled={unavailable}
+                          onClick={() =>
+                            setRegistrationType(option.type)
+                          }
+                          className={`rounded-3xl border-2 p-7 text-left transition ${
+                            unavailable
+                              ? "cursor-not-allowed border-slate-200 bg-slate-100 opacity-50"
+                              : registrationType === option.type
+                              ? "border-[var(--brand-blue)] bg-[var(--brand-sky)]"
+                              : "border-slate-200 bg-white hover:border-slate-300"
+                          }`}
+                        >
+                          <p className="text-2xl font-bold text-[var(--brand-navy)]">
+                            {option.title}
+                          </p>
+
+                          <p className="mt-2 text-slate-600">
+                            {option.description}
+                          </p>
+
+                          <p className="mt-5 text-3xl font-bold text-[var(--brand-blue)]">
+                            ${option.price}
+                          </p>
+
+                          {unavailable && (
+                            <p className="mt-3 text-sm font-semibold text-red-600">
+                              Not enough spots remaining
+                            </p>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
                 <div className="mt-8 rounded-3xl bg-[var(--brand-sky)] p-8">
                   <h2 className="text-3xl font-bold text-[var(--brand-navy)]">
                     Tournament Registration
@@ -512,14 +621,13 @@ export default function PlayerRegistrationPage() {
                       disabled={optionUnavailable(playerCount)}
                       className="shrink-0 rounded-full bg-[var(--brand-teal)] px-8 py-4 font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
                     >
-                      Continue to Secure Payment — $
-                      {registrationTotal}
+                      Continue to Secure Payment — ${registrationTotal}
                     </button>
                   </div>
                 </div>
-              </>
+              </form>
             )}
-          </form>
+          </div>
         </Container>
       </section>
     </>
