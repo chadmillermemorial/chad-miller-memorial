@@ -6,7 +6,7 @@ export const runtime = "nodejs";
 const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
 
 const GOOGLE_SCRIPT_URL =
-  "https://script.google.com/macros/s/AKfycbzwwzOmHMHnTlPmw8eOQ4RtzOAisgAmEjm1wxc-aK6_bplj8ZYFHxNuCrBSBJlym1UcDg/exec";
+  "https://script.google.com/macros/s/AKfycbz8JNX9r6r5aFIYg3bYpetDnUy54ywxcaoN_qX3upY5TQH_4poQIeXxyWSxL9f22fhHqQ/exec";
 
 type RegistrationType =
   | "individual"
