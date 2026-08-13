@@ -15,12 +15,12 @@ export const tournament = {
 
   beneficiary: "The Honor Foundation Fort Bragg Chapters",
 
-  contactEmail: "[chadmillermemorial@gmail.com](mailto\:chadmillermemorial@gmail.com)",
+  contactEmail: "chadmillermemorial@gmail.com",
 
   registration: {
-    playerLink: "/contact",
-    volunteerLink: "/contact",
-    donationLink: "/contact",
+    playerLink: "/register/player",
+    volunteerLink: "/register/volunteer",
+    donationLink: "/register/donate",
   },
 
   food: {
