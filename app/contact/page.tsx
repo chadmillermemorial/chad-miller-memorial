@@ -2,27 +2,59 @@ import Link from "next/link";
 import Container from "@/components/ui/Container";
 import SectionHeading from "@/components/ui/SectionHeading";
 
+const tournamentEmail = "chadmillermemorial@gmail.com";
+
+function buildMailto(subject: string, category: string) {
+  const body =
+    `Inquiry Category: ${category}\n\n` +
+    `SGM Chad Miller Memorial Golf Tournament\n\n` +
+    `Please enter your question below:\n\n`;
+
+  return `mailto:${tournamentEmail}?subject=${encodeURIComponent(
+    subject
+  )}&body=${encodeURIComponent(body)}`;
+}
+
 const contactOptions = [
   {
     title: "Player Registration",
     description:
-      "Questions about player registration, team entries, or tournament availability.",
-    href: "mailto:chadmillermemorial@gmail.com?subject=Player Registration",
+      "Questions about player registration, team entries, pairings, or tournament availability.",
+    href: buildMailto(
+      "Player Registration Question",
+      "Player Registration"
+    ),
     button: "Email About Registration",
   },
   {
     title: "Sponsorship",
     description:
-      "Discuss sponsorship opportunities, recognition, and tournament participation.",
-    href: "mailto:chadmillermemorial@gmail.com?subject=Sponsorship",
+      "Discuss sponsorship opportunities, recognition, signage, and tournament participation.",
+    href: buildMailto(
+      "Sponsorship Question",
+      "Sponsorship"
+    ),
     button: "Email About Sponsorship",
   },
   {
-    title: "Volunteer or Donation Questions",
+    title: "Volunteer",
     description:
-      "Questions about volunteering, donations, or other ways to support the tournament.",
-    href: "mailto:chadmillermemorial@gmail.com?subject=Volunteer or Donation",
-    button: "Email the Tournament Team",
+      "Questions about volunteering, assignments, arrival information, or ways to help on tournament day.",
+    href: buildMailto(
+      "Volunteer Question",
+      "Volunteer"
+    ),
+    button: "Email About Volunteering",
+  },
+  {
+    title: "Donations",
+    description:
+      "Questions about donations, contributions, acknowledgments, or other ways to support the tournament.",
+    href: buildMailto(
+      "Donation Question",
+      "Donation"
+    ),
+    button: "Email About Donations",
   },
 ];
 
@@ -56,11 +88,12 @@ export default function ContactPage() {
           >
             <p>
               Choose the topic that best matches your question. Each button
-              opens an email addressed to the tournament team.
+              opens an email addressed to the tournament team and identifies
+              the inquiry category for faster routing.
             </p>
           </SectionHeading>
 
-          <div className="mt-16 grid gap-8 lg:grid-cols-3">
+          <div className="mt-16 grid gap-8 md:grid-cols-2">
             {contactOptions.map((option, index) => (
               <article
                 key={option.title}
@@ -69,14 +102,20 @@ export default function ContactPage() {
                     ? "bg-[var(--brand-navy)] text-white"
                     : index === 1
                       ? "bg-[var(--sand)] text-[var(--brand-navy)]"
-                      : "bg-[var(--brand-sky)] text-[var(--brand-navy)]"
+                      : index === 2
+                        ? "bg-[var(--brand-sky)] text-[var(--brand-navy)]"
+                        : "bg-white text-[var(--brand-navy)]"
                 }`}
               >
-                <h2 className="text-3xl font-bold">{option.title}</h2>
+                <h2 className="text-3xl font-bold">
+                  {option.title}
+                </h2>
 
                 <p
                   className={`mt-5 flex-1 leading-7 ${
-                    index === 0 ? "text-slate-300" : "text-slate-600"
+                    index === 0
+                      ? "text-slate-300"
+                      : "text-slate-600"
                   }`}
                 >
                   {option.description}
@@ -106,16 +145,19 @@ export default function ContactPage() {
             </h2>
 
             <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-600">
-              Please include your name, organization if applicable, and the
-              reason for your inquiry so the tournament team can respond
-              efficiently.
+              For general tournament questions, please include your name,
+              organization if applicable, and the reason for your inquiry so
+              the tournament team can respond efficiently.
             </p>
 
             <Link
-              href="mailto:chadmillermemorial@gmail.com"
+              href={buildMailto(
+                "General Tournament Question",
+                "General Tournament Question"
+              )}
               className="mt-8 inline-flex rounded-full bg-[var(--brand-blue)] px-7 py-3.5 font-semibold text-white transition hover:opacity-90"
             >
-              Send an Email
+              Send a General Email
             </Link>
           </div>
         </Container>
