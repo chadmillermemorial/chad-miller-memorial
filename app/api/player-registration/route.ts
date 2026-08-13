@@ -1,3 +1,4 @@
+import { randomUUID } from "crypto";
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
 
@@ -7,6 +8,9 @@ const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
 
 const GOOGLE_SCRIPT_URL =
   "https://script.google.com/macros/s/AKfycbz8JNX9r6r5aFIYg3bYpetDnUy54ywxcaoN_qX3upY5TQH_4poQIeXxyWSxL9f22fhHqQ/exec";
+
+const REFUND_DEADLINE =
+  "September 25, 2026 at 11:59 PM ET";
 
 type RegistrationType =
   | "individual"
@@ -96,12 +100,25 @@ export async function POST(request: Request) {
     const photoRelease =
       formData.get("photoRelease") === "on";
 
-    if (!rulesAcknowledgment || !photoRelease) {
-      throw new Error("Required acknowledgments must be accepted.");
+    const refundPolicyAcknowledgment =
+      formData.get("refundPolicyAcknowledgment") === "on";
+
+    if (
+      !rulesAcknowledgment ||
+      !photoRelease ||
+      !refundPolicyAcknowledgment
+    ) {
+      throw new Error(
+        "Required acknowledgments must be accepted."
+      );
     }
 
     const teamName =
       formData.get("teamName")?.toString().trim() || "";
+
+    // This private token will be used in the player's
+    // self-service withdrawal/refund link.
+    const withdrawalToken = randomUUID();
 
     // Reserve the requested player spots before opening Stripe Checkout.
     const capacityResponse = await fetch(GOOGLE_SCRIPT_URL, {
@@ -142,6 +159,10 @@ export async function POST(request: Request) {
       emergencyContactPhone,
       rulesAcknowledgment: "Yes",
       photoRelease: "Yes",
+      refundPolicyAcknowledgment: "Yes",
+      refundDeadline: REFUND_DEADLINE,
+      processingFeeNonRefundable: "Yes",
+      withdrawalToken,
       capacityHoldId,
     };
 
@@ -160,9 +181,17 @@ export async function POST(request: Request) {
 
     let registrationLabel = "Individual Registration";
 
-    if (playerCount === 2) registrationLabel = "Pair Registration";
-    if (playerCount === 3) registrationLabel = "Threesome Registration";
-    if (playerCount === 4) registrationLabel = "Foursome Registration";
+    if (playerCount === 2) {
+      registrationLabel = "Pair Registration";
+    }
+
+    if (playerCount === 3) {
+      registrationLabel = "Threesome Registration";
+    }
+
+    if (playerCount === 4) {
+      registrationLabel = "Foursome Registration";
+    }
 
     const origin = new URL(request.url).origin;
 
@@ -187,17 +216,26 @@ export async function POST(request: Request) {
 
       metadata,
 
+      // Store the same registration metadata on the PaymentIntent.
+      // This will make the future refund workflow easier to audit.
+      payment_intent_data: {
+        metadata,
+      },
+
       success_url:
         `${origin}/register/player/confirmation?session_id={CHECKOUT_SESSION_ID}`,
 
       cancel_url:
         `${origin}/register/player`,
 
-      expires_at: Math.floor(Date.now() / 1000) + 30 * 60,
+      expires_at:
+        Math.floor(Date.now() / 1000) + 30 * 60,
     });
 
     if (!session.url) {
-      throw new Error("Stripe did not return a checkout URL.");
+      throw new Error(
+        "Stripe did not return a checkout URL."
+      );
     }
 
     return NextResponse.redirect(session.url, 303);
@@ -216,11 +254,17 @@ export async function POST(request: Request) {
           }),
         });
       } catch (releaseError) {
-        console.error("Could not release capacity hold:", releaseError);
+        console.error(
+          "Could not release capacity hold:",
+          releaseError
+        );
       }
     }
 
-    console.error("Player registration checkout error:", error);
+    console.error(
+      "Player registration checkout error:",
+      error
+    );
 
     return NextResponse.json(
       {

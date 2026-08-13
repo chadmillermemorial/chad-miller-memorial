@@ -597,6 +597,25 @@ export default function PlayerRegistrationPage() {
                       future event materials.
                     </span>
                   </label>
+
+                  <label className="mt-5 flex items-start gap-3">
+                    <input
+                      required
+                      name="refundPolicyAcknowledgment"
+                      type="checkbox"
+                      className="mt-1 h-5 w-5"
+                    />
+
+                    <span className="leading-7 text-slate-600">
+                      I acknowledge that player registrations may be cancelled
+                      for a refund through September 25, 2026 at 11:59 PM ET.
+                      Refunds will be returned to the original payment method
+                      less the non-refundable payment processing fee
+                      attributable to the registration. After the refund
+                      deadline, registration fees are non-refundable except at
+                      the discretion of the tournament organizers.
+                    </span>
+                  </label>
                 </div>
 
                 <div className="mt-10 rounded-3xl bg-[var(--brand-navy)] p-8 text-white md:p-10">

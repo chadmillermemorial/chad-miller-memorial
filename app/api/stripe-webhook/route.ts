@@ -27,28 +27,36 @@ export async function POST(request: Request) {
       );
     }
 
-    const stripe = new Stripe(stripeSecretKey);
+    const stripe =
+      new Stripe(stripeSecretKey);
 
     const signature =
-      request.headers.get("stripe-signature");
+      request.headers.get(
+        "stripe-signature"
+      );
 
     if (!signature) {
       return NextResponse.json(
-        { error: "Missing Stripe signature." },
+        {
+          error:
+            "Missing Stripe signature.",
+        },
         { status: 400 }
       );
     }
 
-    const body = await request.text();
+    const body =
+      await request.text();
 
     let event: Stripe.Event;
 
     try {
-      event = stripe.webhooks.constructEvent(
-        body,
-        signature,
-        webhookSecret
-      );
+      event =
+        stripe.webhooks.constructEvent(
+          body,
+          signature,
+          webhookSecret
+        );
     } catch (error) {
       console.error(
         "Webhook signature verification failed:",
@@ -56,7 +64,10 @@ export async function POST(request: Request) {
       );
 
       return NextResponse.json(
-        { error: "Invalid webhook signature." },
+        {
+          error:
+            "Invalid webhook signature.",
+        },
         { status: 400 }
       );
     }
@@ -65,7 +76,8 @@ export async function POST(request: Request) {
       We only care about completed Checkout sessions.
     */
     if (
-      event.type !== "checkout.session.completed"
+      event.type !==
+      "checkout.session.completed"
     ) {
       return NextResponse.json({
         received: true,
@@ -73,9 +85,13 @@ export async function POST(request: Request) {
     }
 
     const session =
-      event.data.object as Stripe.Checkout.Session;
+      event.data.object as
+        Stripe.Checkout.Session;
 
-    if (session.payment_status !== "paid") {
+    if (
+      session.payment_status !==
+      "paid"
+    ) {
       return NextResponse.json({
         received: true,
       });
@@ -88,10 +104,14 @@ export async function POST(request: Request) {
 
       Google Sheets and confirmation-email processing
       continue after the response has been returned.
+
+      This preserves the webhook timeout fix.
     */
     after(async () => {
       try {
-        await processPaidCheckout(session);
+        await processPaidCheckout(
+          session
+        );
       } catch (error) {
         console.error(
           "Background payment processing failed:",
@@ -111,7 +131,10 @@ export async function POST(request: Request) {
     );
 
     return NextResponse.json(
-      { error: "Webhook processing failed." },
+      {
+        error:
+          "Webhook processing failed.",
+      },
       { status: 500 }
     );
   }
@@ -120,25 +143,47 @@ export async function POST(request: Request) {
 async function processPaidCheckout(
   session: Stripe.Checkout.Session
 ) {
-  const metadata = session.metadata || {};
+  const metadata =
+    session.metadata || {};
 
   /*
     SPONSORSHIP
   */
-  if (metadata.paymentType === "sponsorship") {
+  if (
+    metadata.paymentType ===
+    "sponsorship"
+  ) {
     await sendToGoogleSheetsWithRetry({
-      paymentType: "sponsorship",
-      stripeSessionId: session.id,
-      company: metadata.company || "",
-      contactName: metadata.contactName || "",
-      email: metadata.email || "",
-      phone: metadata.phone || "",
-      website: metadata.website || "",
+      paymentType:
+        "sponsorship",
+
+      stripeSessionId:
+        session.id,
+
+      company:
+        metadata.company || "",
+
+      contactName:
+        metadata.contactName || "",
+
+      email:
+        metadata.email || "",
+
+      phone:
+        metadata.phone || "",
+
+      website:
+        metadata.website || "",
+
       sponsorshipName:
         metadata.sponsorshipName || "",
+
       sponsorAmount:
-        (session.amount_total || 0) / 100,
-      notes: metadata.notes || "",
+        (session.amount_total || 0) /
+        100,
+
+      notes:
+        metadata.notes || "",
     });
 
     return;
@@ -147,16 +192,32 @@ async function processPaidCheckout(
   /*
     DONATION
   */
-  if (metadata.paymentType === "donation") {
+  if (
+    metadata.paymentType ===
+    "donation"
+  ) {
     await sendToGoogleSheetsWithRetry({
-      paymentType: "donation",
-      stripeSessionId: session.id,
-      donorName: metadata.donorName || "",
-      email: metadata.email || "",
+      paymentType:
+        "donation",
+
+      stripeSessionId:
+        session.id,
+
+      donorName:
+        metadata.donorName || "",
+
+      email:
+        metadata.email || "",
+
       donationAmount:
-        (session.amount_total || 0) / 100,
-      anonymous: metadata.anonymous || "No",
-      notes: metadata.notes || "",
+        (session.amount_total || 0) /
+        100,
+
+      anonymous:
+        metadata.anonymous || "No",
+
+      notes:
+        metadata.notes || "",
     });
 
     return;
@@ -166,7 +227,21 @@ async function processPaidCheckout(
     PLAYER REGISTRATION
   */
   const playerCount =
-    Number(metadata.playerCount || "1");
+    Number(
+      metadata.playerCount || "1"
+    );
+
+  if (
+    !Number.isInteger(
+      playerCount
+    ) ||
+    playerCount < 1 ||
+    playerCount > 4
+  ) {
+    throw new Error(
+      "Stripe Checkout contains an invalid player count."
+    );
+  }
 
   const players = [];
 
@@ -177,26 +252,50 @@ async function processPaidCheckout(
   ) {
     players.push({
       firstName:
-        metadata[`p${number}FirstName`] || "",
+        metadata[
+          `p${number}FirstName`
+        ] || "",
+
       lastName:
-        metadata[`p${number}LastName`] || "",
+        metadata[
+          `p${number}LastName`
+        ] || "",
+
       email:
-        metadata[`p${number}Email`] || "",
+        metadata[
+          `p${number}Email`
+        ] || "",
+
       phone:
-        metadata[`p${number}Phone`] || "",
+        metadata[
+          `p${number}Phone`
+        ] || "",
+
       handicap:
-        metadata[`p${number}Handicap`] || "",
+        metadata[
+          `p${number}Handicap`
+        ] || "",
+
       ghin:
-        metadata[`p${number}Ghin`] || "",
+        metadata[
+          `p${number}Ghin`
+        ] || "",
+
       shirtSize:
-        metadata[`p${number}ShirtSize`] || "",
+        metadata[
+          `p${number}ShirtSize`
+        ] || "",
+
       teeSelection:
-        metadata[`p${number}Tee`] || "",
+        metadata[
+          `p${number}Tee`
+        ] || "",
     });
   }
 
   const totalPaid =
-    (session.amount_total || 0) / 100;
+    (session.amount_total || 0) /
+    100;
 
   const amountPerPlayer =
     playerCount > 0
@@ -204,19 +303,76 @@ async function processPaidCheckout(
       : 0;
 
   await sendToGoogleSheetsWithRetry({
-    registrationId: session.id,
-    paymentStatus: "Paid",
-    paymentAmount: amountPerPlayer,
-    teamName: metadata.teamName || "",
+    registrationId:
+      session.id,
+
+    paymentStatus:
+      "Paid",
+
+    paymentAmount:
+      amountPerPlayer,
+
+    teamName:
+      metadata.teamName || "",
+
     needsPairing:
-      metadata.needsPairing === "Yes",
+      metadata.needsPairing ===
+      "Yes",
+
     emergencyContactName:
-      metadata.emergencyContactName || "",
+      metadata.emergencyContactName ||
+      "",
+
     emergencyContactPhone:
-      metadata.emergencyContactPhone || "",
+      metadata.emergencyContactPhone ||
+      "",
+
+    rulesAcknowledgment:
+      metadata.rulesAcknowledgment ||
+      "",
+
+    photoRelease:
+      metadata.photoRelease || "",
+
+    refundPolicyAcknowledgment:
+      metadata
+        .refundPolicyAcknowledgment ||
+      "",
+
+    refundDeadline:
+      metadata.refundDeadline || "",
+
+    processingFeeNonRefundable:
+      metadata
+        .processingFeeNonRefundable ||
+      "",
+
+    /*
+      This is the private token created when
+      Checkout was opened.
+
+      Apps Script stores only its SHA-256 hash,
+      while the confirmation email receives
+      the original token in the private
+      registration-management link.
+    */
+    withdrawalToken:
+      metadata.withdrawalToken || "",
+
     capacityHoldId:
       metadata.capacityHoldId || "",
-    stripeSessionId: session.id,
+
+    /*
+      Preserve waitlist information if the
+      registration originated from a waitlist
+      offer.
+    */
+    waitlistId:
+      metadata.waitlistId || "",
+
+    stripeSessionId:
+      session.id,
+
     players,
   });
 }
@@ -232,19 +388,27 @@ async function sendToGoogleSheetsWithRetry(
     attempt++
   ) {
     try {
-      return await sendToGoogleSheets(data);
+      return await sendToGoogleSheets(
+        data
+      );
     } catch (error) {
       console.error(
         `Google Sheets attempt ${attempt} failed:`,
         error
       );
 
-      if (attempt === attempts) {
+      if (
+        attempt === attempts
+      ) {
         throw error;
       }
 
-      await new Promise((resolve) =>
-        setTimeout(resolve, 2000 * attempt)
+      await new Promise(
+        (resolve) =>
+          setTimeout(
+            resolve,
+            2000 * attempt
+          )
       );
     }
   }
@@ -253,16 +417,21 @@ async function sendToGoogleSheetsWithRetry(
 async function sendToGoogleSheets(
   data: Record<string, unknown>
 ) {
-  const response = await fetch(
-    GOOGLE_SCRIPT_URL,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
-    }
-  );
+  const response =
+    await fetch(
+      GOOGLE_SCRIPT_URL,
+      {
+        method: "POST",
+
+        headers: {
+          "Content-Type":
+            "application/json",
+        },
+
+        body:
+          JSON.stringify(data),
+      }
+    );
 
   if (!response.ok) {
     throw new Error(
@@ -270,7 +439,8 @@ async function sendToGoogleSheets(
     );
   }
 
-  const result = await response.json();
+  const result =
+    await response.json();
 
   if (!result.ok) {
     throw new Error(
