@@ -162,6 +162,21 @@ export default function PlayerRegistrationPage() {
   const [capacityError, setCapacityError] =
     useState(false);
 
+  const [waitlistId, setWaitlistId] = useState("");
+  const [offerToken, setOfferToken] = useState("");
+  const [incompleteWaitlistLink, setIncompleteWaitlistLink] =
+    useState(false);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get("waitlistId")?.trim() || "";
+    const token = params.get("offerToken")?.trim() || "";
+
+    setWaitlistId(id);
+    setOfferToken(token);
+    setIncompleteWaitlistLink(Boolean(id) !== Boolean(token));
+  }, []);
+
   useEffect(() => {
     async function loadCapacity() {
       try {
@@ -192,9 +207,16 @@ export default function PlayerRegistrationPage() {
   const playerCount = selectedOption.players;
   const registrationTotal = selectedOption.price;
 
-  const registrationFull = remainingSpots === 0;
+  const privateWaitlistOffer = Boolean(waitlistId && offerToken);
+
+  const registrationFull =
+    !privateWaitlistOffer && remainingSpots === 0;
 
   function optionUnavailable(players: number) {
+    if (privateWaitlistOffer) {
+      return false;
+    }
+
     return (
       remainingSpots !== null &&
       players > remainingSpots
@@ -236,53 +258,82 @@ export default function PlayerRegistrationPage() {
         <Container>
           <div className="mx-auto max-w-5xl">
             <div className="mb-8 rounded-3xl bg-white p-8 text-center shadow-sm">
-              {remainingSpots === null && !capacityError && (
-                <p className="text-lg font-semibold text-slate-600">
-                  Checking tournament availability...
-                </p>
-              )}
-
-              {remainingSpots !== null && remainingSpots > 0 && (
+              {privateWaitlistOffer ? (
                 <>
                   <p className="text-sm font-semibold uppercase tracking-[0.25em] text-[var(--brand-blue)]">
-                    Tournament Availability
-                  </p>
-
-                  <p className="mt-3 text-4xl font-bold text-[var(--brand-navy)]">
-                    {remainingSpots}{" "}
-                    {remainingSpots === 1 ? "spot" : "spots"} remaining
-                  </p>
-
-                  <p className="mt-2 text-slate-500">
-                    Maximum field: 128 golfers
-                  </p>
-                </>
-              )}
-
-              {registrationFull && (
-                <>
-                  <p className="text-sm font-semibold uppercase tracking-[0.25em] text-red-600">
-                    Registration Full
+                    Private Waitlist Registration Offer
                   </p>
 
                   <p className="mt-3 text-3xl font-bold text-[var(--brand-navy)]">
-                    The 128-player field is full.
+                    A tournament spot is available for your waitlist offer.
                   </p>
 
                   <p className="mt-3 text-slate-600">
-                    Join the waitlist below and we&apos;ll contact you if
-                    enough space becomes available.
+                    Complete registration and payment before the deadline in
+                    your offer email. Use the same number of golfers stated in
+                    that email.
                   </p>
                 </>
-              )}
+              ) : (
+                <>
+                  {remainingSpots === null && !capacityError && (
+                    <p className="text-lg font-semibold text-slate-600">
+                      Checking tournament availability...
+                    </p>
+                  )}
 
-              {capacityError && (
-                <p className="text-slate-600">
-                  Live availability could not be displayed. Final availability
-                  will be confirmed before checkout.
-                </p>
+                  {remainingSpots !== null && remainingSpots > 0 && (
+                    <>
+                      <p className="text-sm font-semibold uppercase tracking-[0.25em] text-[var(--brand-blue)]">
+                        Tournament Availability
+                      </p>
+
+                      <p className="mt-3 text-4xl font-bold text-[var(--brand-navy)]">
+                        {remainingSpots}{" "}
+                        {remainingSpots === 1 ? "spot" : "spots"} remaining
+                      </p>
+
+                      <p className="mt-2 text-slate-500">
+                        Maximum field: 128 golfers
+                      </p>
+                    </>
+                  )}
+
+                  {registrationFull && (
+                    <>
+                      <p className="text-sm font-semibold uppercase tracking-[0.25em] text-red-600">
+                        Registration Full
+                      </p>
+
+                      <p className="mt-3 text-3xl font-bold text-[var(--brand-navy)]">
+                        The 128-player field is full.
+                      </p>
+
+                      <p className="mt-3 text-slate-600">
+                        Join the waitlist below and we&apos;ll contact you if
+                        enough space becomes available.
+                      </p>
+                    </>
+                  )}
+
+                  {capacityError && (
+                    <p className="text-slate-600">
+                      Live availability could not be displayed. Final
+                      availability will be confirmed before checkout.
+                    </p>
+                  )}
+                </>
               )}
             </div>
+
+            {incompleteWaitlistLink && (
+              <div className="mb-8 rounded-3xl border border-red-200 bg-red-50 p-6 text-center">
+                <p className="font-semibold text-red-700">
+                  This private waitlist registration link is incomplete. Please
+                  use the complete link from your tournament email.
+                </p>
+              </div>
+            )}
 
             {registrationFull ? (
               <form
@@ -407,6 +458,22 @@ export default function PlayerRegistrationPage() {
                   value={playerCount}
                 />
 
+                {privateWaitlistOffer && (
+                  <>
+                    <input
+                      type="hidden"
+                      name="waitlistId"
+                      value={waitlistId}
+                    />
+
+                    <input
+                      type="hidden"
+                      name="offerToken"
+                      value={offerToken}
+                    />
+                  </>
+                )}
+
                 <div className="rounded-3xl bg-white p-8 shadow-lg md:p-10">
                   <p className="text-sm font-semibold uppercase tracking-[0.25em] text-[var(--brand-blue)]">
                     Registration Type
@@ -415,6 +482,14 @@ export default function PlayerRegistrationPage() {
                   <h2 className="mt-3 text-3xl font-bold text-[var(--brand-navy)]">
                     How many golfers are you registering?
                   </h2>
+
+                  {privateWaitlistOffer && (
+                    <p className="mt-4 leading-7 text-slate-600">
+                      Select the same number of golfers listed in your private
+                      waitlist offer email. The offer is valid only for that
+                      group size.
+                    </p>
+                  )}
 
                   <div className="mt-8 grid gap-5 md:grid-cols-2">
                     {registrationOptions.map((option) => {
@@ -637,7 +712,10 @@ export default function PlayerRegistrationPage() {
 
                     <button
                       type="submit"
-                      disabled={optionUnavailable(playerCount)}
+                      disabled={
+                        incompleteWaitlistLink ||
+                        optionUnavailable(playerCount)
+                      }
                       className="shrink-0 rounded-full bg-[var(--brand-teal)] px-8 py-4 font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       Continue to Secure Payment — ${registrationTotal}

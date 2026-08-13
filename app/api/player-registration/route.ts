@@ -46,6 +46,28 @@ export async function POST(request: Request) {
 
     const playerCount = playerCounts[registrationType];
 
+    /*
+     * Private waitlist registration information.
+     *
+     * These values will normally be blank for public registrations.
+     * When a waitlisted golfer receives a private registration offer,
+     * the player registration page will submit both values with the form.
+     */
+    const waitlistId =
+      formData.get("waitlistId")?.toString().trim() || "";
+
+    const offerToken =
+      formData.get("offerToken")?.toString().trim() || "";
+
+    if (
+      (waitlistId && !offerToken) ||
+      (!waitlistId && offerToken)
+    ) {
+      throw new Error(
+        "The private waitlist registration link is incomplete or invalid."
+      );
+    }
+
     const players = [1, 2, 3, 4].map((number) => ({
       firstName:
         formData.get(`player${number}FirstName`)?.toString().trim() || "",
@@ -116,11 +138,17 @@ export async function POST(request: Request) {
     const teamName =
       formData.get("teamName")?.toString().trim() || "";
 
-    // This private token will be used in the player's
-    // self-service withdrawal/refund link.
+    // Private token used in the player's self-service
+    // withdrawal/refund management link.
     const withdrawalToken = randomUUID();
 
-    // Reserve the requested player spots before opening Stripe Checkout.
+    /*
+     * Reserve the requested player spots before opening Stripe Checkout.
+     *
+     * Public registrations send blank waitlist values.
+     * Private waitlist registrations send the Waitlist ID and offer token,
+     * allowing Apps Script to validate that the private offer is still active.
+     */
     const capacityResponse = await fetch(GOOGLE_SCRIPT_URL, {
       method: "POST",
       headers: {
@@ -129,6 +157,8 @@ export async function POST(request: Request) {
       body: JSON.stringify({
         action: "reserveCapacity",
         playerCount,
+        waitlistId,
+        offerToken,
       }),
     });
 
@@ -166,6 +196,14 @@ export async function POST(request: Request) {
       capacityHoldId,
     };
 
+    /*
+     * We only need the Waitlist ID after payment.
+     * The private offer token is intentionally NOT copied into Stripe metadata.
+     */
+    if (waitlistId) {
+      metadata.waitlistId = waitlistId;
+    }
+
     activePlayers.forEach((player, index) => {
       const number = index + 1;
 
@@ -195,6 +233,17 @@ export async function POST(request: Request) {
 
     const origin = new URL(request.url).origin;
 
+    /*
+     * If a waitlisted golfer cancels Stripe Checkout, return them to the
+     * same private registration URL instead of dropping their offer token.
+     */
+    const cancelUrl =
+      waitlistId && offerToken
+        ? `${origin}/register/player?waitlistId=${encodeURIComponent(
+            waitlistId
+          )}&offerToken=${encodeURIComponent(offerToken)}`
+        : `${origin}/register/player`;
+
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
 
@@ -216,8 +265,6 @@ export async function POST(request: Request) {
 
       metadata,
 
-      // Store the same registration metadata on the PaymentIntent.
-      // This will make the future refund workflow easier to audit.
       payment_intent_data: {
         metadata,
       },
@@ -225,8 +272,7 @@ export async function POST(request: Request) {
       success_url:
         `${origin}/register/player/confirmation?session_id={CHECKOUT_SESSION_ID}`,
 
-      cancel_url:
-        `${origin}/register/player`,
+      cancel_url: cancelUrl,
 
       expires_at:
         Math.floor(Date.now() / 1000) + 30 * 60,
@@ -240,7 +286,7 @@ export async function POST(request: Request) {
 
     return NextResponse.redirect(session.url, 303);
   } catch (error) {
-    // If Stripe fails after we reserved spots, release the hold.
+    // If Stripe fails after spots were reserved, release the hold.
     if (capacityHoldId) {
       try {
         await fetch(GOOGLE_SCRIPT_URL, {
