@@ -25,15 +25,18 @@ export const tournament = {
 
   food: {
     breakfast: {
-      provider: "Limitless",
+      provider: "Limitless Meal Prep",
+      website:
+        "https://www.limitlessmealsupply.com/?location=LSB25989DP1P9#PYEGLEJIWIW4TQBIQJXFA7YT",
       description:
-        "Breakfast will be provided by Limitless, a Moore County meal preparation and catering company.",
+        "Breakfast will be provided by Limitless Meal Prep, a Moore County meal-prep and catering company offering fresh, prepared meals and catering services.",
     },
 
     lunch: {
       provider: "Embers",
+      website: "https://embersbbq.com/",
       description:
-        "Lunch will be provided by Embers, a Southern Pines barbecue restaurant.",
+        "Lunch will be provided by Embers, a Southern Pines barbecue restaurant serving smoked meats, Southern-style sides, and other barbecue favorites.",
     },
   },
 

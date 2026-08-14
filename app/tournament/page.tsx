@@ -206,7 +206,15 @@ export default function TournamentPage() {
               </p>
 
               <h2 className="mt-4 text-3xl font-bold text-[var(--brand-navy)]">
-                Provided by {tournament.food.breakfast.provider}
+                Provided by{" "}
+                <Link
+                  href={tournament.food.breakfast.website}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[var(--brand-blue)] underline decoration-2 underline-offset-4 hover:opacity-75"
+                >
+                  {tournament.food.breakfast.provider}
+                </Link>
               </h2>
 
               <p className="mt-5 leading-7 text-slate-600">
@@ -220,7 +228,15 @@ export default function TournamentPage() {
               </p>
 
               <h2 className="mt-4 text-3xl font-bold text-[var(--brand-navy)]">
-                Provided by {tournament.food.lunch.provider}
+                Provided by{" "}
+                <Link
+                  href={tournament.food.lunch.website}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[var(--brand-blue)] underline decoration-2 underline-offset-4 hover:opacity-75"
+                >
+                  {tournament.food.lunch.provider}
+                </Link>
               </h2>
 
               <p className="mt-5 leading-7 text-slate-600">
