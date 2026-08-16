@@ -1,9 +1,19 @@
 "use client";
 
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import {
+  FormEvent,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
+
 import Container from "@/components/ui/Container";
 
-type SponsorLevel = "hole" | "grey" | "blue" | "other";
+type SponsorLevel =
+  | "hole"
+  | "grey"
+  | "blue"
+  | "other";
 
 type SponsorRecord = {
   sponsorId: string;
@@ -19,6 +29,8 @@ type SponsorRecord = {
   tagline: string;
   materialsDue: string;
   materialsStatus: string;
+  hasPrimaryLogo?: boolean;
+  hasAlternateLogo?: boolean;
   bluePreferences: string[];
   representativeName: string;
   representativeTitle: string;
@@ -44,25 +56,34 @@ const BLUE_FEATURE_OPTIONS = [
   "No Preference — place us where it best supports the tournament",
 ];
 
-const MAX_FILE_SIZE = 5 * 1024 * 1024;
+const MAX_FILE_SIZE =
+  5 * 1024 * 1024;
 
-function formatCurrency(value: number) {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    maximumFractionDigits: 0,
-  }).format(value);
+function formatCurrency(
+  value: number
+) {
+  return new Intl.NumberFormat(
+    "en-US",
+    {
+      style: "currency",
+      currency: "USD",
+      maximumFractionDigits: 0,
+    }
+  ).format(value);
 }
 
-function validateLogoFile(file: File | null) {
+function validateLogoFile(
+  file: File | null
+) {
   if (!file) {
     return "";
   }
 
-  const extension = file.name
-    .split(".")
-    .pop()
-    ?.toLowerCase();
+  const extension =
+    file.name
+      .split(".")
+      .pop()
+      ?.toLowerCase();
 
   if (
     extension !== "svg" &&
@@ -71,7 +92,10 @@ function validateLogoFile(file: File | null) {
     return "Logo files must be SVG or PNG.";
   }
 
-  if (file.size > MAX_FILE_SIZE) {
+  if (
+    file.size >
+    MAX_FILE_SIZE
+  ) {
     return "Logo files must be 5 MB or smaller.";
   }
 
@@ -88,27 +112,39 @@ function fileToPayload(
 
       reader.onload = () => {
         const result =
-          String(reader.result || "");
+          String(
+            reader.result || ""
+          );
 
         const commaIndex =
           result.indexOf(",");
 
-        if (commaIndex < 0) {
+        if (
+          commaIndex < 0
+        ) {
           reject(
             new Error(
               "Unable to read uploaded file."
             )
           );
+
           return;
         }
 
         resolve({
-          name: file.name,
-          type: file.type,
-          size: file.size,
-          data: result.substring(
-            commaIndex + 1
-          ),
+          name:
+            file.name,
+
+          type:
+            file.type,
+
+          size:
+            file.size,
+
+          data:
+            result.substring(
+              commaIndex + 1
+            ),
         });
       };
 
@@ -120,57 +156,86 @@ function fileToPayload(
         );
       };
 
-      reader.readAsDataURL(file);
+      reader.readAsDataURL(
+        file
+      );
     }
   );
 }
 
 export default function SponsorFulfillmentPage() {
-  const [sponsorId, setSponsorId] =
-    useState("");
+  const [
+    sponsorId,
+    setSponsorId,
+  ] = useState("");
 
-  const [token, setToken] =
-    useState("");
+  const [
+    token,
+    setToken,
+  ] = useState("");
 
-  const [sponsor, setSponsor] =
+  const [
+    sponsor,
+    setSponsor,
+  ] =
     useState<SponsorRecord | null>(
       null
     );
 
-  const [loading, setLoading] =
-    useState(true);
+  const [
+    loading,
+    setLoading,
+  ] = useState(true);
 
-  const [loadError, setLoadError] =
-    useState("");
+  const [
+    loadError,
+    setLoadError,
+  ] = useState("");
 
-  const [submitting, setSubmitting] =
-    useState(false);
+  const [
+    submitting,
+    setSubmitting,
+  ] = useState(false);
 
-  const [submitError, setSubmitError] =
-    useState("");
+  const [
+    submitError,
+    setSubmitError,
+  ] = useState("");
 
-  const [submitted, setSubmitted] =
-    useState(false);
+  const [
+    submitted,
+    setSubmitted,
+  ] = useState(false);
 
   const [
     publicDisplayName,
     setPublicDisplayName,
   ] = useState("");
 
-  const [website, setWebsite] =
-    useState("");
+  const [
+    website,
+    setWebsite,
+  ] = useState("");
 
-  const [tagline, setTagline] =
-    useState("");
+  const [
+    tagline,
+    setTagline,
+  ] = useState("");
 
-  const [contactName, setContactName] =
-    useState("");
+  const [
+    contactName,
+    setContactName,
+  ] = useState("");
 
-  const [email, setEmail] =
-    useState("");
+  const [
+    email,
+    setEmail,
+  ] = useState("");
 
-  const [phone, setPhone] =
-    useState("");
+  const [
+    phone,
+    setPhone,
+  ] = useState("");
 
   const [
     representativeName,
@@ -205,12 +270,18 @@ export default function SponsorFulfillmentPage() {
   const [
     primaryLogo,
     setPrimaryLogo,
-  ] = useState<File | null>(null);
+  ] =
+    useState<File | null>(
+      null
+    );
 
   const [
     alternateLogo,
     setAlternateLogo,
-  ] = useState<File | null>(null);
+  ] =
+    useState<File | null>(
+      null
+    );
 
   const [
     primaryLogoError,
@@ -242,14 +313,16 @@ export default function SponsorFulfillmentPage() {
 
         const sponsorIdParam =
           String(
-            params.get("sponsorId") ||
-              ""
+            params.get(
+              "sponsorId"
+            ) || ""
           ).trim();
 
         const tokenParam =
           String(
-            params.get("token") ||
-              ""
+            params.get(
+              "token"
+            ) || ""
           ).trim();
 
         if (
@@ -259,7 +332,11 @@ export default function SponsorFulfillmentPage() {
           setLoadError(
             "This sponsor fulfillment link is incomplete or invalid."
           );
-          setLoading(false);
+
+          setLoading(
+            false
+          );
+
           return;
         }
 
@@ -275,19 +352,27 @@ export default function SponsorFulfillmentPage() {
           await fetch(
             "/api/sponsor-fulfillment",
             {
-              method: "POST",
+              method:
+                "POST",
+
               headers: {
                 "Content-Type":
                   "application/json",
               },
-              body: JSON.stringify({
-                action:
-                  "getSponsorFulfillment",
-                sponsorId:
-                  sponsorIdParam,
-                token:
-                  tokenParam,
-              }),
+
+              body:
+                JSON.stringify(
+                  {
+                    action:
+                      "getSponsorFulfillment",
+
+                    sponsorId:
+                      sponsorIdParam,
+
+                    token:
+                      tokenParam,
+                  }
+                ),
             }
           );
 
@@ -308,7 +393,9 @@ export default function SponsorFulfillmentPage() {
         const record =
           result.sponsor as SponsorRecord;
 
-        setSponsor(record);
+        setSponsor(
+          record
+        );
 
         setPublicDisplayName(
           record.publicDisplayName ||
@@ -317,23 +404,28 @@ export default function SponsorFulfillmentPage() {
         );
 
         setWebsite(
-          record.website || ""
+          record.website ||
+            ""
         );
 
         setTagline(
-          record.tagline || ""
+          record.tagline ||
+            ""
         );
 
         setContactName(
-          record.contactName || ""
+          record.contactName ||
+            ""
         );
 
         setEmail(
-          record.email || ""
+          record.email ||
+            ""
         );
 
         setPhone(
-          record.phone || ""
+          record.phone ||
+            ""
         );
 
         setRepresentativeName(
@@ -347,17 +439,20 @@ export default function SponsorFulfillmentPage() {
         );
 
         setBluePreference1(
-          record.bluePreferences?.[0] ||
+          record
+            .bluePreferences?.[0] ||
             ""
         );
 
         setBluePreference2(
-          record.bluePreferences?.[1] ||
+          record
+            .bluePreferences?.[1] ||
             ""
         );
 
         setBluePreference3(
-          record.bluePreferences?.[2] ||
+          record
+            .bluePreferences?.[2] ||
             ""
         );
       } catch (error) {
@@ -372,7 +467,9 @@ export default function SponsorFulfillmentPage() {
             : "Unable to load sponsor information."
         );
       } finally {
-        setLoading(false);
+        setLoading(
+          false
+        );
       }
     }
 
@@ -393,9 +490,10 @@ export default function SponsorFulfillmentPage() {
     level === "blue";
 
   const showTagline =
-    isGrey || isBlue;
+    isGrey ||
+    isBlue;
 
-  const requiresPrimaryLogo =
+  const materialsAlreadySubmitted =
     useMemo(() => {
       const status =
         String(
@@ -406,47 +504,70 @@ export default function SponsorFulfillmentPage() {
           .toLowerCase();
 
       return (
-        !status ||
-        status === "requested"
+        status ===
+        "submitted"
       );
     }, [
       sponsor?.materialsStatus,
+    ]);
+
+  const requiresPrimaryLogo =
+    useMemo(() => {
+      return !Boolean(
+        sponsor?.hasPrimaryLogo
+      );
+    }, [
+      sponsor?.hasPrimaryLogo,
     ]);
 
   function handlePrimaryLogo(
     file: File | null
   ) {
     const error =
-      validateLogoFile(file);
+      validateLogoFile(
+        file
+      );
 
     setPrimaryLogoError(
       error
     );
 
     if (error) {
-      setPrimaryLogo(null);
+      setPrimaryLogo(
+        null
+      );
+
       return;
     }
 
-    setPrimaryLogo(file);
+    setPrimaryLogo(
+      file
+    );
   }
 
   function handleAlternateLogo(
     file: File | null
   ) {
     const error =
-      validateLogoFile(file);
+      validateLogoFile(
+        file
+      );
 
     setAlternateLogoError(
       error
     );
 
     if (error) {
-      setAlternateLogo(null);
+      setAlternateLogo(
+        null
+      );
+
       return;
     }
 
-    setAlternateLogo(file);
+    setAlternateLogo(
+      file
+    );
   }
 
   async function handleSubmit(
@@ -464,6 +585,7 @@ export default function SponsorFulfillmentPage() {
       setSubmitError(
         "Unable to verify this sponsorship."
       );
+
       return;
     }
 
@@ -474,6 +596,7 @@ export default function SponsorFulfillmentPage() {
       setPrimaryLogoError(
         "Please upload your primary logo."
       );
+
       return;
     }
 
@@ -509,6 +632,7 @@ export default function SponsorFulfillmentPage() {
       setSubmitError(
         "Please complete both approval confirmations before submitting."
       );
+
       return;
     }
 
@@ -520,7 +644,9 @@ export default function SponsorFulfillmentPage() {
       ].filter(Boolean);
 
       const uniquePreferences =
-        new Set(preferences);
+        new Set(
+          preferences
+        );
 
       if (
         uniquePreferences.size !==
@@ -529,11 +655,14 @@ export default function SponsorFulfillmentPage() {
         setSubmitError(
           "Please select different choices for each Blue Sponsor preference."
         );
+
         return;
       }
     }
 
-    setSubmitting(true);
+    setSubmitting(
+      true
+    );
 
     try {
       const primaryLogoPayload =
@@ -554,80 +683,87 @@ export default function SponsorFulfillmentPage() {
         await fetch(
           "/api/sponsor-fulfillment",
           {
-            method: "POST",
+            method:
+              "POST",
+
             headers: {
               "Content-Type":
                 "application/json",
             },
-            body: JSON.stringify({
-              action:
-                "saveSponsorFulfillment",
 
-              sponsorId,
-              token,
+            body:
+              JSON.stringify(
+                {
+                  action:
+                    "saveSponsorFulfillment",
 
-              publicDisplayName:
-                publicDisplayName.trim(),
+                  sponsorId,
 
-              website:
-                website.trim(),
+                  token,
 
-              tagline:
-                showTagline
-                  ? tagline.trim()
-                  : "",
+                  publicDisplayName:
+                    publicDisplayName.trim(),
 
-              contactName:
-                contactName.trim(),
+                  website:
+                    website.trim(),
 
-              email:
-                email.trim(),
+                  tagline:
+                    showTagline
+                      ? tagline.trim()
+                      : "",
 
-              phone:
-                phone.trim(),
+                  contactName:
+                    contactName.trim(),
 
-              bluePreference1:
-                isBlue
-                  ? bluePreference1
-                  : "",
+                  email:
+                    email.trim(),
 
-              bluePreference2:
-                isBlue
-                  ? bluePreference2
-                  : "",
+                  phone:
+                    phone.trim(),
 
-              bluePreference3:
-                isBlue
-                  ? bluePreference3
-                  : "",
+                  bluePreference1:
+                    isBlue
+                      ? bluePreference1
+                      : "",
 
-              representativeName:
-                isBlue
-                  ? representativeName.trim()
-                  : "",
+                  bluePreference2:
+                    isBlue
+                      ? bluePreference2
+                      : "",
 
-              representativeTitle:
-                isBlue
-                  ? representativeTitle.trim()
-                  : "",
+                  bluePreference3:
+                    isBlue
+                      ? bluePreference3
+                      : "",
 
-              additionalNotes:
-                isBlue
-                  ? additionalNotes.trim()
-                  : "",
+                  representativeName:
+                    isBlue
+                      ? representativeName.trim()
+                      : "",
 
-              primaryLogo:
-                primaryLogoPayload,
+                  representativeTitle:
+                    isBlue
+                      ? representativeTitle.trim()
+                      : "",
 
-              alternateLogo:
-                alternateLogoPayload,
+                  additionalNotes:
+                    isBlue
+                      ? additionalNotes.trim()
+                      : "",
 
-              informationConfirmed:
-                true,
+                  primaryLogo:
+                    primaryLogoPayload,
 
-              usageAuthorized:
-                true,
-            }),
+                  alternateLogo:
+                    alternateLogoPayload,
+
+                  informationConfirmed:
+                    true,
+
+                  usageAuthorized:
+                    true,
+                }
+              ),
           }
         );
 
@@ -644,11 +780,16 @@ export default function SponsorFulfillmentPage() {
         );
       }
 
-      setSubmitted(true);
+      setSubmitted(
+        true
+      );
 
       window.scrollTo({
-        top: 0,
-        behavior: "smooth",
+        top:
+          0,
+
+        behavior:
+          "smooth",
       });
     } catch (error) {
       console.error(
@@ -662,7 +803,9 @@ export default function SponsorFulfillmentPage() {
           : "Unable to submit sponsor materials."
       );
     } finally {
-      setSubmitting(false);
+      setSubmitting(
+        false
+      );
     }
   }
 
@@ -672,7 +815,8 @@ export default function SponsorFulfillmentPage() {
         <Container>
           <div className="mx-auto max-w-3xl rounded-3xl bg-white p-10 text-center shadow-lg">
             <p className="text-lg text-slate-600">
-              Loading your sponsorship
+              Loading your
+              sponsorship
               information…
             </p>
           </div>
@@ -690,11 +834,13 @@ export default function SponsorFulfillmentPage() {
         <Container>
           <div className="mx-auto max-w-3xl rounded-3xl bg-white p-10 text-center shadow-lg">
             <p className="text-sm font-semibold uppercase tracking-[0.25em] text-[var(--brand-blue)]">
-              Sponsor Fulfillment
+              Sponsor
+              Fulfillment
             </p>
 
             <h1 className="mt-4 text-4xl font-bold text-[var(--brand-navy)]">
-              We couldn’t verify this
+              We couldn’t
+              verify this
               sponsor link.
             </h1>
 
@@ -706,7 +852,8 @@ export default function SponsorFulfillmentPage() {
             <p className="mt-6 text-sm text-slate-500">
               Please contact
               chadmillermemorial@gmail.com
-              if you need assistance.
+              if you need
+              assistance.
             </p>
           </div>
         </Container>
@@ -720,7 +867,8 @@ export default function SponsorFulfillmentPage() {
         <Container>
           <div className="mx-auto max-w-3xl rounded-3xl bg-white p-10 text-center shadow-lg md:p-14">
             <p className="text-sm font-semibold uppercase tracking-[0.25em] text-[var(--brand-teal)]">
-              Materials Received
+              Materials
+              Received
             </p>
 
             <h1 className="mt-4 text-4xl font-bold text-[var(--brand-navy)] md:text-5xl">
@@ -728,33 +876,57 @@ export default function SponsorFulfillmentPage() {
             </h1>
 
             <p className="mt-6 text-lg leading-8 text-slate-600">
-              Your sponsor materials
-              have been received. Our
-              tournament team will review
-              your submission before it is
-              used publicly.
+              Your sponsor
+              materials have
+              been received.
+              Our tournament
+              team will review
+              your submission
+              before it is used
+              publicly.
             </p>
 
             <p className="mt-4 leading-7 text-slate-600">
-              We’ll contact you if we need
-              clarification or a different
+              You may return
+              to your private
+              sponsor link if
+              you need to
+              update your
+              information
+              before final
+              production.
+            </p>
+
+            <p className="mt-4 leading-7 text-slate-600">
+              We’ll contact
+              you if we need
+              clarification
+              or a different
               logo file.
             </p>
 
             {isBlue && (
               <p className="mt-4 leading-7 text-slate-600">
-                We’ll also review your
-                special-event and
-                activity-area preferences
-                and make every effort to
-                accommodate your highest
-                available choice.
+                We’ll also
+                review your
+                special-event
+                and
+                activity-area
+                preferences
+                and make every
+                effort to
+                accommodate
+                your highest
+                available
+                choice.
               </p>
             )}
 
             <p className="mt-8 font-semibold text-[var(--brand-navy)]">
-              Thank you for supporting the
-              SGM Chad Miller Memorial Golf
+              Thank you for
+              supporting the
+              SGM Chad Miller
+              Memorial Golf
               Tournament.
             </p>
           </div>
@@ -769,21 +941,28 @@ export default function SponsorFulfillmentPage() {
         <Container>
           <div className="mx-auto max-w-4xl">
             <p className="text-sm font-semibold uppercase tracking-[0.3em] text-[var(--brand-teal)]">
-              Sponsor Fulfillment
+              Sponsor
+              Fulfillment
             </p>
 
             <h1 className="mt-5 text-5xl font-bold md:text-6xl">
-              Thank you for supporting
-              the SGM Chad Miller
+              Thank you for
+              supporting the
+              SGM Chad Miller
               Memorial.
             </h1>
 
             <p className="mt-6 max-w-3xl text-lg leading-8 text-slate-300">
-              Your sponsorship helps us
-              honor Chad’s legacy, support
-              The Honor Foundation, and
-              recognize members of the U.S.
-              Special Operations community.
+              Your sponsorship
+              helps us honor
+              Chad’s legacy,
+              support The Honor
+              Foundation, and
+              recognize members
+              of the U.S.
+              Special
+              Operations
+              community.
             </p>
           </div>
         </Container>
@@ -792,12 +971,15 @@ export default function SponsorFulfillmentPage() {
       <section className="bg-slate-50 py-20">
         <Container>
           <form
-            onSubmit={handleSubmit}
+            onSubmit={
+              handleSubmit
+            }
             className="mx-auto max-w-5xl space-y-8"
           >
             <div className="rounded-3xl border border-[var(--brand-teal)]/30 bg-[var(--brand-sky)] p-8 shadow-sm md:p-10">
               <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[var(--brand-blue)]">
-                Materials Deadline
+                Materials
+                Deadline
               </p>
 
               <h2 className="mt-3 text-3xl font-bold text-[var(--brand-navy)]">
@@ -806,37 +988,94 @@ export default function SponsorFulfillmentPage() {
               </h2>
 
               <p className="mt-4 leading-7 text-slate-600">
-                Please submit your sponsor
-                materials by this date to
-                guarantee inclusion in
-                printed tournament signage
-                and scheduled recognition.
+                Please submit
+                your sponsor
+                materials by
+                this date to
+                guarantee
+                inclusion in
+                printed
+                tournament
+                signage and
+                scheduled
+                recognition.
               </p>
             </div>
 
+            {materialsAlreadySubmitted && (
+              <div className="rounded-3xl border border-emerald-200 bg-emerald-50 p-8 shadow-sm md:p-10">
+                <p className="text-sm font-semibold uppercase tracking-[0.22em] text-emerald-700">
+                  Materials
+                  Already
+                  Submitted
+                </p>
+
+                <h2 className="mt-3 text-3xl font-bold text-[var(--brand-navy)]">
+                  Your sponsor
+                  materials are
+                  already on
+                  file.
+                </h2>
+
+                <p className="mt-4 leading-7 text-slate-600">
+                  You may use
+                  this page to
+                  make
+                  corrections
+                  or update
+                  your sponsor
+                  information
+                  before final
+                  production.
+                </p>
+
+                <p className="mt-3 font-semibold leading-7 text-[var(--brand-navy)]">
+                  Your existing
+                  primary logo
+                  remains on
+                  file. You do
+                  not need to
+                  upload it
+                  again unless
+                  you want to
+                  replace it
+                  with a
+                  different
+                  version.
+                </p>
+              </div>
+            )}
+
             <div className="rounded-3xl bg-white p-8 shadow-lg md:p-10">
               <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[var(--brand-blue)]">
-                Your Sponsorship
+                Your
+                Sponsorship
               </p>
 
               <h2 className="mt-3 text-3xl font-bold text-[var(--brand-navy)]">
-                {sponsor.sponsorshipLevel}
+                {
+                  sponsor.sponsorshipLevel
+                }
               </h2>
 
               <div className="mt-8 grid gap-5 md:grid-cols-2">
                 <div>
                   <p className="text-sm font-semibold text-slate-500">
-                    Company / Organization
+                    Company /
+                    Organization
                   </p>
 
                   <p className="mt-1 text-lg font-semibold text-[var(--brand-navy)]">
-                    {sponsor.company}
+                    {
+                      sponsor.company
+                    }
                   </p>
                 </div>
 
                 <div>
                   <p className="text-sm font-semibold text-slate-500">
-                    Sponsorship Amount
+                    Sponsorship
+                    Amount
                   </p>
 
                   <p className="mt-1 text-lg font-semibold text-[var(--brand-navy)]">
@@ -848,17 +1087,21 @@ export default function SponsorFulfillmentPage() {
 
                 <div>
                   <p className="text-sm font-semibold text-slate-500">
-                    Primary Contact
+                    Primary
+                    Contact
                   </p>
 
                   <p className="mt-1 text-lg text-[var(--brand-navy)]">
-                    {sponsor.contactName}
+                    {
+                      sponsor.contactName
+                    }
                   </p>
                 </div>
 
                 <div>
                   <p className="text-sm font-semibold text-slate-500">
-                    Materials Status
+                    Materials
+                    Status
                   </p>
 
                   <p className="mt-1 text-lg text-[var(--brand-navy)]">
@@ -869,50 +1112,83 @@ export default function SponsorFulfillmentPage() {
               </div>
             </div>
 
-            {(isHole || isGrey) && (
+            {(isHole ||
+              isGrey) && (
               <div className="rounded-3xl bg-[var(--sand)] p-8 shadow-sm md:p-10">
                 <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[var(--golf-green)]">
-                  Memorial Hole Recognition
+                  Memorial Hole
+                  Recognition
                 </p>
 
                 <h2 className="mt-3 text-3xl font-bold text-[var(--brand-navy)]">
-                  Help us honor a fallen
-                  U.S. Special Operations
-                  service member.
+                  Help us honor
+                  a fallen U.S.
+                  Special
+                  Operations
+                  service
+                  member.
                 </h2>
 
                 <p className="mt-5 leading-8 text-slate-600">
-                  Your sponsorship supports
-                  a dedicated Memorial Hole
-                  Sign honoring a fallen
-                  service member from the
-                  U.S. Special Operations
-                  community. You are
-                  sponsoring the memorial
-                  recognition displayed on
-                  the hole — not naming or
-                  purchasing the golf hole
+                  Your
+                  sponsorship
+                  supports a
+                  dedicated
+                  Memorial Hole
+                  Sign honoring
+                  a fallen
+                  service
+                  member from
+                  the U.S.
+                  Special
+                  Operations
+                  community.
+                  You are
+                  sponsoring
+                  the memorial
+                  recognition
+                  displayed on
+                  the hole —
+                  not naming or
+                  purchasing
+                  the golf hole
                   itself.
                 </p>
 
                 <p className="mt-4 leading-8 text-slate-600">
-                  The tournament team will
-                  select and prepare the
-                  memorial information,
-                  including the fallen
-                  service member’s
-                  photograph, name, rank,
-                  service information, and
-                  memorial details.
+                  The
+                  tournament
+                  team will
+                  select and
+                  prepare the
+                  memorial
+                  information,
+                  including the
+                  fallen
+                  service
+                  member’s
+                  photograph,
+                  name, rank,
+                  service
+                  information,
+                  and memorial
+                  details.
                 </p>
 
                 <p className="mt-4 font-semibold leading-7 text-[var(--brand-navy)]">
-                  The fallen service member
-                  will remain the primary
-                  focus of the sign, with
-                  your sponsor recognition
-                  presented respectfully
-                  alongside the memorial.
+                  The fallen
+                  service
+                  member will
+                  remain the
+                  primary focus
+                  of the sign,
+                  with your
+                  sponsor
+                  recognition
+                  presented
+                  respectfully
+                  alongside the
+                  memorial.
                 </p>
               </div>
             )}
@@ -920,42 +1196,71 @@ export default function SponsorFulfillmentPage() {
             {isBlue && (
               <div className="rounded-3xl bg-[var(--brand-sky)] p-8 shadow-sm md:p-10">
                 <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[var(--brand-blue)]">
-                  Blue Sponsor Recognition
+                  Blue Sponsor
+                  Recognition
                 </p>
 
                 <h2 className="mt-3 text-3xl font-bold text-[var(--brand-navy)]">
-                  Special events, contests,
-                  and activity areas come
+                  Special
+                  events,
+                  contests, and
+                  activity
+                  areas come
                   first.
                 </h2>
 
                 <p className="mt-5 leading-8 text-slate-600">
-                  Blue Sponsors are given
-                  priority for recognition
-                  at major tournament
-                  events, contests, and
-                  specialty activity areas.
-                  Examples include the
-                  Driving Range, Putting
-                  Green, Longest Drive,
+                  Blue Sponsors
+                  are given
+                  priority for
+                  recognition
+                  at major
+                  tournament
+                  events,
+                  contests, and
+                  specialty
+                  activity
+                  areas.
+                  Examples
+                  include the
+                  Driving
+                  Range,
+                  Putting
+                  Green,
+                  Longest
+                  Drive,
                   Closest-to-the-Pin,
-                  Hole-in-One Contest,
-                  Breakfast, Lunch, Silent
-                  Auction, and Tribute /
-                  Awards Program.
+                  Hole-in-One
+                  Contest,
+                  Breakfast,
+                  Lunch, Silent
+                  Auction, and
+                  Tribute /
+                  Awards
+                  Program.
                 </p>
 
                 <p className="mt-4 leading-8 text-slate-600">
-                  If those opportunities
-                  are fully assigned, or if
-                  additional Memorial Hole
-                  Sponsors are needed, the
-                  tournament team may
-                  assign a Blue Sponsor to
-                  Memorial Hole recognition
-                  while maintaining
-                  recognition appropriate
-                  to the Blue Sponsorship
+                  If those
+                  opportunities
+                  are fully
+                  assigned, or
+                  if additional
+                  Memorial Hole
+                  Sponsors are
+                  needed, the
+                  tournament
+                  team may
+                  assign a Blue
+                  Sponsor to
+                  Memorial Hole
+                  recognition
+                  while
+                  maintaining
+                  recognition
+                  appropriate
+                  to the Blue
+                  Sponsorship
                   level.
                 </p>
               </div>
@@ -963,27 +1268,36 @@ export default function SponsorFulfillmentPage() {
 
             <div className="rounded-3xl bg-white p-8 shadow-lg md:p-10">
               <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[var(--brand-blue)]">
-                Sponsor Information
+                Sponsor
+                Information
               </p>
 
               <h2 className="mt-3 text-3xl font-bold text-[var(--brand-navy)]">
-                How should we represent
-                your organization?
+                How should we
+                represent your
+                organization?
               </h2>
 
               <div className="mt-8 grid gap-6">
                 <label className="block">
                   <span className="font-semibold text-[var(--brand-navy)]">
                     Public-Facing
-                    Organization Name *
+                    Organization
+                    Name *
                   </span>
 
                   <p className="mt-1 text-sm leading-6 text-slate-500">
-                    Enter the exact name
-                    you would like displayed
-                    on tournament signage
-                    and the Sponsor
-                    Recognition page.
+                    Enter the
+                    exact name
+                    you would
+                    like
+                    displayed
+                    on
+                    tournament
+                    signage and
+                    the Sponsor
+                    Recognition
+                    page.
                   </p>
 
                   <input
@@ -991,9 +1305,13 @@ export default function SponsorFulfillmentPage() {
                     value={
                       publicDisplayName
                     }
-                    onChange={(event) =>
+                    onChange={(
+                      event
+                    ) =>
                       setPublicDisplayName(
-                        event.target.value
+                        event
+                          .target
+                          .value
                       )
                     }
                     className="mt-3 w-full rounded-xl border border-slate-300 px-4 py-3"
@@ -1002,25 +1320,38 @@ export default function SponsorFulfillmentPage() {
 
                 <label className="block">
                   <span className="font-semibold text-[var(--brand-navy)]">
-                    Website URL *
+                    Website URL
+                    *
                   </span>
 
                   <p className="mt-1 text-sm leading-6 text-slate-500">
-                    This is where visitors
-                    will be directed when
-                    they select your
-                    organization on our
-                    Sponsor Recognition
+                    This is
+                    where
+                    visitors
+                    will be
+                    directed
+                    when they
+                    select your
+                    organization
+                    on our
+                    Sponsor
+                    Recognition
                     page.
                   </p>
 
                   <input
                     required
                     type="url"
-                    value={website}
-                    onChange={(event) =>
+                    value={
+                      website
+                    }
+                    onChange={(
+                      event
+                    ) =>
                       setWebsite(
-                        event.target.value
+                        event
+                          .target
+                          .value
                       )
                     }
                     placeholder="https://"
@@ -1031,34 +1362,55 @@ export default function SponsorFulfillmentPage() {
                 {showTagline && (
                   <label className="block">
                     <span className="font-semibold text-[var(--brand-navy)]">
-                      Short Tagline or
-                      Description — Optional
+                      Short
+                      Tagline or
+                      Description
+                      — Optional
                     </span>
 
                     <p className="mt-1 text-sm leading-6 text-slate-500">
-                      Maximum 150
-                      characters. We may use
-                      this on the Sponsor
-                      Recognition page or in
-                      selected tournament
-                      communications where
-                      space permits.
+                      Maximum
+                      150
+                      characters.
+                      We may use
+                      this on
+                      the
+                      Sponsor
+                      Recognition
+                      page or in
+                      selected
+                      tournament
+                      communications
+                      where
+                      space
+                      permits.
                     </p>
 
                     <textarea
-                      value={tagline}
-                      maxLength={150}
+                      value={
+                        tagline
+                      }
+                      maxLength={
+                        150
+                      }
                       rows={3}
-                      onChange={(event) =>
+                      onChange={(
+                        event
+                      ) =>
                         setTagline(
-                          event.target.value
+                          event
+                            .target
+                            .value
                         )
                       }
                       className="mt-3 w-full rounded-xl border border-slate-300 px-4 py-3"
                     />
 
                     <p className="mt-1 text-right text-xs text-slate-400">
-                      {tagline.length}/150
+                      {
+                        tagline.length
+                      }
+                      /150
                     </p>
                   </label>
                 )}
@@ -1067,38 +1419,49 @@ export default function SponsorFulfillmentPage() {
 
             <div className="rounded-3xl bg-white p-8 shadow-lg md:p-10">
               <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[var(--brand-blue)]">
-                Logo & Artwork
+                Logo &
+                Artwork
               </p>
 
               <h2 className="mt-3 text-3xl font-bold text-[var(--brand-navy)]">
-                Send us your best-quality
+                Send us your
+                best-quality
                 logo.
               </h2>
 
               <p className="mt-4 leading-7 text-slate-600">
-                Accepted file types:
-                <strong> SVG or PNG only.</strong>{" "}
-                SVG is preferred. For PNG
-                files, please provide a
-                high-resolution image with
-                a transparent background
-                whenever possible.
+                Accepted file
+                types:
+                <strong>
+                  {" "}
+                  SVG or PNG
+                  only.
+                </strong>{" "}
+                SVG is
+                preferred.
+                For PNG files,
+                please
+                provide a
+                high-resolution
+                image with a
+                transparent
+                background
+                whenever
+                possible.
               </p>
 
               <div className="mt-8 grid gap-8 md:grid-cols-2">
                 <label className="block rounded-2xl border border-slate-200 p-6">
                   <span className="font-semibold text-[var(--brand-navy)]">
-                    Primary Logo
                     {requiresPrimaryLogo
-                      ? " *"
-                      : ""}
+                      ? "Primary Logo *"
+                      : "Primary Logo — Optional Replacement"}
                   </span>
 
                   <p className="mt-2 text-sm leading-6 text-slate-500">
-                    This will be the
-                    primary logo used for
-                    your tournament
-                    recognition.
+                    {requiresPrimaryLogo
+                      ? "This will be the primary logo used for your tournament recognition."
+                      : "Your primary logo is already on file. Leave this blank to keep the existing logo, or upload a new SVG or PNG to replace it."}
                   </p>
 
                   <input
@@ -1107,9 +1470,12 @@ export default function SponsorFulfillmentPage() {
                       requiresPrimaryLogo
                     }
                     accept=".svg,.png,image/svg+xml,image/png"
-                    onChange={(event) =>
+                    onChange={(
+                      event
+                    ) =>
                       handlePrimaryLogo(
-                        event.target
+                        event
+                          .target
                           .files?.[0] ||
                           null
                       )
@@ -1119,37 +1485,43 @@ export default function SponsorFulfillmentPage() {
 
                   {primaryLogo && (
                     <p className="mt-3 text-sm font-medium text-[var(--brand-blue)]">
-                      {primaryLogo.name}
+                      {
+                        primaryLogo.name
+                      }
                     </p>
                   )}
 
                   {primaryLogoError && (
                     <p className="mt-3 text-sm font-semibold text-red-600">
-                      {primaryLogoError}
+                      {
+                        primaryLogoError
+                      }
                     </p>
                   )}
                 </label>
 
                 <label className="block rounded-2xl border border-slate-200 p-6">
                   <span className="font-semibold text-[var(--brand-navy)]">
-                    Alternate Logo —
+                    Alternate
+                    Logo —
                     Optional
                   </span>
 
                   <p className="mt-2 text-sm leading-6 text-slate-500">
-                    If available, provide
-                    an alternate version
-                    suitable for a
-                    different light or dark
-                    background.
+                    {sponsor.hasAlternateLogo
+                      ? "An alternate logo is already on file. Leave this blank to keep it, or upload a new version to replace it."
+                      : "If available, provide an alternate version suitable for a different light or dark background."}
                   </p>
 
                   <input
                     type="file"
                     accept=".svg,.png,image/svg+xml,image/png"
-                    onChange={(event) =>
+                    onChange={(
+                      event
+                    ) =>
                       handleAlternateLogo(
-                        event.target
+                        event
+                          .target
                           .files?.[0] ||
                           null
                       )
@@ -1159,71 +1531,105 @@ export default function SponsorFulfillmentPage() {
 
                   {alternateLogo && (
                     <p className="mt-3 text-sm font-medium text-[var(--brand-blue)]">
-                      {alternateLogo.name}
+                      {
+                        alternateLogo.name
+                      }
                     </p>
                   )}
 
                   {alternateLogoError && (
                     <p className="mt-3 text-sm font-semibold text-red-600">
-                      {alternateLogoError}
+                      {
+                        alternateLogoError
+                      }
                     </p>
                   )}
                 </label>
               </div>
 
               <p className="mt-6 text-sm text-slate-500">
-                Maximum file size: 5 MB
-                per logo.
+                Maximum file
+                size: 5 MB per
+                logo.
               </p>
             </div>
 
             {isBlue && (
               <div className="rounded-3xl bg-white p-8 shadow-lg md:p-10">
                 <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[var(--brand-blue)]">
-                  Blue Sponsor Special
-                  Event & Area Preferences
+                  Blue Sponsor
+                  Special Event
+                  & Area
+                  Preferences
                 </p>
 
                 <h2 className="mt-3 text-3xl font-bold text-[var(--brand-navy)]">
-                  Tell us what interests
-                  your organization most.
+                  Tell us what
+                  interests
+                  your
+                  organization
+                  most.
                 </h2>
 
                 <p className="mt-5 leading-8 text-slate-600">
-                  Please rank up to three
-                  preferred special-event,
-                  contest, or activity-area
-                  sponsorships. We will make
-                  every effort to
-                  accommodate your highest
-                  available preference based
-                  on availability and the
-                  order completed sponsor
-                  materials are received.
+                  Please rank
+                  up to three
+                  preferred
+                  special-event,
+                  contest, or
+                  activity-area
+                  sponsorships.
+                  We will make
+                  every effort
+                  to
+                  accommodate
+                  your highest
+                  available
+                  preference
+                  based on
+                  availability
+                  and the order
+                  completed
+                  sponsor
+                  materials are
+                  received.
                 </p>
 
                 <p className="mt-4 font-semibold leading-7 text-[var(--brand-navy)]">
-                  Specific assignments and
-                  exclusivity are not
-                  guaranteed. Some major
-                  areas, including Breakfast
-                  and Lunch, may recognize
-                  multiple Blue Sponsors.
+                  Specific
+                  assignments
+                  and
+                  exclusivity
+                  are not
+                  guaranteed.
+                  Some major
+                  areas,
+                  including
+                  Breakfast and
+                  Lunch, may
+                  recognize
+                  multiple Blue
+                  Sponsors.
                 </p>
 
                 <div className="mt-8 grid gap-6 md:grid-cols-3">
                   <label className="block">
                     <span className="font-semibold">
-                      First Preference
+                      First
+                      Preference
                     </span>
 
                     <select
                       value={
                         bluePreference1
                       }
-                      onChange={(event) =>
+                      onChange={(
+                        event
+                      ) =>
                         setBluePreference1(
-                          event.target.value
+                          event
+                            .target
+                            .value
                         )
                       }
                       className="mt-2 w-full rounded-xl border border-slate-300 bg-white px-4 py-3"
@@ -1233,12 +1639,20 @@ export default function SponsorFulfillmentPage() {
                       </option>
 
                       {BLUE_FEATURE_OPTIONS.map(
-                        (option) => (
+                        (
+                          option
+                        ) => (
                           <option
-                            key={option}
-                            value={option}
+                            key={
+                              option
+                            }
+                            value={
+                              option
+                            }
                           >
-                            {option}
+                            {
+                              option
+                            }
                           </option>
                         )
                       )}
@@ -1247,16 +1661,21 @@ export default function SponsorFulfillmentPage() {
 
                   <label className="block">
                     <span className="font-semibold">
-                      Second Preference
+                      Second
+                      Preference
                     </span>
 
                     <select
                       value={
                         bluePreference2
                       }
-                      onChange={(event) =>
+                      onChange={(
+                        event
+                      ) =>
                         setBluePreference2(
-                          event.target.value
+                          event
+                            .target
+                            .value
                         )
                       }
                       className="mt-2 w-full rounded-xl border border-slate-300 bg-white px-4 py-3"
@@ -1266,12 +1685,20 @@ export default function SponsorFulfillmentPage() {
                       </option>
 
                       {BLUE_FEATURE_OPTIONS.map(
-                        (option) => (
+                        (
+                          option
+                        ) => (
                           <option
-                            key={option}
-                            value={option}
+                            key={
+                              option
+                            }
+                            value={
+                              option
+                            }
                           >
-                            {option}
+                            {
+                              option
+                            }
                           </option>
                         )
                       )}
@@ -1280,16 +1707,21 @@ export default function SponsorFulfillmentPage() {
 
                   <label className="block">
                     <span className="font-semibold">
-                      Third Preference
+                      Third
+                      Preference
                     </span>
 
                     <select
                       value={
                         bluePreference3
                       }
-                      onChange={(event) =>
+                      onChange={(
+                        event
+                      ) =>
                         setBluePreference3(
-                          event.target.value
+                          event
+                            .target
+                            .value
                         )
                       }
                       className="mt-2 w-full rounded-xl border border-slate-300 bg-white px-4 py-3"
@@ -1299,12 +1731,20 @@ export default function SponsorFulfillmentPage() {
                       </option>
 
                       {BLUE_FEATURE_OPTIONS.map(
-                        (option) => (
+                        (
+                          option
+                        ) => (
                           <option
-                            key={option}
-                            value={option}
+                            key={
+                              option
+                            }
+                            value={
+                              option
+                            }
                           >
-                            {option}
+                            {
+                              option
+                            }
                           </option>
                         )
                       )}
@@ -1317,42 +1757,59 @@ export default function SponsorFulfillmentPage() {
             {isBlue && (
               <div className="rounded-3xl bg-white p-8 shadow-lg md:p-10">
                 <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[var(--brand-blue)]">
-                  Tribute & Awards
+                  Tribute &
+                  Awards
                   Recognition
                 </p>
 
                 <h2 className="mt-3 text-3xl font-bold text-[var(--brand-navy)]">
                   Representative
-                  information — optional.
+                  information —
+                  optional.
                 </h2>
 
                 <p className="mt-4 leading-7 text-slate-600">
-                  If there is a
-                  representative from your
-                  organization you would
-                  specifically like
-                  recognized during the
-                  tribute and awards
-                  program, provide their
-                  information below.
-                  Leaving this blank will
-                  not affect your Blue
-                  Sponsor recognition.
+                  If there is
+                  a
+                  representative
+                  from your
+                  organization
+                  you would
+                  specifically
+                  like
+                  recognized
+                  during the
+                  tribute and
+                  awards
+                  program,
+                  provide their
+                  information
+                  below.
+                  Leaving this
+                  blank will not
+                  affect your
+                  Blue Sponsor
+                  recognition.
                 </p>
 
                 <div className="mt-8 grid gap-6 md:grid-cols-2">
                   <label className="block">
                     <span className="font-semibold">
-                      Representative Name
+                      Representative
+                      Name
                     </span>
 
                     <input
                       value={
                         representativeName
                       }
-                      onChange={(event) =>
+                      onChange={(
+                        event
+                      ) =>
                         setRepresentativeName(
-                          event.target.value
+                          event
+                            .target
+                            .value
                         )
                       }
                       className="mt-2 w-full rounded-xl border border-slate-300 px-4 py-3"
@@ -1361,16 +1818,21 @@ export default function SponsorFulfillmentPage() {
 
                   <label className="block">
                     <span className="font-semibold">
-                      Representative Title
+                      Representative
+                      Title
                     </span>
 
                     <input
                       value={
                         representativeTitle
                       }
-                      onChange={(event) =>
+                      onChange={(
+                        event
+                      ) =>
                         setRepresentativeTitle(
-                          event.target.value
+                          event
+                            .target
+                            .value
                         )
                       }
                       className="mt-2 w-full rounded-xl border border-slate-300 px-4 py-3"
@@ -1380,23 +1842,32 @@ export default function SponsorFulfillmentPage() {
 
                 <label className="mt-6 block">
                   <span className="font-semibold">
-                    Additional Recognition
-                    Notes — Optional
+                    Additional
+                    Recognition
+                    Notes —
+                    Optional
                   </span>
 
                   <p className="mt-1 text-sm text-slate-500">
-                    Maximum 500 characters.
+                    Maximum 500
+                    characters.
                   </p>
 
                   <textarea
                     value={
                       additionalNotes
                     }
-                    maxLength={500}
+                    maxLength={
+                      500
+                    }
                     rows={4}
-                    onChange={(event) =>
+                    onChange={(
+                      event
+                    ) =>
                       setAdditionalNotes(
-                        event.target.value
+                        event
+                          .target
+                          .value
                       )
                     }
                     className="mt-3 w-full rounded-xl border border-slate-300 px-4 py-3"
@@ -1414,26 +1885,36 @@ export default function SponsorFulfillmentPage() {
 
             <div className="rounded-3xl bg-white p-8 shadow-lg md:p-10">
               <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[var(--brand-blue)]">
-                Primary Contact
+                Primary
+                Contact
               </p>
 
               <h2 className="mt-3 text-3xl font-bold text-[var(--brand-navy)]">
-                Who should we contact if
-                we have a question?
+                Who should we
+                contact if we
+                have a
+                question?
               </h2>
 
               <div className="mt-8 grid gap-6 md:grid-cols-2">
                 <label className="block">
                   <span className="font-semibold">
-                    Contact Name *
+                    Contact Name
+                    *
                   </span>
 
                   <input
                     required
-                    value={contactName}
-                    onChange={(event) =>
+                    value={
+                      contactName
+                    }
+                    onChange={(
+                      event
+                    ) =>
                       setContactName(
-                        event.target.value
+                        event
+                          .target
+                          .value
                       )
                     }
                     className="mt-2 w-full rounded-xl border border-slate-300 px-4 py-3"
@@ -1448,10 +1929,16 @@ export default function SponsorFulfillmentPage() {
                   <input
                     required
                     type="email"
-                    value={email}
-                    onChange={(event) =>
+                    value={
+                      email
+                    }
+                    onChange={(
+                      event
+                    ) =>
                       setEmail(
-                        event.target.value
+                        event
+                          .target
+                          .value
                       )
                     }
                     className="mt-2 w-full rounded-xl border border-slate-300 px-4 py-3"
@@ -1466,10 +1953,16 @@ export default function SponsorFulfillmentPage() {
                   <input
                     required
                     type="tel"
-                    value={phone}
-                    onChange={(event) =>
+                    value={
+                      phone
+                    }
+                    onChange={(
+                      event
+                    ) =>
                       setPhone(
-                        event.target.value
+                        event
+                          .target
+                          .value
                       )
                     }
                     className="mt-2 w-full rounded-xl border border-slate-300 px-4 py-3 md:max-w-md"
@@ -1478,22 +1971,33 @@ export default function SponsorFulfillmentPage() {
               </div>
 
               <p className="mt-6 text-sm leading-6 text-slate-500">
-                We will use this contact
-                if we have questions about
-                artwork, signage, sponsor
-                recognition, or Blue
-                Sponsor feature assignments
-                where applicable.
+                We will use
+                this contact
+                if we have
+                questions
+                about
+                artwork,
+                signage,
+                sponsor
+                recognition,
+                or Blue
+                Sponsor
+                feature
+                assignments
+                where
+                applicable.
               </p>
             </div>
 
             <div className="rounded-3xl bg-[var(--brand-navy)] p-8 text-white shadow-lg md:p-10">
               <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[var(--brand-teal)]">
-                Final Approval
+                Final
+                Approval
               </p>
 
               <h2 className="mt-3 text-3xl font-bold">
-                Confirm your sponsor
+                Confirm your
+                sponsor
                 materials.
               </h2>
 
@@ -1505,21 +2009,31 @@ export default function SponsorFulfillmentPage() {
                     checked={
                       informationConfirmed
                     }
-                    onChange={(event) =>
+                    onChange={(
+                      event
+                    ) =>
                       setInformationConfirmed(
-                        event.target.checked
+                        event
+                          .target
+                          .checked
                       )
                     }
                     className="mt-1 h-5 w-5 shrink-0"
                   />
 
                   <span className="leading-7 text-slate-200">
-                    I confirm that the
-                    organization name,
-                    website, contact
-                    information, and any
-                    recognition preferences
-                    submitted above are
+                    I confirm
+                    that the
+                    organization
+                    name,
+                    website,
+                    contact
+                    information,
+                    and any
+                    recognition
+                    preferences
+                    submitted
+                    above are
                     correct.
                   </span>
                 </label>
@@ -1531,26 +2045,43 @@ export default function SponsorFulfillmentPage() {
                     checked={
                       usageAuthorized
                     }
-                    onChange={(event) =>
+                    onChange={(
+                      event
+                    ) =>
                       setUsageAuthorized(
-                        event.target.checked
+                        event
+                          .target
+                          .checked
                       )
                     }
                     className="mt-1 h-5 w-5 shrink-0"
                   />
 
                   <span className="leading-7 text-slate-200">
-                    I authorize the SGM
-                    Chad Miller Memorial
-                    Golf Tournament to use
-                    the submitted company
-                    name, logo, artwork, and
-                    provided information
-                    for tournament signage,
-                    website recognition,
-                    communications, and
-                    other materials
-                    associated with the
+                    I authorize
+                    the SGM Chad
+                    Miller
+                    Memorial
+                    Golf
+                    Tournament
+                    to use the
+                    submitted
+                    company
+                    name, logo,
+                    artwork,
+                    and
+                    provided
+                    information
+                    for
+                    tournament
+                    signage,
+                    website
+                    recognition,
+                    communications,
+                    and other
+                    materials
+                    associated
+                    with the
                     event.
                   </span>
                 </label>
@@ -1558,25 +2089,39 @@ export default function SponsorFulfillmentPage() {
 
               {submitError && (
                 <div className="mt-8 rounded-2xl bg-red-50 p-4 text-sm font-semibold text-red-700">
-                  {submitError}
+                  {
+                    submitError
+                  }
                 </div>
               )}
 
               <button
                 type="submit"
-                disabled={submitting}
+                disabled={
+                  submitting
+                }
                 className="mt-8 rounded-full bg-[var(--brand-teal)] px-8 py-4 font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {submitting
-                  ? "Submitting Sponsor Materials…"
-                  : "Submit Sponsor Materials"}
+                  ? materialsAlreadySubmitted
+                    ? "Updating Sponsor Materials…"
+                    : "Submitting Sponsor Materials…"
+                  : materialsAlreadySubmitted
+                    ? "Update Sponsor Materials"
+                    : "Submit Sponsor Materials"}
               </button>
 
               <p className="mt-5 text-sm leading-6 text-slate-400">
-                Your submission will be
-                reviewed by the tournament
-                team before any materials
-                are published or sent to
+                Your
+                submission
+                will be
+                reviewed by
+                the
+                tournament
+                team before
+                any materials
+                are published
+                or sent to
                 production.
               </p>
             </div>
