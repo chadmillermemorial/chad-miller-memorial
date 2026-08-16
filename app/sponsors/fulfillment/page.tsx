@@ -1320,8 +1320,8 @@ export default function SponsorFulfillmentPage() {
 
                 <label className="block">
                   <span className="font-semibold text-[var(--brand-navy)]">
-                    Website URL
-                    *
+                    Website URL —
+                    Optional
                   </span>
 
                   <p className="mt-1 text-sm leading-6 text-slate-500">
@@ -1340,7 +1340,6 @@ export default function SponsorFulfillmentPage() {
                   </p>
 
                   <input
-                    required
                     type="url"
                     value={
                       website
