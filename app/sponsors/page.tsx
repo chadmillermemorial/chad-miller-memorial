@@ -11,9 +11,11 @@ const sponsorLevels = [
     id: "hole" as SponsorLevel,
     name: "Hole Sponsor",
     amount: 500,
-    description: "Support the tournament with dedicated on-course visibility.",
+    description:
+      "Honor a fallen member of the U.S. Special Operations community with dedicated memorial recognition on the course.",
     benefits: [
-      "Dedicated sponsor sign at one tournament hole",
+      "Dedicated Memorial Hole Sign honoring a fallen U.S. Special Operations service member",
+      "Sponsor name or logo respectfully incorporated into the Memorial Hole Sign",
       "Company name or logo on the tournament website",
       "Recognition as a tournament sponsor",
     ],
@@ -23,12 +25,12 @@ const sponsorLevels = [
     name: "Grey Sponsor",
     amount: 1000,
     description:
-      "Expanded visibility throughout the tournament and event areas.",
+      "Expanded tournament-wide recognition while supporting our Memorial Hole program.",
     benefits: [
       "Everything included with Hole Sponsorship",
-      "Larger placement on main tournament sponsor signage",
-      "Logo visibility in the registration and lunch areas",
-      "Recognition in tournament communications",
+      "Enhanced placement on the Main Sponsor Recognition Board",
+      "Expanded visibility in major tournament gathering areas",
+      "Recognition in selected tournament-wide communications",
     ],
   },
   {
@@ -36,14 +38,14 @@ const sponsorLevels = [
     name: "Blue Sponsor",
     amount: 2000,
     description:
-      "Premier event-level partnership with our highest level of recognition.",
+      "Premier tournament partnership with priority recognition at major events, contests, and activity areas.",
     benefits: [
-      "Everything included with Grey Sponsorship",
-      "Premier logo placement on major event signage",
-      "Company banner placement at the tournament",
+      "Premier placement on the Main Sponsor Recognition Board",
+      "Premier website recognition",
       "Prominent recognition during the tribute and awards program",
-      "Premier website placement",
-      "Opportunity to be associated with a major tournament feature",
+      "Priority consideration for a major tournament event, contest, or activity area",
+      "Dedicated Blue Sponsor feature signage or banner at the assigned area",
+      "Recognition in selected tournament-wide communications",
     ],
   },
 ];
@@ -87,7 +89,8 @@ export default function SponsorsPage() {
 
               <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-300">
                 Sponsorship helps us host the Sergeant Major Chad Miller
-                Memorial Golf Tournament and support the mission of The Honor
+                Memorial Golf Tournament, honor members of the U.S. Special
+                Operations community, and support the mission of The Honor
                 Foundation.
               </p>
             </div>
@@ -173,6 +176,38 @@ export default function SponsorsPage() {
                 ))}
               </div>
 
+              {sponsorLevel === "hole" && (
+                <div className="mt-8 rounded-2xl bg-slate-50 p-6">
+                  <p className="font-semibold text-[var(--brand-navy)]">
+                    About Memorial Hole Sponsorship
+                  </p>
+
+                  <p className="mt-2 text-sm leading-6 text-slate-600">
+                    Each Memorial Hole Sign will share the story of a fallen
+                    member of the U.S. Special Operations community. The
+                    tournament team will select and prepare the memorial
+                    information, while sponsor recognition will be presented
+                    respectfully alongside it. The fallen service member will
+                    remain the primary focus of the sign.
+                  </p>
+                </div>
+              )}
+
+              {sponsorLevel === "grey" && (
+                <div className="mt-8 rounded-2xl bg-slate-50 p-6">
+                  <p className="font-semibold text-[var(--brand-navy)]">
+                    Expanded Tournament Recognition
+                  </p>
+
+                  <p className="mt-2 text-sm leading-6 text-slate-600">
+                    Grey Sponsors receive Memorial Hole recognition plus
+                    enhanced placement on the tournament&apos;s Main Sponsor
+                    Recognition Board and recognition in selected
+                    tournament-wide communications.
+                  </p>
+                </div>
+              )}
+
               {sponsorLevel === "blue" && (
                 <div className="mt-8 rounded-2xl bg-slate-50 p-6">
                   <label className="block">
@@ -201,14 +236,40 @@ export default function SponsorsPage() {
                       />
                     </div>
                   </label>
+
+                  <div className="mt-6 border-t border-slate-200 pt-6">
+                    <p className="font-semibold text-[var(--brand-navy)]">
+                      Blue Sponsor Special Events & Areas
+                    </p>
+
+                    <p className="mt-2 text-sm leading-6 text-slate-600">
+                      Blue Sponsors are prioritized for major tournament
+                      events, contests, and activity areas such as Breakfast,
+                      Lunch, the Driving Range, Putting Green, Longest Drive,
+                      Closest to the Pin, Hole-in-One Contest, Silent Auction,
+                      and Tribute / Awards Program.
+                    </p>
+
+                    <p className="mt-3 text-sm leading-6 text-slate-600">
+                      After sponsorship is completed, Blue Sponsors may rank
+                      their preferred opportunities through their private
+                      sponsor materials page. Assignments are based on
+                      availability and the order completed sponsor materials
+                      are received. Specific assignments and exclusivity are
+                      not guaranteed, and some major areas may recognize
+                      multiple Blue Sponsors.
+                    </p>
+
+                    <p className="mt-3 text-sm leading-6 text-slate-600">
+                      If premium feature opportunities are fully assigned, or
+                      additional Memorial Hole Sponsors are needed, a Blue
+                      Sponsor may also be assigned Memorial Hole recognition
+                      while maintaining recognition appropriate to the Blue
+                      Sponsorship level.
+                    </p>
+                  </div>
                 </div>
               )}
-
-              <p className="mt-8 text-sm leading-6 text-slate-500">
-                Major tournament-feature recognition for Blue Sponsors will be
-                coordinated with the tournament team based on availability and
-                sponsorship level.
-              </p>
             </div>
 
             <div className="mt-8 rounded-3xl bg-white p-8 shadow-sm md:p-10">
@@ -296,10 +357,25 @@ export default function SponsorsPage() {
                 </label>
               </div>
 
-              <p className="mt-6 text-sm leading-6 text-slate-500">
-                We will follow up separately for your company logo and any
-                sponsorship materials needed for the event.
-              </p>
+              <div className="mt-6 rounded-2xl bg-slate-50 p-5">
+                <p className="font-semibold text-[var(--brand-navy)]">
+                  What happens after payment?
+                </p>
+
+                <p className="mt-2 text-sm leading-6 text-slate-600">
+                  After your sponsorship payment is confirmed, we will email
+                  your primary contact a unique private link to submit your
+                  company logo and complete the materials needed for your
+                  sponsorship recognition.
+                </p>
+
+                <p className="mt-2 text-sm leading-6 text-slate-600">
+                  Sponsor materials are due by{" "}
+                  <strong>Friday, September 11, 2026</strong>. Materials
+                  received after that date may not be guaranteed inclusion in
+                  printed tournament materials.
+                </p>
+              </div>
             </div>
 
             <div className="mt-10 rounded-3xl bg-[var(--brand-navy)] p-8 text-white md:p-10">
