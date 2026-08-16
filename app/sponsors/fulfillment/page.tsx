@@ -57,7 +57,7 @@ const BLUE_FEATURE_OPTIONS = [
 ];
 
 const MAX_FILE_SIZE =
-  5 * 1024 * 1024;
+  3 * 1024 * 1024;
 
 function formatCurrency(
   value: number
@@ -96,7 +96,7 @@ function validateLogoFile(
     file.size >
     MAX_FILE_SIZE
   ) {
-    return "Logo files must be 5 MB or smaller.";
+    return "Logo files must be 3 MB or smaller.";
   }
 
   return "";
@@ -1549,7 +1549,7 @@ export default function SponsorFulfillmentPage() {
 
               <p className="mt-6 text-sm text-slate-500">
                 Maximum file
-                size: 5 MB per
+                size: 3 MB per
                 logo.
               </p>
             </div>
