@@ -72,7 +72,7 @@ function formatCurrency(
   ).format(value);
 }
 
-function validateLogoFile(
+function validatePrimaryLogoFile(
   file: File | null
 ) {
   if (!file) {
@@ -85,11 +85,35 @@ function validateLogoFile(
       .pop()
       ?.toLowerCase();
 
+  if (extension !== "png") {
+    return "The website / digital logo must be a PNG file.";
+  }
+
   if (
-    extension !== "svg" &&
-    extension !== "png"
+    file.size >
+    MAX_FILE_SIZE
   ) {
-    return "Logo files must be SVG or PNG.";
+    return "Logo files must be 3 MB or smaller.";
+  }
+
+  return "";
+}
+
+function validateAlternateLogoFile(
+  file: File | null
+) {
+  if (!file) {
+    return "";
+  }
+
+  const extension =
+    file.name
+      .split(".")
+      .pop()
+      ?.toLowerCase();
+
+  if (extension !== "svg") {
+    return "The print-quality logo must be an SVG file.";
   }
 
   if (
@@ -524,7 +548,7 @@ export default function SponsorFulfillmentPage() {
     file: File | null
   ) {
     const error =
-      validateLogoFile(
+      validatePrimaryLogoFile(
         file
       );
 
@@ -549,7 +573,7 @@ export default function SponsorFulfillmentPage() {
     file: File | null
   ) {
     const error =
-      validateLogoFile(
+      validateAlternateLogoFile(
         file
       );
 
@@ -594,19 +618,19 @@ export default function SponsorFulfillmentPage() {
       !primaryLogo
     ) {
       setPrimaryLogoError(
-        "Please upload your primary logo."
+        "Please upload your website / digital logo as a PNG file."
       );
 
       return;
     }
 
     const primaryError =
-      validateLogoFile(
+      validatePrimaryLogoFile(
         primaryLogo
       );
 
     const alternateError =
-      validateLogoFile(
+      validateAlternateLogoFile(
         alternateLogo
       );
 
@@ -1031,9 +1055,9 @@ export default function SponsorFulfillmentPage() {
 
                 <p className="mt-3 font-semibold leading-7 text-[var(--brand-navy)]">
                   Your existing
-                  primary logo
-                  remains on
-                  file. You do
+                  website / digital
+                  PNG logo remains
+                  on file. You do
                   not need to
                   upload it
                   again unless
@@ -1429,23 +1453,14 @@ export default function SponsorFulfillmentPage() {
               </h2>
 
               <p className="mt-4 leading-7 text-slate-600">
-                Accepted file
-                types:
-                <strong>
-                  {" "}
-                  SVG or PNG
-                  only.
-                </strong>{" "}
-                SVG is
-                preferred.
-                For PNG files,
-                please
-                provide a
-                high-resolution
-                image with a
-                transparent
-                background
-                whenever
+                Please provide a
+                <strong> PNG logo</strong>
+                for website and digital recognition.
+                If available, we also strongly prefer an
+                <strong> SVG logo</strong> for printed signs,
+                banners, and other large-format materials.
+                For your PNG, please provide a high-resolution
+                image with a transparent background whenever
                 possible.
               </p>
 
@@ -1453,14 +1468,14 @@ export default function SponsorFulfillmentPage() {
                 <label className="block rounded-2xl border border-slate-200 p-6">
                   <span className="font-semibold text-[var(--brand-navy)]">
                     {requiresPrimaryLogo
-                      ? "Primary Logo *"
-                      : "Primary Logo — Optional Replacement"}
+                      ? "Website / Digital Logo (PNG) *"
+                      : "Website / Digital Logo (PNG) — Optional Replacement"}
                   </span>
 
                   <p className="mt-2 text-sm leading-6 text-slate-500">
                     {requiresPrimaryLogo
-                      ? "This will be the primary logo used for your tournament recognition."
-                      : "Your primary logo is already on file. Leave this blank to keep the existing logo, or upload a new SVG or PNG to replace it."}
+                      ? "Required. Upload a high-resolution PNG for the tournament website, digital recognition, and communications. A transparent background is preferred."
+                      : "Your required PNG logo is already on file. Leave this blank to keep it, or upload a new PNG to replace it."}
                   </p>
 
                   <input
@@ -1468,7 +1483,7 @@ export default function SponsorFulfillmentPage() {
                     required={
                       requiresPrimaryLogo
                     }
-                    accept=".svg,.png,image/svg+xml,image/png"
+                    accept=".png,image/png"
                     onChange={(
                       event
                     ) =>
@@ -1501,20 +1516,20 @@ export default function SponsorFulfillmentPage() {
 
                 <label className="block rounded-2xl border border-slate-200 p-6">
                   <span className="font-semibold text-[var(--brand-navy)]">
-                    Alternate
-                    Logo —
-                    Optional
+                    Print-Quality
+                    Logo (SVG) —
+                    Strongly Preferred
                   </span>
 
                   <p className="mt-2 text-sm leading-6 text-slate-500">
                     {sponsor.hasAlternateLogo
-                      ? "An alternate logo is already on file. Leave this blank to keep it, or upload a new version to replace it."
-                      : "If available, provide an alternate version suitable for a different light or dark background."}
+                      ? "A print-quality SVG logo is already on file. Leave this blank to keep it, or upload a new SVG to replace it."
+                      : "If available, upload an SVG version of your logo. We will use this as the preferred source for printed signs, banners, and other large-format materials."}
                   </p>
 
                   <input
                     type="file"
-                    accept=".svg,.png,image/svg+xml,image/png"
+                    accept=".svg,image/svg+xml"
                     onChange={(
                       event
                     ) =>
@@ -1547,9 +1562,8 @@ export default function SponsorFulfillmentPage() {
               </div>
 
               <p className="mt-6 text-sm text-slate-500">
-                Maximum file
-                size: 3 MB per
-                logo.
+                Maximum file size: 3 MB per logo. The PNG is
+                required; the SVG is strongly preferred when available.
               </p>
             </div>
 
