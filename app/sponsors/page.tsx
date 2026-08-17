@@ -16,7 +16,47 @@ type ApprovedSponsor = {
   website: string;
   tagline: string;
   blueFeatureAssignment: string;
+  logoUrl: string;
 };
+
+function getSponsorLogoProxyUrl(
+  logoUrl: string
+) {
+  if (!logoUrl) {
+    return "";
+  }
+
+  try {
+    const url = new URL(logoUrl);
+
+    if (
+      url.hostname !==
+      "drive.google.com"
+    ) {
+      return "";
+    }
+
+    const fileId =
+      url.searchParams
+        .get("id")
+        ?.trim() || "";
+
+    if (
+      !/^[A-Za-z0-9_-]{10,}$/.test(
+        fileId
+      )
+    ) {
+      return "";
+    }
+
+    return (
+      "/api/sponsor-logo?id=" +
+      encodeURIComponent(fileId)
+    );
+  } catch {
+    return "";
+  }
+}
 
 const sponsorLevels = [
   {
@@ -87,18 +127,30 @@ export default function SponsorsPage() {
   const [sponsorLevel, setSponsorLevel] =
     useState<SponsorLevel>("hole");
 
-  const [approvedSponsors, setApprovedSponsors] =
+  const [
+    approvedSponsors,
+    setApprovedSponsors,
+  ] =
     useState<ApprovedSponsor[]>([]);
 
-  const selectedLevel = sponsorLevels.find(
-    (level) => level.id === sponsorLevel
-  )!;
+  const selectedLevel =
+    sponsorLevels.find(
+      (level) =>
+        level.id === sponsorLevel
+    )!;
 
-  const [blueAmount, setBlueAmount] = useState("2000");
+  const [
+    blueAmount,
+    setBlueAmount,
+  ] = useState("2000");
 
   const amount =
     sponsorLevel === "blue"
-      ? Math.max(Number(blueAmount) || 2000, 2000)
+      ? Math.max(
+          Number(blueAmount) ||
+            2000,
+          2000
+        )
       : selectedLevel.amount;
 
   useEffect(() => {
@@ -106,23 +158,27 @@ export default function SponsorsPage() {
 
     async function loadApprovedSponsors() {
       try {
-        const response = await fetch(
-          "/api/approved-sponsors",
-          {
-            cache: "no-store",
-          }
-        );
+        const response =
+          await fetch(
+            "/api/approved-sponsors",
+            {
+              cache: "no-store",
+            }
+          );
 
         if (!response.ok) {
           return;
         }
 
-        const data = await response.json();
+        const data =
+          await response.json();
 
         if (
           active &&
           data?.ok === true &&
-          Array.isArray(data.sponsors)
+          Array.isArray(
+            data.sponsors
+          )
         ) {
           setApprovedSponsors(
             data.sponsors as ApprovedSponsor[]
@@ -162,13 +218,23 @@ export default function SponsorsPage() {
               </p>
 
               <h1 className="mt-5 text-5xl font-bold md:text-6xl">
-                Support the Memorial
+                Support the
+                Memorial
               </h1>
 
               <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-300">
-                Sponsorship helps us host the Sergeant Major Chad Miller
-                Memorial Golf Tournament, honor members of the U.S. Special
-                Operations community, and support the mission of The Honor
+                Sponsorship helps
+                us host the
+                Sergeant Major
+                Chad Miller
+                Memorial Golf
+                Tournament, honor
+                members of the
+                U.S. Special
+                Operations
+                community, and
+                support the mission
+                of The Honor
                 Foundation.
               </p>
             </div>
@@ -176,7 +242,8 @@ export default function SponsorsPage() {
         </Container>
       </section>
 
-      {approvedSponsors.length > 0 && (
+      {approvedSponsors.length >
+        0 && (
         <section className="bg-white py-20">
           <Container>
             <div className="mx-auto max-w-5xl">
@@ -186,41 +253,63 @@ export default function SponsorsPage() {
                 </p>
 
                 <h2 className="mt-3 text-4xl font-bold text-[var(--brand-navy)]">
-                  Thank You to Our Tournament Sponsors
+                  Thank You to Our
+                  Tournament
+                  Sponsors
                 </h2>
 
                 <p className="mx-auto mt-5 max-w-3xl text-base leading-7 text-slate-600">
-                  We are grateful to the organizations supporting the SGM Chad
-                  Miller Memorial Golf Tournament, our memorial mission, and The
-                  Honor Foundation.
+                  We are grateful
+                  to the
+                  organizations
+                  supporting the
+                  SGM Chad Miller
+                  Memorial Golf
+                  Tournament, our
+                  memorial mission,
+                  and The Honor
+                  Foundation.
                 </p>
               </div>
 
               <div className="mt-12 space-y-12">
                 {sponsorRecognitionLevels.map(
-                  (recognitionLevel) => {
+                  (
+                    recognitionLevel
+                  ) => {
                     const sponsorsAtLevel =
                       approvedSponsors.filter(
-                        (sponsor) =>
+                        (
+                          sponsor
+                        ) =>
                           sponsor.level ===
                           recognitionLevel.id
                       );
 
                     if (
-                      sponsorsAtLevel.length === 0
+                      sponsorsAtLevel.length ===
+                      0
                     ) {
                       return null;
                     }
 
                     return (
-                      <div key={recognitionLevel.id}>
+                      <div
+                        key={
+                          recognitionLevel.id
+                        }
+                      >
                         <div className="border-b border-slate-200 pb-4">
                           <h3 className="text-2xl font-bold text-[var(--brand-navy)]">
-                            {recognitionLevel.label}
+                            {
+                              recognitionLevel.label
+                            }
                           </h3>
 
                           <p className="mt-2 text-sm leading-6 text-slate-600">
-                            {recognitionLevel.description}
+                            {
+                              recognitionLevel.description
+                            }
                           </p>
                         </div>
 
@@ -233,65 +322,112 @@ export default function SponsorsPage() {
                           }`}
                         >
                           {sponsorsAtLevel.map(
-                            (sponsor) => (
-                              <article
-                                key={`${sponsor.level}-${sponsor.displayName}`}
-                                className={`rounded-3xl border bg-white p-7 shadow-sm ${
-                                  sponsor.level ===
-                                  "blue"
-                                    ? "border-[var(--brand-blue)]"
-                                    : "border-slate-200"
-                                }`}
-                              >
-                                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--brand-blue)]">
-                                  {sponsor.levelLabel}
-                                </p>
+                            (
+                              sponsor
+                            ) => {
+                              const logoSrc =
+                                getSponsorLogoProxyUrl(
+                                  sponsor.logoUrl
+                                );
 
-                                {sponsor.website ? (
-                                  <a
-                                    href={
-                                      sponsor.website
-                                    }
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="mt-3 block text-2xl font-bold text-[var(--brand-navy)] transition hover:text-[var(--brand-blue)]"
-                                  >
-                                    {
-                                      sponsor.displayName
-                                    }
-                                  </a>
-                                ) : (
-                                  <h4 className="mt-3 text-2xl font-bold text-[var(--brand-navy)]">
-                                    {
-                                      sponsor.displayName
-                                    }
-                                  </h4>
-                                )}
-
-                                {sponsor.tagline && (
-                                  <p className="mt-3 text-sm leading-6 text-slate-600">
-                                    {sponsor.tagline}
-                                  </p>
-                                )}
-
-                                {sponsor.level ===
-                                  "blue" &&
-                                  sponsor.blueFeatureAssignment && (
-                                    <div className="mt-5 rounded-2xl bg-slate-50 p-4">
-                                      <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
-                                        Featured
-                                        Recognition
-                                      </p>
-
-                                      <p className="mt-1 font-semibold text-[var(--brand-navy)]">
-                                        {
-                                          sponsor.blueFeatureAssignment
-                                        }
-                                      </p>
+                              return (
+                                <article
+                                  key={`${sponsor.level}-${sponsor.displayName}`}
+                                  className={`flex h-full flex-col rounded-3xl border bg-white p-7 shadow-sm ${
+                                    sponsor.level ===
+                                    "blue"
+                                      ? "border-[var(--brand-blue)]"
+                                      : "border-slate-200"
+                                  }`}
+                                >
+                                  {logoSrc && (
+                                    <div className="mb-6 flex min-h-[110px] items-center justify-center rounded-2xl bg-white p-3">
+                                      {sponsor.website ? (
+                                        <a
+                                          href={
+                                            sponsor.website
+                                          }
+                                          target="_blank"
+                                          rel="noopener noreferrer"
+                                          aria-label={`Visit ${sponsor.displayName}`}
+                                          className="flex h-full w-full items-center justify-center"
+                                        >
+                                          <img
+                                            src={
+                                              logoSrc
+                                            }
+                                            alt={`${sponsor.displayName} logo`}
+                                            loading="lazy"
+                                            className="max-h-24 max-w-full object-contain"
+                                          />
+                                        </a>
+                                      ) : (
+                                        <img
+                                          src={
+                                            logoSrc
+                                          }
+                                          alt={`${sponsor.displayName} logo`}
+                                          loading="lazy"
+                                          className="max-h-24 max-w-full object-contain"
+                                        />
+                                      )}
                                     </div>
                                   )}
-                              </article>
-                            )
+
+                                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--brand-blue)]">
+                                    {
+                                      sponsor.levelLabel
+                                    }
+                                  </p>
+
+                                  {sponsor.website ? (
+                                    <a
+                                      href={
+                                        sponsor.website
+                                      }
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="mt-3 block text-2xl font-bold text-[var(--brand-navy)] transition hover:text-[var(--brand-blue)]"
+                                    >
+                                      {
+                                        sponsor.displayName
+                                      }
+                                    </a>
+                                  ) : (
+                                    <h4 className="mt-3 text-2xl font-bold text-[var(--brand-navy)]">
+                                      {
+                                        sponsor.displayName
+                                      }
+                                    </h4>
+                                  )}
+
+                                  {sponsor.tagline && (
+                                    <p className="mt-3 text-sm leading-6 text-slate-600">
+                                      {
+                                        sponsor.tagline
+                                      }
+                                    </p>
+                                  )}
+
+                                  {sponsor.level ===
+                                    "blue" &&
+                                    sponsor.blueFeatureAssignment && (
+                                      <div className="mt-5 rounded-2xl bg-slate-50 p-4">
+                                        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
+                                          Featured
+                                          Recognition
+                                        </p>
+
+                                        <p className="mt-1 font-semibold text-[var(--brand-navy)]">
+                                          {
+                                            sponsor.blueFeatureAssignment
+                                          }
+                                        </p>
+                                      </div>
+                                    )}
+                                </article>
+                              );
+                            }
                           )}
                         </div>
                       </div>
@@ -314,7 +450,9 @@ export default function SponsorsPage() {
             <input
               type="hidden"
               name="sponsorLevel"
-              value={sponsorLevel}
+              value={
+                sponsorLevel
+              }
             />
 
             <input
@@ -329,114 +467,196 @@ export default function SponsorsPage() {
               </p>
 
               <h2 className="mt-3 text-3xl font-bold text-[var(--brand-navy)]">
-                Choose your sponsorship
+                Choose your
+                sponsorship
               </h2>
 
               <div className="mt-8 grid gap-5 md:grid-cols-3">
-                {sponsorLevels.map((level) => (
-                  <button
-                    key={level.id}
-                    type="button"
-                    onClick={() => setSponsorLevel(level.id)}
-                    className={`flex h-full flex-col rounded-3xl border-2 p-7 text-left transition ${
-                      sponsorLevel === level.id
-                        ? "border-[var(--brand-blue)] bg-[var(--brand-sky)]"
-                        : "border-slate-200 bg-white hover:border-slate-300"
-                    }`}
-                  >
-                    <p className="text-xl font-bold text-[var(--brand-navy)]">
-                      {level.name}
-                    </p>
-
-                    <p className="mt-3 text-sm leading-6 text-slate-600">
-                      {level.description}
-                    </p>
-
-                    <p className="mt-5 text-3xl font-bold text-[var(--brand-blue)]">
-                      {level.id === "blue"
-                        ? "$2,000+"
-                        : `$${level.amount.toLocaleString()}`}
-                    </p>
-
-                    <div className="mt-6 border-t border-slate-300/70 pt-5">
-                      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
-                        Includes
+                {sponsorLevels.map(
+                  (level) => (
+                    <button
+                      key={
+                        level.id
+                      }
+                      type="button"
+                      onClick={() =>
+                        setSponsorLevel(
+                          level.id
+                        )
+                      }
+                      className={`flex h-full flex-col rounded-3xl border-2 p-7 text-left transition ${
+                        sponsorLevel ===
+                        level.id
+                          ? "border-[var(--brand-blue)] bg-[var(--brand-sky)]"
+                          : "border-slate-200 bg-white hover:border-slate-300"
+                      }`}
+                    >
+                      <p className="text-xl font-bold text-[var(--brand-navy)]">
+                        {
+                          level.name
+                        }
                       </p>
 
-                      <ul className="mt-3 space-y-2 text-sm leading-6 text-slate-600">
-                        {level.benefits.map((benefit) => (
-                          <li key={benefit} className="flex gap-2">
-                            <span
-                              aria-hidden="true"
-                              className="font-bold text-[var(--brand-teal)]"
-                            >
-                              ✓
-                            </span>
+                      <p className="mt-3 text-sm leading-6 text-slate-600">
+                        {
+                          level.description
+                        }
+                      </p>
 
-                            <span>{benefit}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  </button>
-                ))}
+                      <p className="mt-5 text-3xl font-bold text-[var(--brand-blue)]">
+                        {level.id ===
+                        "blue"
+                          ? "$2,000+"
+                          : `$${level.amount.toLocaleString()}`}
+                      </p>
+
+                      <div className="mt-6 border-t border-slate-300/70 pt-5">
+                        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
+                          Includes
+                        </p>
+
+                        <ul className="mt-3 space-y-2 text-sm leading-6 text-slate-600">
+                          {level.benefits.map(
+                            (
+                              benefit
+                            ) => (
+                              <li
+                                key={
+                                  benefit
+                                }
+                                className="flex gap-2"
+                              >
+                                <span
+                                  aria-hidden="true"
+                                  className="font-bold text-[var(--brand-teal)]"
+                                >
+                                  ✓
+                                </span>
+
+                                <span>
+                                  {
+                                    benefit
+                                  }
+                                </span>
+                              </li>
+                            )
+                          )}
+                        </ul>
+                      </div>
+                    </button>
+                  )
+                )}
               </div>
 
-              {sponsorLevel === "hole" && (
+              {sponsorLevel ===
+                "hole" && (
                 <div className="mt-8 rounded-2xl bg-slate-50 p-6">
                   <p className="font-semibold text-[var(--brand-navy)]">
-                    About Memorial Hole Sponsorship
+                    About Memorial
+                    Hole Sponsorship
                   </p>
 
                   <p className="mt-2 text-sm leading-6 text-slate-600">
-                    Each Memorial Hole Sign will share the story of a fallen
-                    member of the U.S. Special Operations community. The
-                    tournament team will select and prepare the memorial
-                    information, while sponsor recognition will be presented
-                    respectfully alongside it. The fallen service member will
-                    remain the primary focus of the sign.
+                    Each Memorial
+                    Hole Sign will
+                    share the story
+                    of a fallen
+                    member of the
+                    U.S. Special
+                    Operations
+                    community. The
+                    tournament team
+                    will select and
+                    prepare the
+                    memorial
+                    information,
+                    while sponsor
+                    recognition will
+                    be presented
+                    respectfully
+                    alongside it.
+                    The fallen
+                    service member
+                    will remain the
+                    primary focus
+                    of the sign.
                   </p>
                 </div>
               )}
 
-              {sponsorLevel === "grey" && (
+              {sponsorLevel ===
+                "grey" && (
                 <div className="mt-8 rounded-2xl bg-slate-50 p-6">
                   <p className="font-semibold text-[var(--brand-navy)]">
-                    Expanded Tournament Recognition
+                    Expanded
+                    Tournament
+                    Recognition
                   </p>
 
                   <p className="mt-2 text-sm leading-6 text-slate-600">
-                    Grey Sponsors receive Memorial Hole recognition plus
-                    enhanced placement on the tournament&apos;s Main Sponsor
-                    Recognition Board and recognition in selected
-                    tournament-wide communications.
+                    Grey Sponsors
+                    receive
+                    Memorial Hole
+                    recognition
+                    plus enhanced
+                    placement on
+                    the
+                    tournament&apos;s
+                    Main Sponsor
+                    Recognition
+                    Board and
+                    recognition in
+                    selected
+                    tournament-wide
+                    communications.
                   </p>
                 </div>
               )}
 
-              {sponsorLevel === "blue" && (
+              {sponsorLevel ===
+                "blue" && (
                 <div className="mt-8 rounded-2xl bg-slate-50 p-6">
                   <label className="block">
                     <span className="font-semibold text-[var(--brand-navy)]">
-                      Blue Sponsorship Amount
+                      Blue
+                      Sponsorship
+                      Amount
                     </span>
 
                     <p className="mt-1 text-sm text-slate-500">
-                      Blue Sponsorship begins at $2,000. Sponsors may increase
-                      their contribution to provide additional support to the
+                      Blue
+                      Sponsorship
+                      begins at
+                      $2,000.
+                      Sponsors may
+                      increase their
+                      contribution
+                      to provide
+                      additional
+                      support to the
                       tournament.
                     </p>
 
                     <div className="mt-3 flex max-w-sm items-center rounded-xl border border-slate-300 bg-white px-4">
-                      <span className="font-semibold text-slate-500">$</span>
+                      <span className="font-semibold text-slate-500">
+                        $
+                      </span>
 
                       <input
                         type="number"
                         min="2000"
                         step="1"
-                        value={blueAmount}
-                        onChange={(event) =>
-                          setBlueAmount(event.target.value)
+                        value={
+                          blueAmount
+                        }
+                        onChange={(
+                          event
+                        ) =>
+                          setBlueAmount(
+                            event
+                              .target
+                              .value
+                          )
                         }
                         className="w-full px-3 py-3 outline-none"
                       />
@@ -445,33 +665,87 @@ export default function SponsorsPage() {
 
                   <div className="mt-6 border-t border-slate-200 pt-6">
                     <p className="font-semibold text-[var(--brand-navy)]">
-                      Blue Sponsor Special Events & Areas
+                      Blue Sponsor
+                      Special Events
+                      & Areas
                     </p>
 
                     <p className="mt-2 text-sm leading-6 text-slate-600">
-                      Blue Sponsors are prioritized for major tournament
-                      events, contests, and activity areas such as Breakfast,
-                      Lunch, the Driving Range, Putting Green, Longest Drive,
-                      Closest to the Pin, Hole-in-One Contest, Silent Auction,
-                      and Tribute / Awards Program.
+                      Blue Sponsors
+                      are prioritized
+                      for major
+                      tournament
+                      events,
+                      contests, and
+                      activity areas
+                      such as
+                      Breakfast,
+                      Lunch, the
+                      Driving Range,
+                      Putting Green,
+                      Longest Drive,
+                      Closest to the
+                      Pin,
+                      Hole-in-One
+                      Contest, Silent
+                      Auction, and
+                      Tribute /
+                      Awards
+                      Program.
                     </p>
 
                     <p className="mt-3 text-sm leading-6 text-slate-600">
-                      After sponsorship is completed, Blue Sponsors may rank
-                      their preferred opportunities through their private
-                      sponsor materials page. Assignments are based on
-                      availability and the order completed sponsor materials
-                      are received. Specific assignments and exclusivity are
-                      not guaranteed, and some major areas may recognize
-                      multiple Blue Sponsors.
+                      After
+                      sponsorship is
+                      completed, Blue
+                      Sponsors may
+                      rank their
+                      preferred
+                      opportunities
+                      through their
+                      private sponsor
+                      materials page.
+                      Assignments are
+                      based on
+                      availability
+                      and the order
+                      completed
+                      sponsor
+                      materials are
+                      received.
+                      Specific
+                      assignments and
+                      exclusivity are
+                      not guaranteed,
+                      and some major
+                      areas may
+                      recognize
+                      multiple Blue
+                      Sponsors.
                     </p>
 
                     <p className="mt-3 text-sm leading-6 text-slate-600">
-                      If premium feature opportunities are fully assigned, or
-                      additional Memorial Hole Sponsors are needed, a Blue
-                      Sponsor may also be assigned Memorial Hole recognition
-                      while maintaining recognition appropriate to the Blue
-                      Sponsorship level.
+                      If premium
+                      feature
+                      opportunities
+                      are fully
+                      assigned, or
+                      additional
+                      Memorial Hole
+                      Sponsors are
+                      needed, a Blue
+                      Sponsor may
+                      also be
+                      assigned
+                      Memorial Hole
+                      recognition
+                      while
+                      maintaining
+                      recognition
+                      appropriate to
+                      the Blue
+                      Sponsorship
+                      level.
                     </p>
                   </div>
                 </div>
@@ -480,13 +754,15 @@ export default function SponsorsPage() {
 
             <div className="mt-8 rounded-3xl bg-white p-8 shadow-sm md:p-10">
               <h2 className="text-3xl font-bold text-[var(--brand-navy)]">
-                Sponsor Information
+                Sponsor
+                Information
               </h2>
 
               <div className="mt-8 grid gap-6 md:grid-cols-2">
                 <label className="block">
                   <span className="font-semibold">
-                    Company / Organization *
+                    Company /
+                    Organization *
                   </span>
 
                   <input
@@ -565,21 +841,43 @@ export default function SponsorsPage() {
 
               <div className="mt-6 rounded-2xl bg-slate-50 p-5">
                 <p className="font-semibold text-[var(--brand-navy)]">
-                  What happens after payment?
+                  What happens
+                  after payment?
                 </p>
 
                 <p className="mt-2 text-sm leading-6 text-slate-600">
-                  After your sponsorship payment is confirmed, we will email
-                  your primary contact a unique private link to submit your
-                  company logo and complete the materials needed for your
-                  sponsorship recognition.
+                  After your
+                  sponsorship
+                  payment is
+                  confirmed, we
+                  will email your
+                  primary contact a
+                  unique private
+                  link to submit
+                  your company logo
+                  and complete the
+                  materials needed
+                  for your
+                  sponsorship
+                  recognition.
                 </p>
 
                 <p className="mt-2 text-sm leading-6 text-slate-600">
-                  Sponsor materials are due by{" "}
-                  <strong>Friday, September 11, 2026</strong>. Materials
-                  received after that date may not be guaranteed inclusion in
-                  printed tournament materials.
+                  Sponsor materials
+                  are due by{" "}
+                  <strong>
+                    Friday,
+                    September 11,
+                    2026
+                  </strong>
+                  . Materials
+                  received after
+                  that date may not
+                  be guaranteed
+                  inclusion in
+                  printed
+                  tournament
+                  materials.
                 </p>
               </div>
             </div>
@@ -592,12 +890,20 @@ export default function SponsorsPage() {
                   </p>
 
                   <h2 className="mt-3 text-3xl font-bold">
-                    Sponsorship Total: ${amount.toLocaleString()}
+                    Sponsorship
+                    Total: $
+                    {amount.toLocaleString()}
                   </h2>
 
                   <p className="mt-4 max-w-xl leading-7 text-slate-300">
-                    Your sponsorship will be confirmed after secure payment is
-                    successfully completed.
+                    Your
+                    sponsorship
+                    will be
+                    confirmed
+                    after secure
+                    payment is
+                    successfully
+                    completed.
                   </p>
                 </div>
 
@@ -605,7 +911,10 @@ export default function SponsorsPage() {
                   type="submit"
                   className="shrink-0 rounded-full bg-[var(--brand-teal)] px-8 py-4 font-semibold text-white transition hover:opacity-90"
                 >
-                  Continue to Secure Payment — ${amount.toLocaleString()}
+                  Continue to
+                  Secure Payment —
+                  $
+                  {amount.toLocaleString()}
                 </button>
               </div>
             </div>
