@@ -1,10 +1,22 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
+import {
+  useEffect,
+  useState,
+} from "react";
 import Container from "@/components/ui/Container";
 
 type SponsorLevel = "hole" | "grey" | "blue";
+
+type ApprovedSponsor = {
+  displayName: string;
+  level: SponsorLevel;
+  levelLabel: string;
+  website: string;
+  tagline: string;
+  blueFeatureAssignment: string;
+};
 
 const sponsorLevels = [
   {
@@ -50,9 +62,33 @@ const sponsorLevels = [
   },
 ];
 
+const sponsorRecognitionLevels = [
+  {
+    id: "blue" as SponsorLevel,
+    label: "Blue Sponsors",
+    description:
+      "Premier tournament partners supporting the memorial at the highest sponsorship level.",
+  },
+  {
+    id: "grey" as SponsorLevel,
+    label: "Grey Sponsors",
+    description:
+      "Tournament partners providing expanded support and recognition throughout the event.",
+  },
+  {
+    id: "hole" as SponsorLevel,
+    label: "Hole Sponsors",
+    description:
+      "Sponsors helping us honor fallen members of the U.S. Special Operations community through the Memorial Hole program.",
+  },
+];
+
 export default function SponsorsPage() {
   const [sponsorLevel, setSponsorLevel] =
     useState<SponsorLevel>("hole");
+
+  const [approvedSponsors, setApprovedSponsors] =
+    useState<ApprovedSponsor[]>([]);
 
   const selectedLevel = sponsorLevels.find(
     (level) => level.id === sponsorLevel
@@ -64,6 +100,48 @@ export default function SponsorsPage() {
     sponsorLevel === "blue"
       ? Math.max(Number(blueAmount) || 2000, 2000)
       : selectedLevel.amount;
+
+  useEffect(() => {
+    let active = true;
+
+    async function loadApprovedSponsors() {
+      try {
+        const response = await fetch(
+          "/api/approved-sponsors",
+          {
+            cache: "no-store",
+          }
+        );
+
+        if (!response.ok) {
+          return;
+        }
+
+        const data = await response.json();
+
+        if (
+          active &&
+          data?.ok === true &&
+          Array.isArray(data.sponsors)
+        ) {
+          setApprovedSponsors(
+            data.sponsors as ApprovedSponsor[]
+          );
+        }
+      } catch (error) {
+        console.error(
+          "Unable to load approved sponsors:",
+          error
+        );
+      }
+    }
+
+    loadApprovedSponsors();
+
+    return () => {
+      active = false;
+    };
+  }, []);
 
   return (
     <>
@@ -97,6 +175,134 @@ export default function SponsorsPage() {
           </div>
         </Container>
       </section>
+
+      {approvedSponsors.length > 0 && (
+        <section className="bg-white py-20">
+          <Container>
+            <div className="mx-auto max-w-5xl">
+              <div className="text-center">
+                <p className="text-sm font-semibold uppercase tracking-[0.25em] text-[var(--brand-blue)]">
+                  Our Sponsors
+                </p>
+
+                <h2 className="mt-3 text-4xl font-bold text-[var(--brand-navy)]">
+                  Thank You to Our Tournament Sponsors
+                </h2>
+
+                <p className="mx-auto mt-5 max-w-3xl text-base leading-7 text-slate-600">
+                  We are grateful to the organizations supporting the SGM Chad
+                  Miller Memorial Golf Tournament, our memorial mission, and The
+                  Honor Foundation.
+                </p>
+              </div>
+
+              <div className="mt-12 space-y-12">
+                {sponsorRecognitionLevels.map(
+                  (recognitionLevel) => {
+                    const sponsorsAtLevel =
+                      approvedSponsors.filter(
+                        (sponsor) =>
+                          sponsor.level ===
+                          recognitionLevel.id
+                      );
+
+                    if (
+                      sponsorsAtLevel.length === 0
+                    ) {
+                      return null;
+                    }
+
+                    return (
+                      <div key={recognitionLevel.id}>
+                        <div className="border-b border-slate-200 pb-4">
+                          <h3 className="text-2xl font-bold text-[var(--brand-navy)]">
+                            {recognitionLevel.label}
+                          </h3>
+
+                          <p className="mt-2 text-sm leading-6 text-slate-600">
+                            {recognitionLevel.description}
+                          </p>
+                        </div>
+
+                        <div
+                          className={`mt-6 grid gap-5 ${
+                            recognitionLevel.id ===
+                            "blue"
+                              ? "md:grid-cols-2"
+                              : "md:grid-cols-3"
+                          }`}
+                        >
+                          {sponsorsAtLevel.map(
+                            (sponsor) => (
+                              <article
+                                key={`${sponsor.level}-${sponsor.displayName}`}
+                                className={`rounded-3xl border bg-white p-7 shadow-sm ${
+                                  sponsor.level ===
+                                  "blue"
+                                    ? "border-[var(--brand-blue)]"
+                                    : "border-slate-200"
+                                }`}
+                              >
+                                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--brand-blue)]">
+                                  {sponsor.levelLabel}
+                                </p>
+
+                                {sponsor.website ? (
+                                  <a
+                                    href={
+                                      sponsor.website
+                                    }
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="mt-3 block text-2xl font-bold text-[var(--brand-navy)] transition hover:text-[var(--brand-blue)]"
+                                  >
+                                    {
+                                      sponsor.displayName
+                                    }
+                                  </a>
+                                ) : (
+                                  <h4 className="mt-3 text-2xl font-bold text-[var(--brand-navy)]">
+                                    {
+                                      sponsor.displayName
+                                    }
+                                  </h4>
+                                )}
+
+                                {sponsor.tagline && (
+                                  <p className="mt-3 text-sm leading-6 text-slate-600">
+                                    {sponsor.tagline}
+                                  </p>
+                                )}
+
+                                {sponsor.level ===
+                                  "blue" &&
+                                  sponsor.blueFeatureAssignment && (
+                                    <div className="mt-5 rounded-2xl bg-slate-50 p-4">
+                                      <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
+                                        Featured
+                                        Recognition
+                                      </p>
+
+                                      <p className="mt-1 font-semibold text-[var(--brand-navy)]">
+                                        {
+                                          sponsor.blueFeatureAssignment
+                                        }
+                                      </p>
+                                    </div>
+                                  )}
+                              </article>
+                            )
+                          )}
+                        </div>
+                      </div>
+                    );
+                  }
+                )}
+              </div>
+            </div>
+          </Container>
+        </section>
+      )}
 
       <section className="bg-slate-50 py-20">
         <Container>
