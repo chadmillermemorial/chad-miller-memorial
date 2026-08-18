@@ -661,6 +661,14 @@ export default function SponsorFulfillmentPage() {
     }
 
     if (isBlue) {
+      if (!bluePreference1) {
+        setSubmitError(
+          "Please select a first Blue Sponsor preference."
+        );
+
+        return;
+      }
+
       const preferences = [
         bluePreference1,
         bluePreference2,
@@ -1585,8 +1593,8 @@ export default function SponsorFulfillmentPage() {
                 </h2>
 
                 <p className="mt-5 leading-8 text-slate-600">
-                  Please rank
-                  up to three
+                  Please select
+                  at least one
                   preferred
                   special-event,
                   contest, or
@@ -1629,10 +1637,11 @@ export default function SponsorFulfillmentPage() {
                   <label className="block">
                     <span className="font-semibold">
                       First
-                      Preference
+                      Preference *
                     </span>
 
                     <select
+                      required
                       value={
                         bluePreference1
                       }
