@@ -15,6 +15,17 @@ type SponsorLevel =
   | "blue"
   | "other";
 
+type SponsorGolfer = {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  ghin: string;
+  handicap: string;
+  shirtSize: string;
+  teeSelection: string;
+};
+
 type SponsorRecord = {
   sponsorId: string;
   sponsorshipLevel: string;
@@ -34,6 +45,12 @@ type SponsorRecord = {
   bluePreferences: string[];
   representativeName: string;
   representativeTitle: string;
+
+  includedFoursome?: boolean;
+  foursomeStatus?: string;
+  foursomePlayers?: SponsorGolfer[];
+  foursomeEmergencyContactName?: string;
+  foursomeEmergencyContactPhone?: string;
 };
 
 type FilePayload = {
@@ -56,8 +73,42 @@ const BLUE_FEATURE_OPTIONS = [
   "No Preference — place us where it best supports the tournament",
 ];
 
+const SHIRT_SIZES = [
+  "S",
+  "M",
+  "L",
+  "XL",
+  "2XL",
+  "3XL",
+];
+
 const MAX_FILE_SIZE =
   3 * 1024 * 1024;
+
+const inputClass =
+  "mt-2 w-full rounded-xl border border-slate-300 bg-white px-4 py-3";
+
+function emptyGolfer(): SponsorGolfer {
+  return {
+    firstName: "",
+    lastName: "",
+    email: "",
+    phone: "",
+    ghin: "",
+    handicap: "",
+    shirtSize: "",
+    teeSelection: "",
+  };
+}
+
+function emptyFoursome(): SponsorGolfer[] {
+  return [
+    emptyGolfer(),
+    emptyGolfer(),
+    emptyGolfer(),
+    emptyGolfer(),
+  ];
+}
 
 function formatCurrency(
   value: number
@@ -216,6 +267,12 @@ export default function SponsorFulfillmentPage() {
     setLoadError,
   ] = useState("");
 
+  /*
+    ========================================================
+    SPONSOR MATERIALS
+    ========================================================
+  */
+
   const [
     submitting,
     setSubmitting,
@@ -227,8 +284,8 @@ export default function SponsorFulfillmentPage() {
   ] = useState("");
 
   const [
-    submitted,
-    setSubmitted,
+    materialsSaved,
+    setMaterialsSaved,
   ] = useState(false);
 
   const [
@@ -327,6 +384,55 @@ export default function SponsorFulfillmentPage() {
     setUsageAuthorized,
   ] = useState(false);
 
+  /*
+    ========================================================
+    INCLUDED FOURSOME
+    ========================================================
+  */
+
+  const [
+    foursomePlayers,
+    setFoursomePlayers,
+  ] =
+    useState<SponsorGolfer[]>(
+      emptyFoursome()
+    );
+
+  const [
+    emergencyContactName,
+    setEmergencyContactName,
+  ] = useState("");
+
+  const [
+    emergencyContactPhone,
+    setEmergencyContactPhone,
+  ] = useState("");
+
+  const [
+    rosterConfirmed,
+    setRosterConfirmed,
+  ] = useState(false);
+
+  const [
+    foursomeStatus,
+    setFoursomeStatus,
+  ] = useState("");
+
+  const [
+    foursomeSubmitting,
+    setFoursomeSubmitting,
+  ] = useState(false);
+
+  const [
+    foursomeError,
+    setFoursomeError,
+  ] = useState("");
+
+  const [
+    foursomeSaved,
+    setFoursomeSaved,
+  ] = useState(false);
+
   useEffect(() => {
     async function loadSponsor() {
       try {
@@ -355,10 +461,6 @@ export default function SponsorFulfillmentPage() {
         ) {
           setLoadError(
             "This sponsor fulfillment link is incomplete or invalid."
-          );
-
-          setLoading(
-            false
           );
 
           return;
@@ -479,6 +581,91 @@ export default function SponsorFulfillmentPage() {
             .bluePreferences?.[2] ||
             ""
         );
+
+        setFoursomeStatus(
+          record.foursomeStatus ||
+            ""
+        );
+
+        const storedPlayers =
+          Array.isArray(
+            record.foursomePlayers
+          )
+            ? record.foursomePlayers
+            : [];
+
+        if (
+          storedPlayers.length >
+          0
+        ) {
+          const normalizedPlayers =
+            emptyFoursome();
+
+          storedPlayers
+            .slice(
+              0,
+              4
+            )
+            .forEach(
+              (
+                player,
+                index
+              ) => {
+                normalizedPlayers[
+                  index
+                ] = {
+                  firstName:
+                    player.firstName ||
+                    "",
+
+                  lastName:
+                    player.lastName ||
+                    "",
+
+                  email:
+                    player.email ||
+                    "",
+
+                  phone:
+                    player.phone ||
+                    "",
+
+                  ghin:
+                    player.ghin ||
+                    "",
+
+                  handicap:
+                    player.handicap ||
+                    "",
+
+                  shirtSize:
+                    player.shirtSize ||
+                    "",
+
+                  teeSelection:
+                    player.teeSelection ||
+                    "",
+                };
+              }
+            );
+
+          setFoursomePlayers(
+            normalizedPlayers
+          );
+        }
+
+        setEmergencyContactName(
+          record
+            .foursomeEmergencyContactName ||
+            ""
+        );
+
+        setEmergencyContactPhone(
+          record
+            .foursomeEmergencyContactPhone ||
+            ""
+        );
+
       } catch (error) {
         console.error(
           "Sponsor fulfillment load error:",
@@ -514,6 +701,13 @@ export default function SponsorFulfillmentPage() {
     level === "blue";
 
   const showTagline =
+    isGrey ||
+    isBlue;
+
+  const includedFoursome =
+    Boolean(
+      sponsor?.includedFoursome
+    ) ||
     isGrey ||
     isBlue;
 
@@ -594,12 +788,266 @@ export default function SponsorFulfillmentPage() {
     );
   }
 
+  function updateGolfer(
+    index: number,
+    field:
+      keyof SponsorGolfer,
+    value: string
+  ) {
+    setFoursomePlayers(
+      (
+        currentPlayers
+      ) =>
+        currentPlayers.map(
+          (
+            player,
+            playerIndex
+          ) =>
+            playerIndex ===
+            index
+              ? {
+                  ...player,
+                  [field]:
+                    value,
+                }
+              : player
+        )
+    );
+  }
+
+  /*
+    ========================================================
+    SAVE FOURSOME
+    ========================================================
+  */
+
+  async function handleFoursomeSubmit(
+    event:
+      FormEvent<HTMLFormElement>
+  ) {
+    event.preventDefault();
+
+    setFoursomeError("");
+    setFoursomeSaved(
+      false
+    );
+
+    if (
+      !sponsor ||
+      !sponsorId ||
+      !token
+    ) {
+      setFoursomeError(
+        "Unable to verify this sponsorship."
+      );
+
+      return;
+    }
+
+    if (
+      !includedFoursome
+    ) {
+      setFoursomeError(
+        "This sponsorship does not include a foursome."
+      );
+
+      return;
+    }
+
+    if (
+      foursomePlayers.length !==
+      4
+    ) {
+      setFoursomeError(
+        "A sponsor foursome must contain exactly four golfers."
+      );
+
+      return;
+    }
+
+    for (
+      let index = 0;
+      index <
+      foursomePlayers.length;
+      index++
+    ) {
+      const player =
+        foursomePlayers[
+          index
+        ];
+
+      if (
+        !player.firstName.trim() ||
+        !player.lastName.trim() ||
+        !player.email.trim() ||
+        !player.phone.trim() ||
+        !player.shirtSize.trim() ||
+        !player.teeSelection.trim()
+      ) {
+        setFoursomeError(
+          `Please complete all required information for Golfer ${
+            index + 1
+          }.`
+        );
+
+        return;
+      }
+    }
+
+    if (
+      !emergencyContactName.trim() ||
+      !emergencyContactPhone.trim()
+    ) {
+      setFoursomeError(
+        "Please provide the emergency contact name and phone number."
+      );
+
+      return;
+    }
+
+    if (
+      !rosterConfirmed
+    ) {
+      setFoursomeError(
+        "Please confirm that the foursome information is accurate."
+      );
+
+      return;
+    }
+
+    setFoursomeSubmitting(
+      true
+    );
+
+    try {
+      const response =
+        await fetch(
+          "/api/sponsor-fulfillment",
+          {
+            method:
+              "POST",
+
+            headers: {
+              "Content-Type":
+                "application/json",
+            },
+
+            body:
+              JSON.stringify(
+                {
+                  action:
+                    "saveSponsorFulfillment",
+
+                  submissionType:
+                    "foursome",
+
+                  sponsorId,
+
+                  token,
+
+                  players:
+                    foursomePlayers.map(
+                      (
+                        player
+                      ) => ({
+                        firstName:
+                          player.firstName.trim(),
+
+                        lastName:
+                          player.lastName.trim(),
+
+                        email:
+                          player.email.trim(),
+
+                        phone:
+                          player.phone.trim(),
+
+                        ghin:
+                          player.ghin.trim(),
+
+                        handicap:
+                          player.handicap.trim(),
+
+                        shirtSize:
+                          player.shirtSize,
+
+                        teeSelection:
+                          player.teeSelection,
+                      })
+                    ),
+
+                  emergencyContactName:
+                    emergencyContactName.trim(),
+
+                  emergencyContactPhone:
+                    emergencyContactPhone.trim(),
+
+                  rosterConfirmed:
+                    true,
+                }
+              ),
+          }
+        );
+
+      const result =
+        await response.json();
+
+      if (
+        !response.ok ||
+        !result.ok
+      ) {
+        throw new Error(
+          result.error ||
+            "Unable to submit the sponsor foursome."
+        );
+      }
+
+      setFoursomeStatus(
+        "Registered"
+      );
+
+      setFoursomeSaved(
+        true
+      );
+
+      setRosterConfirmed(
+        false
+      );
+
+    } catch (error) {
+      console.error(
+        "Sponsor foursome submission error:",
+        error
+      );
+
+      setFoursomeError(
+        error instanceof Error
+          ? error.message
+          : "Unable to submit the sponsor foursome."
+      );
+    } finally {
+      setFoursomeSubmitting(
+        false
+      );
+    }
+  }
+
+  /*
+    ========================================================
+    SAVE SPONSOR MATERIALS
+    ========================================================
+  */
+
   async function handleSubmit(
-    event: FormEvent<HTMLFormElement>
+    event:
+      FormEvent<HTMLFormElement>
   ) {
     event.preventDefault();
 
     setSubmitError("");
+    setMaterialsSaved(
+      false
+    );
 
     if (
       !sponsor ||
@@ -661,7 +1109,9 @@ export default function SponsorFulfillmentPage() {
     }
 
     if (isBlue) {
-      if (!bluePreference1) {
+      if (
+        !bluePreference1
+      ) {
         setSubmitError(
           "Please select a first Blue Sponsor preference."
         );
@@ -728,6 +1178,9 @@ export default function SponsorFulfillmentPage() {
                 {
                   action:
                     "saveSponsorFulfillment",
+
+                  submissionType:
+                    "materials",
 
                   sponsorId,
 
@@ -812,8 +1265,42 @@ export default function SponsorFulfillmentPage() {
         );
       }
 
-      setSubmitted(
+      setMaterialsSaved(
         true
+      );
+
+      setInformationConfirmed(
+        false
+      );
+
+      setUsageAuthorized(
+        false
+      );
+
+      setSponsor(
+        (
+          currentSponsor
+        ) =>
+          currentSponsor
+            ? {
+                ...currentSponsor,
+
+                materialsStatus:
+                  "Submitted",
+
+                hasPrimaryLogo:
+                  Boolean(
+                    primaryLogo ||
+                    currentSponsor.hasPrimaryLogo
+                  ),
+
+                hasAlternateLogo:
+                  Boolean(
+                    alternateLogo ||
+                    currentSponsor.hasAlternateLogo
+                  ),
+              }
+            : currentSponsor
       );
 
       window.scrollTo({
@@ -823,6 +1310,7 @@ export default function SponsorFulfillmentPage() {
         behavior:
           "smooth",
       });
+
     } catch (error) {
       console.error(
         "Sponsor fulfillment submission error:",
@@ -847,9 +1335,7 @@ export default function SponsorFulfillmentPage() {
         <Container>
           <div className="mx-auto max-w-3xl rounded-3xl bg-white p-10 text-center shadow-lg">
             <p className="text-lg text-slate-600">
-              Loading your
-              sponsorship
-              information…
+              Loading your sponsorship information…
             </p>
           </div>
         </Container>
@@ -866,14 +1352,11 @@ export default function SponsorFulfillmentPage() {
         <Container>
           <div className="mx-auto max-w-3xl rounded-3xl bg-white p-10 text-center shadow-lg">
             <p className="text-sm font-semibold uppercase tracking-[0.25em] text-[var(--brand-blue)]">
-              Sponsor
-              Fulfillment
+              Sponsor Fulfillment
             </p>
 
             <h1 className="mt-4 text-4xl font-bold text-[var(--brand-navy)]">
-              We couldn’t
-              verify this
-              sponsor link.
+              We couldn’t verify this sponsor link.
             </h1>
 
             <p className="mt-6 leading-8 text-slate-600">
@@ -882,84 +1365,7 @@ export default function SponsorFulfillmentPage() {
             </p>
 
             <p className="mt-6 text-sm text-slate-500">
-              Please contact
-              chadmillermemorial@gmail.com
-              if you need
-              assistance.
-            </p>
-          </div>
-        </Container>
-      </section>
-    );
-  }
-
-  if (submitted) {
-    return (
-      <section className="min-h-[650px] bg-slate-50 py-24">
-        <Container>
-          <div className="mx-auto max-w-3xl rounded-3xl bg-white p-10 text-center shadow-lg md:p-14">
-            <p className="text-sm font-semibold uppercase tracking-[0.25em] text-[var(--brand-teal)]">
-              Materials
-              Received
-            </p>
-
-            <h1 className="mt-4 text-4xl font-bold text-[var(--brand-navy)] md:text-5xl">
-              Thank you.
-            </h1>
-
-            <p className="mt-6 text-lg leading-8 text-slate-600">
-              Your sponsor
-              materials have
-              been received.
-              Our tournament
-              team will review
-              your submission
-              before it is used
-              publicly.
-            </p>
-
-            <p className="mt-4 leading-7 text-slate-600">
-              You may return
-              to your private
-              sponsor link if
-              you need to
-              update your
-              information
-              before final
-              production.
-            </p>
-
-            <p className="mt-4 leading-7 text-slate-600">
-              We’ll contact
-              you if we need
-              clarification
-              or a different
-              logo file.
-            </p>
-
-            {isBlue && (
-              <p className="mt-4 leading-7 text-slate-600">
-                We’ll also
-                review your
-                special-event
-                and
-                activity-area
-                preferences
-                and make every
-                effort to
-                accommodate
-                your highest
-                available
-                choice.
-              </p>
-            )}
-
-            <p className="mt-8 font-semibold text-[var(--brand-navy)]">
-              Thank you for
-              supporting the
-              SGM Chad Miller
-              Memorial Golf
-              Tournament.
+              Please contact chadmillermemorial@gmail.com if you need assistance.
             </p>
           </div>
         </Container>
@@ -973,27 +1379,16 @@ export default function SponsorFulfillmentPage() {
         <Container>
           <div className="mx-auto max-w-4xl">
             <p className="text-sm font-semibold uppercase tracking-[0.3em] text-[var(--brand-teal)]">
-              Sponsor
-              Fulfillment
+              Sponsor Fulfillment
             </p>
 
             <h1 className="mt-5 text-5xl font-bold md:text-6xl">
-              Thank you for
-              supporting the
-              SGM Chad Miller
-              Memorial.
+              Thank you for supporting the SGM Chad Miller Memorial.
             </h1>
 
             <p className="mt-6 max-w-3xl text-lg leading-8 text-slate-300">
-              Your sponsorship
-              helps us honor
-              Chad’s legacy,
-              support The Honor
-              Foundation, and
-              recognize members
-              of the U.S.
-              Special
-              Operations
+              Your sponsorship helps us honor Chad’s legacy, support The Honor
+              Foundation, and recognize members of the U.S. Special Operations
               community.
             </p>
           </div>
@@ -1002,112 +1397,49 @@ export default function SponsorFulfillmentPage() {
 
       <section className="bg-slate-50 py-20">
         <Container>
-          <form
-            onSubmit={
-              handleSubmit
-            }
-            className="mx-auto max-w-5xl space-y-8"
-          >
-            <div className="rounded-3xl border border-[var(--brand-teal)]/30 bg-[var(--brand-sky)] p-8 shadow-sm md:p-10">
-              <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[var(--brand-blue)]">
-                Materials
-                Deadline
-              </p>
+          <div className="mx-auto max-w-5xl space-y-8">
 
-              <h2 className="mt-3 text-3xl font-bold text-[var(--brand-navy)]">
-                {sponsor.materialsDue ||
-                  "September 11, 2026"}
-              </h2>
-
-              <p className="mt-4 leading-7 text-slate-600">
-                Please submit
-                your sponsor
-                materials by
-                this date to
-                guarantee
-                inclusion in
-                printed
-                tournament
-                signage and
-                scheduled
-                recognition.
-              </p>
-            </div>
-
-            {materialsAlreadySubmitted && (
+            {materialsSaved && (
               <div className="rounded-3xl border border-emerald-200 bg-emerald-50 p-8 shadow-sm md:p-10">
                 <p className="text-sm font-semibold uppercase tracking-[0.22em] text-emerald-700">
-                  Materials
-                  Already
-                  Submitted
+                  Materials Received
                 </p>
 
                 <h2 className="mt-3 text-3xl font-bold text-[var(--brand-navy)]">
-                  Your sponsor
-                  materials are
-                  already on
-                  file.
+                  Thank you.
                 </h2>
 
                 <p className="mt-4 leading-7 text-slate-600">
-                  You may use
-                  this page to
-                  make
-                  corrections
-                  or update
-                  your sponsor
-                  information
-                  before final
-                  production.
-                </p>
-
-                <p className="mt-3 font-semibold leading-7 text-[var(--brand-navy)]">
-                  Your existing
-                  website / digital
-                  PNG logo remains
-                  on file. You do
-                  not need to
-                  upload it
-                  again unless
-                  you want to
-                  replace it
-                  with a
-                  different
-                  version.
+                  Your sponsor materials have been received. You may continue
+                  using this private page to update your information or your
+                  included foursome where applicable.
                 </p>
               </div>
             )}
 
             <div className="rounded-3xl bg-white p-8 shadow-lg md:p-10">
               <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[var(--brand-blue)]">
-                Your
-                Sponsorship
+                Your Sponsorship
               </p>
 
               <h2 className="mt-3 text-3xl font-bold text-[var(--brand-navy)]">
-                {
-                  sponsor.sponsorshipLevel
-                }
+                {sponsor.sponsorshipLevel}
               </h2>
 
-              <div className="mt-8 grid gap-5 md:grid-cols-2">
+              <div className="mt-8 grid gap-5 md:grid-cols-3">
                 <div>
                   <p className="text-sm font-semibold text-slate-500">
-                    Company /
-                    Organization
+                    Company / Organization
                   </p>
 
                   <p className="mt-1 text-lg font-semibold text-[var(--brand-navy)]">
-                    {
-                      sponsor.company
-                    }
+                    {sponsor.company}
                   </p>
                 </div>
 
                 <div>
                   <p className="text-sm font-semibold text-slate-500">
-                    Sponsorship
-                    Amount
+                    Sponsorship Amount
                   </p>
 
                   <p className="mt-1 text-lg font-semibold text-[var(--brand-navy)]">
@@ -1119,719 +1451,1021 @@ export default function SponsorFulfillmentPage() {
 
                 <div>
                   <p className="text-sm font-semibold text-slate-500">
-                    Primary
-                    Contact
+                    Included Foursome
                   </p>
 
-                  <p className="mt-1 text-lg text-[var(--brand-navy)]">
-                    {
-                      sponsor.contactName
-                    }
-                  </p>
-                </div>
-
-                <div>
-                  <p className="text-sm font-semibold text-slate-500">
-                    Materials
-                    Status
-                  </p>
-
-                  <p className="mt-1 text-lg text-[var(--brand-navy)]">
-                    {sponsor.materialsStatus ||
-                      "Requested"}
+                  <p className="mt-1 text-lg font-semibold text-[var(--brand-navy)]">
+                    {includedFoursome
+                      ? "Yes — 4 golfers"
+                      : "Not included"}
                   </p>
                 </div>
               </div>
             </div>
 
-            {(isHole ||
-              isGrey) && (
-              <div className="rounded-3xl bg-[var(--sand)] p-8 shadow-sm md:p-10">
-                <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[var(--golf-green)]">
-                  Memorial Hole
-                  Recognition
-                </p>
+            {includedFoursome && (
+              <form
+                onSubmit={
+                  handleFoursomeSubmit
+                }
+                className="space-y-8"
+              >
+                <div className="rounded-3xl border border-[var(--brand-teal)]/30 bg-[var(--brand-sky)] p-8 shadow-sm md:p-10">
+                  <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[var(--brand-blue)]">
+                    Included Foursome
+                  </p>
 
-                <h2 className="mt-3 text-3xl font-bold text-[var(--brand-navy)]">
-                  Help us honor
-                  a fallen U.S.
-                  Special
-                  Operations
-                  service
-                  member.
-                </h2>
+                  <h2 className="mt-3 text-3xl font-bold text-[var(--brand-navy)]">
+                    Your four tournament spots are already reserved.
+                  </h2>
 
-                <p className="mt-5 leading-8 text-slate-600">
-                  Your
-                  sponsorship
-                  supports a
-                  dedicated
-                  Memorial Hole
-                  Sign honoring
-                  a fallen
-                  service
-                  member from
-                  the U.S.
-                  Special
-                  Operations
-                  community.
-                  You are
-                  sponsoring
-                  the memorial
-                  recognition
-                  displayed on
-                  the hole —
-                  not naming or
-                  purchasing
-                  the golf hole
-                  itself.
-                </p>
+                  <p className="mt-4 leading-7 text-slate-600">
+                    Your {isBlue
+                      ? "Blue"
+                      : "Grey"} Sponsorship includes one foursome. There is no
+                    additional player-registration payment for these four golfers.
+                  </p>
 
-                <p className="mt-4 leading-8 text-slate-600">
-                  The
-                  tournament
-                  team will
-                  select and
-                  prepare the
-                  memorial
-                  information,
-                  including the
-                  fallen
-                  service
-                  member’s
-                  photograph,
-                  name, rank,
-                  service
-                  information,
-                  and memorial
-                  details.
-                </p>
+                  <p className="mt-4 font-semibold text-[var(--brand-navy)]">
+                    Roster Status:{" "}
+                    {foursomeStatus ||
+                      "Reserved — golfer information needed"}
+                  </p>
 
-                <p className="mt-4 font-semibold leading-7 text-[var(--brand-navy)]">
-                  The fallen
-                  service
-                  member will
-                  remain the
-                  primary focus
-                  of the sign,
-                  with your
-                  sponsor
-                  recognition
-                  presented
-                  respectfully
-                  alongside the
-                  memorial.
-                </p>
-              </div>
+                  <p className="mt-3 text-sm leading-6 text-slate-500">
+                    You may return to this private link later if you need to
+                    update any golfer information.
+                  </p>
+                </div>
+
+                {foursomeSaved && (
+                  <div className="rounded-3xl border border-emerald-200 bg-emerald-50 p-8 shadow-sm">
+                    <p className="text-sm font-semibold uppercase tracking-[0.22em] text-emerald-700">
+                      Foursome Registered
+                    </p>
+
+                    <h2 className="mt-3 text-3xl font-bold text-[var(--brand-navy)]">
+                      Your four golfers are in the tournament field.
+                    </h2>
+
+                    <p className="mt-4 leading-7 text-slate-600">
+                      No additional registration payment was required. You can
+                      return to this private link if you need to update the roster.
+                    </p>
+                  </div>
+                )}
+
+                {foursomePlayers.map(
+                  (
+                    player,
+                    index
+                  ) => (
+                    <div
+                      key={
+                        index
+                      }
+                      className="rounded-3xl bg-white p-8 shadow-lg md:p-10"
+                    >
+                      <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[var(--brand-blue)]">
+                        Golfer{" "}
+                        {index + 1}
+                      </p>
+
+                      <div className="mt-8 grid gap-6 md:grid-cols-2">
+                        <label className="block">
+                          <span className="font-semibold">
+                            First Name *
+                          </span>
+
+                          <input
+                            required
+                            value={
+                              player.firstName
+                            }
+                            onChange={(
+                              event
+                            ) =>
+                              updateGolfer(
+                                index,
+                                "firstName",
+                                event.target.value
+                              )
+                            }
+                            className={
+                              inputClass
+                            }
+                          />
+                        </label>
+
+                        <label className="block">
+                          <span className="font-semibold">
+                            Last Name *
+                          </span>
+
+                          <input
+                            required
+                            value={
+                              player.lastName
+                            }
+                            onChange={(
+                              event
+                            ) =>
+                              updateGolfer(
+                                index,
+                                "lastName",
+                                event.target.value
+                              )
+                            }
+                            className={
+                              inputClass
+                            }
+                          />
+                        </label>
+
+                        <label className="block">
+                          <span className="font-semibold">
+                            Email *
+                          </span>
+
+                          <input
+                            required
+                            type="email"
+                            value={
+                              player.email
+                            }
+                            onChange={(
+                              event
+                            ) =>
+                              updateGolfer(
+                                index,
+                                "email",
+                                event.target.value
+                              )
+                            }
+                            className={
+                              inputClass
+                            }
+                          />
+                        </label>
+
+                        <label className="block">
+                          <span className="font-semibold">
+                            Phone *
+                          </span>
+
+                          <input
+                            required
+                            type="tel"
+                            value={
+                              player.phone
+                            }
+                            onChange={(
+                              event
+                            ) =>
+                              updateGolfer(
+                                index,
+                                "phone",
+                                event.target.value
+                              )
+                            }
+                            className={
+                              inputClass
+                            }
+                          />
+                        </label>
+
+                        <label className="block">
+                          <span className="font-semibold">
+                            GHIN — Optional
+                          </span>
+
+                          <input
+                            value={
+                              player.ghin
+                            }
+                            onChange={(
+                              event
+                            ) =>
+                              updateGolfer(
+                                index,
+                                "ghin",
+                                event.target.value
+                              )
+                            }
+                            className={
+                              inputClass
+                            }
+                          />
+                        </label>
+
+                        <label className="block">
+                          <span className="font-semibold">
+                            Handicap — Optional
+                          </span>
+
+                          <input
+                            value={
+                              player.handicap
+                            }
+                            onChange={(
+                              event
+                            ) =>
+                              updateGolfer(
+                                index,
+                                "handicap",
+                                event.target.value
+                              )
+                            }
+                            className={
+                              inputClass
+                            }
+                          />
+                        </label>
+
+                        <label className="block">
+                          <span className="font-semibold">
+                            Men&apos;s Unisex T-Shirt Size *
+                          </span>
+
+                          <select
+                            required
+                            value={
+                              player.shirtSize
+                            }
+                            onChange={(
+                              event
+                            ) =>
+                              updateGolfer(
+                                index,
+                                "shirtSize",
+                                event.target.value
+                              )
+                            }
+                            className={
+                              inputClass
+                            }
+                          >
+                            <option value="">
+                              Select size
+                            </option>
+
+                            {SHIRT_SIZES.map(
+                              (
+                                size
+                              ) => (
+                                <option
+                                  key={
+                                    size
+                                  }
+                                  value={
+                                    size
+                                  }
+                                >
+                                  {size}
+                                </option>
+                              )
+                            )}
+                          </select>
+                        </label>
+
+                        <label className="block">
+                          <span className="font-semibold">
+                            Tee Selection *
+                          </span>
+
+                          <select
+                            required
+                            value={
+                              player.teeSelection
+                            }
+                            onChange={(
+                              event
+                            ) =>
+                              updateGolfer(
+                                index,
+                                "teeSelection",
+                                event.target.value
+                              )
+                            }
+                            className={
+                              inputClass
+                            }
+                          >
+                            <option value="">
+                              Select tee
+                            </option>
+
+                            <option value="mens">
+                              Men&apos;s Tee
+                            </option>
+
+                            <option value="womens">
+                              Women&apos;s Tee
+                            </option>
+                          </select>
+                        </label>
+                      </div>
+                    </div>
+                  )
+                )}
+
+                <div className="rounded-3xl bg-white p-8 shadow-lg md:p-10">
+                  <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[var(--brand-blue)]">
+                    Emergency Contact
+                  </p>
+
+                  <h2 className="mt-3 text-3xl font-bold text-[var(--brand-navy)]">
+                    Foursome emergency contact.
+                  </h2>
+
+                  <div className="mt-8 grid gap-6 md:grid-cols-2">
+                    <label className="block">
+                      <span className="font-semibold">
+                        Emergency Contact Name *
+                      </span>
+
+                      <input
+                        required
+                        value={
+                          emergencyContactName
+                        }
+                        onChange={(
+                          event
+                        ) =>
+                          setEmergencyContactName(
+                            event.target.value
+                          )
+                        }
+                        className={
+                          inputClass
+                        }
+                      />
+                    </label>
+
+                    <label className="block">
+                      <span className="font-semibold">
+                        Emergency Contact Phone *
+                      </span>
+
+                      <input
+                        required
+                        type="tel"
+                        value={
+                          emergencyContactPhone
+                        }
+                        onChange={(
+                          event
+                        ) =>
+                          setEmergencyContactPhone(
+                            event.target.value
+                          )
+                        }
+                        className={
+                          inputClass
+                        }
+                      />
+                    </label>
+                  </div>
+
+                  <label className="mt-8 flex gap-4 rounded-2xl bg-slate-50 p-5">
+                    <input
+                      required
+                      type="checkbox"
+                      checked={
+                        rosterConfirmed
+                      }
+                      onChange={(
+                        event
+                      ) =>
+                        setRosterConfirmed(
+                          event.target.checked
+                        )
+                      }
+                      className="mt-1 h-5 w-5 shrink-0"
+                    />
+
+                    <span className="leading-7 text-slate-600">
+                      I confirm that the four golfer names and contact
+                      information submitted above are accurate to the best of
+                      my knowledge.
+                    </span>
+                  </label>
+
+                  {foursomeError && (
+                    <div className="mt-8 rounded-2xl bg-red-50 p-4 text-sm font-semibold text-red-700">
+                      {foursomeError}
+                    </div>
+                  )}
+
+                  <button
+                    type="submit"
+                    disabled={
+                      foursomeSubmitting
+                    }
+                    className="mt-8 rounded-full bg-[var(--brand-blue)] px-8 py-4 font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    {foursomeSubmitting
+                      ? "Saving Foursome…"
+                      : foursomeStatus ===
+                          "Registered"
+                        ? "Update Foursome Roster"
+                        : "Submit Foursome Roster"}
+                  </button>
+                </div>
+              </form>
             )}
 
-            {isBlue && (
-              <div className="rounded-3xl bg-[var(--brand-sky)] p-8 shadow-sm md:p-10">
+            <form
+              onSubmit={
+                handleSubmit
+              }
+              className="space-y-8"
+            >
+              <div className="rounded-3xl border border-[var(--brand-teal)]/30 bg-[var(--brand-sky)] p-8 shadow-sm md:p-10">
                 <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[var(--brand-blue)]">
-                  Blue Sponsor
-                  Recognition
+                  Materials Deadline
                 </p>
 
                 <h2 className="mt-3 text-3xl font-bold text-[var(--brand-navy)]">
-                  Special
-                  events,
-                  contests, and
-                  activity
-                  areas come
-                  first.
+                  {sponsor.materialsDue ||
+                    "September 11, 2026"}
                 </h2>
 
-                <p className="mt-5 leading-8 text-slate-600">
-                  Blue Sponsors
-                  are given
-                  priority for
-                  recognition
-                  at major
-                  tournament
-                  events,
-                  contests, and
-                  specialty
-                  activity
-                  areas.
-                  Examples
-                  include the
-                  Driving
-                  Range,
-                  Putting
-                  Green,
-                  Longest
-                  Drive,
-                  Closest-to-the-Pin,
-                  Hole-in-One
-                  Contest,
-                  Breakfast,
-                  Lunch, Silent
-                  Auction, and
-                  Tribute /
-                  Awards
-                  Program.
-                </p>
-
-                <p className="mt-4 leading-8 text-slate-600">
-                  If those
-                  opportunities
-                  are fully
-                  assigned, or
-                  if additional
-                  Memorial Hole
-                  Sponsors are
-                  needed, the
-                  tournament
-                  team may
-                  assign a Blue
-                  Sponsor to
-                  Memorial Hole
-                  recognition
-                  while
-                  maintaining
-                  recognition
-                  appropriate
-                  to the Blue
-                  Sponsorship
-                  level.
+                <p className="mt-4 leading-7 text-slate-600">
+                  Please submit your sponsor materials by this date to guarantee
+                  inclusion in printed tournament signage and scheduled
+                  recognition.
                 </p>
               </div>
-            )}
 
-            <div className="rounded-3xl bg-white p-8 shadow-lg md:p-10">
-              <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[var(--brand-blue)]">
-                Sponsor
-                Information
-              </p>
-
-              <h2 className="mt-3 text-3xl font-bold text-[var(--brand-navy)]">
-                How should we
-                represent your
-                organization?
-              </h2>
-
-              <div className="mt-8 grid gap-6">
-                <label className="block">
-                  <span className="font-semibold text-[var(--brand-navy)]">
-                    Public-Facing
-                    Organization
-                    Name *
-                  </span>
-
-                  <p className="mt-1 text-sm leading-6 text-slate-500">
-                    Enter the
-                    exact name
-                    you would
-                    like
-                    displayed
-                    on
-                    tournament
-                    signage and
-                    the Sponsor
-                    Recognition
-                    page.
+              {materialsAlreadySubmitted && (
+                <div className="rounded-3xl border border-emerald-200 bg-emerald-50 p-8 shadow-sm md:p-10">
+                  <p className="text-sm font-semibold uppercase tracking-[0.22em] text-emerald-700">
+                    Materials Already Submitted
                   </p>
 
-                  <input
-                    required
-                    value={
-                      publicDisplayName
-                    }
-                    onChange={(
-                      event
-                    ) =>
-                      setPublicDisplayName(
-                        event
-                          .target
-                          .value
-                      )
-                    }
-                    className="mt-3 w-full rounded-xl border border-slate-300 px-4 py-3"
-                  />
-                </label>
+                  <h2 className="mt-3 text-3xl font-bold text-[var(--brand-navy)]">
+                    Your sponsor materials are already on file.
+                  </h2>
 
-                <label className="block">
-                  <span className="font-semibold text-[var(--brand-navy)]">
-                    Website URL —
-                    Optional
-                  </span>
-
-                  <p className="mt-1 text-sm leading-6 text-slate-500">
-                    This is
-                    where
-                    visitors
-                    will be
-                    directed
-                    when they
-                    select your
-                    organization
-                    on our
-                    Sponsor
-                    Recognition
-                    page.
+                  <p className="mt-4 leading-7 text-slate-600">
+                    You may use this page to make corrections or update your
+                    sponsor information before final production.
                   </p>
 
-                  <input
-                    type="url"
-                    value={
-                      website
-                    }
-                    onChange={(
-                      event
-                    ) =>
-                      setWebsite(
-                        event
-                          .target
-                          .value
-                      )
-                    }
-                    placeholder="https://"
-                    className="mt-3 w-full rounded-xl border border-slate-300 px-4 py-3"
-                  />
-                </label>
+                  <p className="mt-3 font-semibold leading-7 text-[var(--brand-navy)]">
+                    Your existing website / digital PNG logo remains on file.
+                    You do not need to upload it again unless you want to
+                    replace it with a different version.
+                  </p>
+                </div>
+              )}
 
-                {showTagline && (
+              {(isHole ||
+                isGrey) && (
+                <div className="rounded-3xl bg-[var(--sand)] p-8 shadow-sm md:p-10">
+                  <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[var(--golf-green)]">
+                    Memorial Hole Recognition
+                  </p>
+
+                  <h2 className="mt-3 text-3xl font-bold text-[var(--brand-navy)]">
+                    Help us honor a fallen U.S. Special Operations service member.
+                  </h2>
+
+                  <p className="mt-5 leading-8 text-slate-600">
+                    Your sponsorship supports a dedicated Memorial Hole Sign
+                    honoring a fallen service member from the U.S. Special
+                    Operations community. You are sponsoring the memorial
+                    recognition displayed on the hole — not naming or purchasing
+                    the golf hole itself.
+                  </p>
+
+                  <p className="mt-4 leading-8 text-slate-600">
+                    The tournament team will select and prepare the memorial
+                    information, including the fallen service member’s photograph,
+                    name, rank, service information, and memorial details.
+                  </p>
+
+                  <p className="mt-4 font-semibold leading-7 text-[var(--brand-navy)]">
+                    The fallen service member will remain the primary focus of the
+                    sign, with your sponsor recognition presented respectfully
+                    alongside the memorial.
+                  </p>
+                </div>
+              )}
+
+              {isBlue && (
+                <div className="rounded-3xl bg-[var(--brand-sky)] p-8 shadow-sm md:p-10">
+                  <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[var(--brand-blue)]">
+                    Blue Sponsor Recognition
+                  </p>
+
+                  <h2 className="mt-3 text-3xl font-bold text-[var(--brand-navy)]">
+                    Special events, contests, and activity areas come first.
+                  </h2>
+
+                  <p className="mt-5 leading-8 text-slate-600">
+                    Blue Sponsors are given priority for recognition at major
+                    tournament events, contests, and specialty activity areas.
+                    Examples include the Driving Range, Putting Green, Longest
+                    Drive, Closest-to-the-Pin, Hole-in-One Contest, Breakfast,
+                    Lunch, Silent Auction, and Tribute / Awards Program.
+                  </p>
+
+                  <p className="mt-4 leading-8 text-slate-600">
+                    If those opportunities are fully assigned, or if additional
+                    Memorial Hole Sponsors are needed, the tournament team may
+                    assign a Blue Sponsor to Memorial Hole recognition while
+                    maintaining recognition appropriate to the Blue Sponsorship
+                    level.
+                  </p>
+                </div>
+              )}
+
+              <div className="rounded-3xl bg-white p-8 shadow-lg md:p-10">
+                <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[var(--brand-blue)]">
+                  Sponsor Information
+                </p>
+
+                <h2 className="mt-3 text-3xl font-bold text-[var(--brand-navy)]">
+                  How should we represent your organization?
+                </h2>
+
+                <div className="mt-8 grid gap-6">
                   <label className="block">
                     <span className="font-semibold text-[var(--brand-navy)]">
-                      Short
-                      Tagline or
-                      Description
-                      — Optional
+                      Public-Facing Organization Name *
                     </span>
 
                     <p className="mt-1 text-sm leading-6 text-slate-500">
-                      Maximum
-                      150
-                      characters.
-                      We may use
-                      this on
-                      the
-                      Sponsor
-                      Recognition
-                      page or in
-                      selected
-                      tournament
-                      communications
-                      where
-                      space
-                      permits.
+                      Enter the exact name you would like displayed on tournament
+                      signage and the Sponsor Recognition page.
+                    </p>
+
+                    <input
+                      required
+                      value={
+                        publicDisplayName
+                      }
+                      onChange={(
+                        event
+                      ) =>
+                        setPublicDisplayName(
+                          event.target.value
+                        )
+                      }
+                      className="mt-3 w-full rounded-xl border border-slate-300 px-4 py-3"
+                    />
+                  </label>
+
+                  <label className="block">
+                    <span className="font-semibold text-[var(--brand-navy)]">
+                      Website URL — Optional
+                    </span>
+
+                    <p className="mt-1 text-sm leading-6 text-slate-500">
+                      This is where visitors will be directed when they select
+                      your organization on our Sponsor Recognition page.
+                    </p>
+
+                    <input
+                      type="url"
+                      value={
+                        website
+                      }
+                      onChange={(
+                        event
+                      ) =>
+                        setWebsite(
+                          event.target.value
+                        )
+                      }
+                      placeholder="https://"
+                      className="mt-3 w-full rounded-xl border border-slate-300 px-4 py-3"
+                    />
+                  </label>
+
+                  {showTagline && (
+                    <label className="block">
+                      <span className="font-semibold text-[var(--brand-navy)]">
+                        Short Tagline or Description — Optional
+                      </span>
+
+                      <p className="mt-1 text-sm leading-6 text-slate-500">
+                        Maximum 150 characters. We may use this on the Sponsor
+                        Recognition page or in selected tournament communications
+                        where space permits.
+                      </p>
+
+                      <textarea
+                        value={
+                          tagline
+                        }
+                        maxLength={
+                          150
+                        }
+                        rows={
+                          3
+                        }
+                        onChange={(
+                          event
+                        ) =>
+                          setTagline(
+                            event.target.value
+                          )
+                        }
+                        className="mt-3 w-full rounded-xl border border-slate-300 px-4 py-3"
+                      />
+
+                      <p className="mt-1 text-right text-xs text-slate-400">
+                        {tagline.length}/150
+                      </p>
+                    </label>
+                  )}
+                </div>
+              </div>
+
+              <div className="rounded-3xl bg-white p-8 shadow-lg md:p-10">
+                <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[var(--brand-blue)]">
+                  Logo & Artwork
+                </p>
+
+                <h2 className="mt-3 text-3xl font-bold text-[var(--brand-navy)]">
+                  Send us your best-quality logo.
+                </h2>
+
+                <p className="mt-4 leading-7 text-slate-600">
+                  Please provide a <strong>PNG logo</strong> for website and
+                  digital recognition. If available, we also strongly prefer an{" "}
+                  <strong>SVG logo</strong> for printed signs, banners, and other
+                  large-format materials. For your PNG, please provide a
+                  high-resolution image with a transparent background whenever
+                  possible.
+                </p>
+
+                <div className="mt-8 grid gap-8 md:grid-cols-2">
+                  <label className="block rounded-2xl border border-slate-200 p-6">
+                    <span className="font-semibold text-[var(--brand-navy)]">
+                      {requiresPrimaryLogo
+                        ? "Website / Digital Logo (PNG) *"
+                        : "Website / Digital Logo (PNG) — Optional Replacement"}
+                    </span>
+
+                    <p className="mt-2 text-sm leading-6 text-slate-500">
+                      {requiresPrimaryLogo
+                        ? "Required. Upload a high-resolution PNG for the tournament website, digital recognition, and communications. A transparent background is preferred."
+                        : "Your required PNG logo is already on file. Leave this blank to keep it, or upload a new PNG to replace it."}
+                    </p>
+
+                    <input
+                      type="file"
+                      required={
+                        requiresPrimaryLogo
+                      }
+                      accept=".png,image/png"
+                      onChange={(
+                        event
+                      ) =>
+                        handlePrimaryLogo(
+                          event.target
+                            .files?.[0] ||
+                            null
+                        )
+                      }
+                      className="mt-4 block w-full text-sm"
+                    />
+
+                    {primaryLogo && (
+                      <p className="mt-3 text-sm font-medium text-[var(--brand-blue)]">
+                        {primaryLogo.name}
+                      </p>
+                    )}
+
+                    {primaryLogoError && (
+                      <p className="mt-3 text-sm font-semibold text-red-600">
+                        {primaryLogoError}
+                      </p>
+                    )}
+                  </label>
+
+                  <label className="block rounded-2xl border border-slate-200 p-6">
+                    <span className="font-semibold text-[var(--brand-navy)]">
+                      Print-Quality Logo (SVG) — Strongly Preferred
+                    </span>
+
+                    <p className="mt-2 text-sm leading-6 text-slate-500">
+                      {sponsor.hasAlternateLogo
+                        ? "A print-quality SVG logo is already on file. Leave this blank to keep it, or upload a new SVG to replace it."
+                        : "If available, upload an SVG version of your logo. We will use this as the preferred source for printed signs, banners, and other large-format materials."}
+                    </p>
+
+                    <input
+                      type="file"
+                      accept=".svg,image/svg+xml"
+                      onChange={(
+                        event
+                      ) =>
+                        handleAlternateLogo(
+                          event.target
+                            .files?.[0] ||
+                            null
+                        )
+                      }
+                      className="mt-4 block w-full text-sm"
+                    />
+
+                    {alternateLogo && (
+                      <p className="mt-3 text-sm font-medium text-[var(--brand-blue)]">
+                        {alternateLogo.name}
+                      </p>
+                    )}
+
+                    {alternateLogoError && (
+                      <p className="mt-3 text-sm font-semibold text-red-600">
+                        {alternateLogoError}
+                      </p>
+                    )}
+                  </label>
+                </div>
+
+                <p className="mt-6 text-sm text-slate-500">
+                  Maximum file size: 3 MB per logo. The PNG is required; the SVG
+                  is strongly preferred when available.
+                </p>
+              </div>
+
+              {isBlue && (
+                <div className="rounded-3xl bg-white p-8 shadow-lg md:p-10">
+                  <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[var(--brand-blue)]">
+                    Blue Sponsor Special Event & Area Preferences
+                  </p>
+
+                  <h2 className="mt-3 text-3xl font-bold text-[var(--brand-navy)]">
+                    Tell us what interests your organization most.
+                  </h2>
+
+                  <p className="mt-5 leading-8 text-slate-600">
+                    Please select at least one preferred special-event, contest,
+                    or activity-area sponsorship. We will make every effort to
+                    accommodate your highest available preference based on
+                    availability and the order completed sponsor materials are
+                    received.
+                  </p>
+
+                  <p className="mt-4 font-semibold leading-7 text-[var(--brand-navy)]">
+                    Specific assignments and exclusivity are not guaranteed.
+                    Some major areas, including Breakfast and Lunch, may recognize
+                    multiple Blue Sponsors.
+                  </p>
+
+                  <div className="mt-8 grid gap-6 md:grid-cols-3">
+                    <label className="block">
+                      <span className="font-semibold">
+                        First Preference *
+                      </span>
+
+                      <select
+                        required
+                        value={
+                          bluePreference1
+                        }
+                        onChange={(
+                          event
+                        ) =>
+                          setBluePreference1(
+                            event.target.value
+                          )
+                        }
+                        className="mt-2 w-full rounded-xl border border-slate-300 bg-white px-4 py-3"
+                      >
+                        <option value="">
+                          Select
+                        </option>
+
+                        {BLUE_FEATURE_OPTIONS.map(
+                          (
+                            option
+                          ) => (
+                            <option
+                              key={
+                                option
+                              }
+                              value={
+                                option
+                              }
+                            >
+                              {option}
+                            </option>
+                          )
+                        )}
+                      </select>
+                    </label>
+
+                    <label className="block">
+                      <span className="font-semibold">
+                        Second Preference
+                      </span>
+
+                      <select
+                        value={
+                          bluePreference2
+                        }
+                        onChange={(
+                          event
+                        ) =>
+                          setBluePreference2(
+                            event.target.value
+                          )
+                        }
+                        className="mt-2 w-full rounded-xl border border-slate-300 bg-white px-4 py-3"
+                      >
+                        <option value="">
+                          Select
+                        </option>
+
+                        {BLUE_FEATURE_OPTIONS.map(
+                          (
+                            option
+                          ) => (
+                            <option
+                              key={
+                                option
+                              }
+                              value={
+                                option
+                              }
+                            >
+                              {option}
+                            </option>
+                          )
+                        )}
+                      </select>
+                    </label>
+
+                    <label className="block">
+                      <span className="font-semibold">
+                        Third Preference
+                      </span>
+
+                      <select
+                        value={
+                          bluePreference3
+                        }
+                        onChange={(
+                          event
+                        ) =>
+                          setBluePreference3(
+                            event.target.value
+                          )
+                        }
+                        className="mt-2 w-full rounded-xl border border-slate-300 bg-white px-4 py-3"
+                      >
+                        <option value="">
+                          Select
+                        </option>
+
+                        {BLUE_FEATURE_OPTIONS.map(
+                          (
+                            option
+                          ) => (
+                            <option
+                              key={
+                                option
+                              }
+                              value={
+                                option
+                              }
+                            >
+                              {option}
+                            </option>
+                          )
+                        )}
+                      </select>
+                    </label>
+                  </div>
+                </div>
+              )}
+
+              {isBlue && (
+                <div className="rounded-3xl bg-white p-8 shadow-lg md:p-10">
+                  <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[var(--brand-blue)]">
+                    Tribute & Awards Recognition
+                  </p>
+
+                  <h2 className="mt-3 text-3xl font-bold text-[var(--brand-navy)]">
+                    Representative information — optional.
+                  </h2>
+
+                  <p className="mt-4 leading-7 text-slate-600">
+                    If there is a representative from your organization you
+                    would specifically like recognized during the tribute and
+                    awards program, provide their information below. Leaving this
+                    blank will not affect your Blue Sponsor recognition.
+                  </p>
+
+                  <div className="mt-8 grid gap-6 md:grid-cols-2">
+                    <label className="block">
+                      <span className="font-semibold">
+                        Representative Name
+                      </span>
+
+                      <input
+                        value={
+                          representativeName
+                        }
+                        onChange={(
+                          event
+                        ) =>
+                          setRepresentativeName(
+                            event.target.value
+                          )
+                        }
+                        className="mt-2 w-full rounded-xl border border-slate-300 px-4 py-3"
+                      />
+                    </label>
+
+                    <label className="block">
+                      <span className="font-semibold">
+                        Representative Title
+                      </span>
+
+                      <input
+                        value={
+                          representativeTitle
+                        }
+                        onChange={(
+                          event
+                        ) =>
+                          setRepresentativeTitle(
+                            event.target.value
+                          )
+                        }
+                        className="mt-2 w-full rounded-xl border border-slate-300 px-4 py-3"
+                      />
+                    </label>
+                  </div>
+
+                  <label className="mt-6 block">
+                    <span className="font-semibold">
+                      Additional Recognition Notes — Optional
+                    </span>
+
+                    <p className="mt-1 text-sm text-slate-500">
+                      Maximum 500 characters.
                     </p>
 
                     <textarea
                       value={
-                        tagline
+                        additionalNotes
                       }
                       maxLength={
-                        150
+                        500
                       }
-                      rows={3}
+                      rows={
+                        4
+                      }
                       onChange={(
                         event
                       ) =>
-                        setTagline(
-                          event
-                            .target
-                            .value
+                        setAdditionalNotes(
+                          event.target.value
                         )
                       }
                       className="mt-3 w-full rounded-xl border border-slate-300 px-4 py-3"
                     />
 
                     <p className="mt-1 text-right text-xs text-slate-400">
-                      {
-                        tagline.length
-                      }
-                      /150
+                      {additionalNotes.length}/500
                     </p>
-                  </label>
-                )}
-              </div>
-            </div>
-
-            <div className="rounded-3xl bg-white p-8 shadow-lg md:p-10">
-              <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[var(--brand-blue)]">
-                Logo &
-                Artwork
-              </p>
-
-              <h2 className="mt-3 text-3xl font-bold text-[var(--brand-navy)]">
-                Send us your
-                best-quality
-                logo.
-              </h2>
-
-              <p className="mt-4 leading-7 text-slate-600">
-                Please provide a
-                <strong> PNG logo</strong>
-                for website and digital recognition.
-                If available, we also strongly prefer an
-                <strong> SVG logo</strong> for printed signs,
-                banners, and other large-format materials.
-                For your PNG, please provide a high-resolution
-                image with a transparent background whenever
-                possible.
-              </p>
-
-              <div className="mt-8 grid gap-8 md:grid-cols-2">
-                <label className="block rounded-2xl border border-slate-200 p-6">
-                  <span className="font-semibold text-[var(--brand-navy)]">
-                    {requiresPrimaryLogo
-                      ? "Website / Digital Logo (PNG) *"
-                      : "Website / Digital Logo (PNG) — Optional Replacement"}
-                  </span>
-
-                  <p className="mt-2 text-sm leading-6 text-slate-500">
-                    {requiresPrimaryLogo
-                      ? "Required. Upload a high-resolution PNG for the tournament website, digital recognition, and communications. A transparent background is preferred."
-                      : "Your required PNG logo is already on file. Leave this blank to keep it, or upload a new PNG to replace it."}
-                  </p>
-
-                  <input
-                    type="file"
-                    required={
-                      requiresPrimaryLogo
-                    }
-                    accept=".png,image/png"
-                    onChange={(
-                      event
-                    ) =>
-                      handlePrimaryLogo(
-                        event
-                          .target
-                          .files?.[0] ||
-                          null
-                      )
-                    }
-                    className="mt-4 block w-full text-sm"
-                  />
-
-                  {primaryLogo && (
-                    <p className="mt-3 text-sm font-medium text-[var(--brand-blue)]">
-                      {
-                        primaryLogo.name
-                      }
-                    </p>
-                  )}
-
-                  {primaryLogoError && (
-                    <p className="mt-3 text-sm font-semibold text-red-600">
-                      {
-                        primaryLogoError
-                      }
-                    </p>
-                  )}
-                </label>
-
-                <label className="block rounded-2xl border border-slate-200 p-6">
-                  <span className="font-semibold text-[var(--brand-navy)]">
-                    Print-Quality
-                    Logo (SVG) —
-                    Strongly Preferred
-                  </span>
-
-                  <p className="mt-2 text-sm leading-6 text-slate-500">
-                    {sponsor.hasAlternateLogo
-                      ? "A print-quality SVG logo is already on file. Leave this blank to keep it, or upload a new SVG to replace it."
-                      : "If available, upload an SVG version of your logo. We will use this as the preferred source for printed signs, banners, and other large-format materials."}
-                  </p>
-
-                  <input
-                    type="file"
-                    accept=".svg,image/svg+xml"
-                    onChange={(
-                      event
-                    ) =>
-                      handleAlternateLogo(
-                        event
-                          .target
-                          .files?.[0] ||
-                          null
-                      )
-                    }
-                    className="mt-4 block w-full text-sm"
-                  />
-
-                  {alternateLogo && (
-                    <p className="mt-3 text-sm font-medium text-[var(--brand-blue)]">
-                      {
-                        alternateLogo.name
-                      }
-                    </p>
-                  )}
-
-                  {alternateLogoError && (
-                    <p className="mt-3 text-sm font-semibold text-red-600">
-                      {
-                        alternateLogoError
-                      }
-                    </p>
-                  )}
-                </label>
-              </div>
-
-              <p className="mt-6 text-sm text-slate-500">
-                Maximum file size: 3 MB per logo. The PNG is
-                required; the SVG is strongly preferred when available.
-              </p>
-            </div>
-
-            {isBlue && (
-              <div className="rounded-3xl bg-white p-8 shadow-lg md:p-10">
-                <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[var(--brand-blue)]">
-                  Blue Sponsor
-                  Special Event
-                  & Area
-                  Preferences
-                </p>
-
-                <h2 className="mt-3 text-3xl font-bold text-[var(--brand-navy)]">
-                  Tell us what
-                  interests
-                  your
-                  organization
-                  most.
-                </h2>
-
-                <p className="mt-5 leading-8 text-slate-600">
-                  Please select
-                  at least one
-                  preferred
-                  special-event,
-                  contest, or
-                  activity-area
-                  sponsorships.
-                  We will make
-                  every effort
-                  to
-                  accommodate
-                  your highest
-                  available
-                  preference
-                  based on
-                  availability
-                  and the order
-                  completed
-                  sponsor
-                  materials are
-                  received.
-                </p>
-
-                <p className="mt-4 font-semibold leading-7 text-[var(--brand-navy)]">
-                  Specific
-                  assignments
-                  and
-                  exclusivity
-                  are not
-                  guaranteed.
-                  Some major
-                  areas,
-                  including
-                  Breakfast and
-                  Lunch, may
-                  recognize
-                  multiple Blue
-                  Sponsors.
-                </p>
-
-                <div className="mt-8 grid gap-6 md:grid-cols-3">
-                  <label className="block">
-                    <span className="font-semibold">
-                      First
-                      Preference *
-                    </span>
-
-                    <select
-                      required
-                      value={
-                        bluePreference1
-                      }
-                      onChange={(
-                        event
-                      ) =>
-                        setBluePreference1(
-                          event
-                            .target
-                            .value
-                        )
-                      }
-                      className="mt-2 w-full rounded-xl border border-slate-300 bg-white px-4 py-3"
-                    >
-                      <option value="">
-                        Select
-                      </option>
-
-                      {BLUE_FEATURE_OPTIONS.map(
-                        (
-                          option
-                        ) => (
-                          <option
-                            key={
-                              option
-                            }
-                            value={
-                              option
-                            }
-                          >
-                            {
-                              option
-                            }
-                          </option>
-                        )
-                      )}
-                    </select>
-                  </label>
-
-                  <label className="block">
-                    <span className="font-semibold">
-                      Second
-                      Preference
-                    </span>
-
-                    <select
-                      value={
-                        bluePreference2
-                      }
-                      onChange={(
-                        event
-                      ) =>
-                        setBluePreference2(
-                          event
-                            .target
-                            .value
-                        )
-                      }
-                      className="mt-2 w-full rounded-xl border border-slate-300 bg-white px-4 py-3"
-                    >
-                      <option value="">
-                        Select
-                      </option>
-
-                      {BLUE_FEATURE_OPTIONS.map(
-                        (
-                          option
-                        ) => (
-                          <option
-                            key={
-                              option
-                            }
-                            value={
-                              option
-                            }
-                          >
-                            {
-                              option
-                            }
-                          </option>
-                        )
-                      )}
-                    </select>
-                  </label>
-
-                  <label className="block">
-                    <span className="font-semibold">
-                      Third
-                      Preference
-                    </span>
-
-                    <select
-                      value={
-                        bluePreference3
-                      }
-                      onChange={(
-                        event
-                      ) =>
-                        setBluePreference3(
-                          event
-                            .target
-                            .value
-                        )
-                      }
-                      className="mt-2 w-full rounded-xl border border-slate-300 bg-white px-4 py-3"
-                    >
-                      <option value="">
-                        Select
-                      </option>
-
-                      {BLUE_FEATURE_OPTIONS.map(
-                        (
-                          option
-                        ) => (
-                          <option
-                            key={
-                              option
-                            }
-                            value={
-                              option
-                            }
-                          >
-                            {
-                              option
-                            }
-                          </option>
-                        )
-                      )}
-                    </select>
                   </label>
                 </div>
-              </div>
-            )}
+              )}
 
-            {isBlue && (
               <div className="rounded-3xl bg-white p-8 shadow-lg md:p-10">
                 <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[var(--brand-blue)]">
-                  Tribute &
-                  Awards
-                  Recognition
+                  Primary Contact
                 </p>
 
                 <h2 className="mt-3 text-3xl font-bold text-[var(--brand-navy)]">
-                  Representative
-                  information —
-                  optional.
+                  Who should we contact if we have a question?
                 </h2>
-
-                <p className="mt-4 leading-7 text-slate-600">
-                  If there is
-                  a
-                  representative
-                  from your
-                  organization
-                  you would
-                  specifically
-                  like
-                  recognized
-                  during the
-                  tribute and
-                  awards
-                  program,
-                  provide their
-                  information
-                  below.
-                  Leaving this
-                  blank will not
-                  affect your
-                  Blue Sponsor
-                  recognition.
-                </p>
 
                 <div className="mt-8 grid gap-6 md:grid-cols-2">
                   <label className="block">
                     <span className="font-semibold">
-                      Representative
-                      Name
+                      Contact Name *
                     </span>
 
                     <input
+                      required
                       value={
-                        representativeName
+                        contactName
                       }
                       onChange={(
                         event
                       ) =>
-                        setRepresentativeName(
-                          event
-                            .target
-                            .value
+                        setContactName(
+                          event.target.value
                         )
                       }
                       className="mt-2 w-full rounded-xl border border-slate-300 px-4 py-3"
@@ -1840,314 +2474,146 @@ export default function SponsorFulfillmentPage() {
 
                   <label className="block">
                     <span className="font-semibold">
-                      Representative
-                      Title
+                      Email *
                     </span>
 
                     <input
+                      required
+                      type="email"
                       value={
-                        representativeTitle
+                        email
                       }
                       onChange={(
                         event
                       ) =>
-                        setRepresentativeTitle(
-                          event
-                            .target
-                            .value
+                        setEmail(
+                          event.target.value
                         )
                       }
                       className="mt-2 w-full rounded-xl border border-slate-300 px-4 py-3"
                     />
                   </label>
+
+                  <label className="block md:col-span-2">
+                    <span className="font-semibold">
+                      Phone *
+                    </span>
+
+                    <input
+                      required
+                      type="tel"
+                      value={
+                        phone
+                      }
+                      onChange={(
+                        event
+                      ) =>
+                        setPhone(
+                          event.target.value
+                        )
+                      }
+                      className="mt-2 w-full rounded-xl border border-slate-300 px-4 py-3 md:max-w-md"
+                    />
+                  </label>
                 </div>
 
-                <label className="mt-6 block">
-                  <span className="font-semibold">
-                    Additional
-                    Recognition
-                    Notes —
-                    Optional
-                  </span>
-
-                  <p className="mt-1 text-sm text-slate-500">
-                    Maximum 500
-                    characters.
-                  </p>
-
-                  <textarea
-                    value={
-                      additionalNotes
-                    }
-                    maxLength={
-                      500
-                    }
-                    rows={4}
-                    onChange={(
-                      event
-                    ) =>
-                      setAdditionalNotes(
-                        event
-                          .target
-                          .value
-                      )
-                    }
-                    className="mt-3 w-full rounded-xl border border-slate-300 px-4 py-3"
-                  />
-
-                  <p className="mt-1 text-right text-xs text-slate-400">
-                    {
-                      additionalNotes.length
-                    }
-                    /500
-                  </p>
-                </label>
-              </div>
-            )}
-
-            <div className="rounded-3xl bg-white p-8 shadow-lg md:p-10">
-              <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[var(--brand-blue)]">
-                Primary
-                Contact
-              </p>
-
-              <h2 className="mt-3 text-3xl font-bold text-[var(--brand-navy)]">
-                Who should we
-                contact if we
-                have a
-                question?
-              </h2>
-
-              <div className="mt-8 grid gap-6 md:grid-cols-2">
-                <label className="block">
-                  <span className="font-semibold">
-                    Contact Name
-                    *
-                  </span>
-
-                  <input
-                    required
-                    value={
-                      contactName
-                    }
-                    onChange={(
-                      event
-                    ) =>
-                      setContactName(
-                        event
-                          .target
-                          .value
-                      )
-                    }
-                    className="mt-2 w-full rounded-xl border border-slate-300 px-4 py-3"
-                  />
-                </label>
-
-                <label className="block">
-                  <span className="font-semibold">
-                    Email *
-                  </span>
-
-                  <input
-                    required
-                    type="email"
-                    value={
-                      email
-                    }
-                    onChange={(
-                      event
-                    ) =>
-                      setEmail(
-                        event
-                          .target
-                          .value
-                      )
-                    }
-                    className="mt-2 w-full rounded-xl border border-slate-300 px-4 py-3"
-                  />
-                </label>
-
-                <label className="block md:col-span-2">
-                  <span className="font-semibold">
-                    Phone *
-                  </span>
-
-                  <input
-                    required
-                    type="tel"
-                    value={
-                      phone
-                    }
-                    onChange={(
-                      event
-                    ) =>
-                      setPhone(
-                        event
-                          .target
-                          .value
-                      )
-                    }
-                    className="mt-2 w-full rounded-xl border border-slate-300 px-4 py-3 md:max-w-md"
-                  />
-                </label>
+                <p className="mt-6 text-sm leading-6 text-slate-500">
+                  We will use this contact if we have questions about artwork,
+                  signage, sponsor recognition, or Blue Sponsor feature
+                  assignments where applicable.
+                </p>
               </div>
 
-              <p className="mt-6 text-sm leading-6 text-slate-500">
-                We will use
-                this contact
-                if we have
-                questions
-                about
-                artwork,
-                signage,
-                sponsor
-                recognition,
-                or Blue
-                Sponsor
-                feature
-                assignments
-                where
-                applicable.
-              </p>
-            </div>
+              <div className="rounded-3xl bg-[var(--brand-navy)] p-8 text-white shadow-lg md:p-10">
+                <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[var(--brand-teal)]">
+                  Final Approval
+                </p>
 
-            <div className="rounded-3xl bg-[var(--brand-navy)] p-8 text-white shadow-lg md:p-10">
-              <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[var(--brand-teal)]">
-                Final
-                Approval
-              </p>
+                <h2 className="mt-3 text-3xl font-bold">
+                  Confirm your sponsor materials.
+                </h2>
 
-              <h2 className="mt-3 text-3xl font-bold">
-                Confirm your
-                sponsor
-                materials.
-              </h2>
-
-              <div className="mt-8 space-y-5">
-                <label className="flex gap-4">
-                  <input
-                    required
-                    type="checkbox"
-                    checked={
-                      informationConfirmed
-                    }
-                    onChange={(
-                      event
-                    ) =>
-                      setInformationConfirmed(
+                <div className="mt-8 space-y-5">
+                  <label className="flex gap-4">
+                    <input
+                      required
+                      type="checkbox"
+                      checked={
+                        informationConfirmed
+                      }
+                      onChange={(
                         event
-                          .target
-                          .checked
-                      )
-                    }
-                    className="mt-1 h-5 w-5 shrink-0"
-                  />
+                      ) =>
+                        setInformationConfirmed(
+                          event.target.checked
+                        )
+                      }
+                      className="mt-1 h-5 w-5 shrink-0"
+                    />
 
-                  <span className="leading-7 text-slate-200">
-                    I confirm
-                    that the
-                    organization
-                    name,
-                    website,
-                    contact
-                    information,
-                    and any
-                    recognition
-                    preferences
-                    submitted
-                    above are
-                    correct.
-                  </span>
-                </label>
+                    <span className="leading-7 text-slate-200">
+                      I confirm that the organization name, website, contact
+                      information, and any recognition preferences submitted
+                      above are correct.
+                    </span>
+                  </label>
 
-                <label className="flex gap-4">
-                  <input
-                    required
-                    type="checkbox"
-                    checked={
-                      usageAuthorized
-                    }
-                    onChange={(
-                      event
-                    ) =>
-                      setUsageAuthorized(
+                  <label className="flex gap-4">
+                    <input
+                      required
+                      type="checkbox"
+                      checked={
+                        usageAuthorized
+                      }
+                      onChange={(
                         event
-                          .target
-                          .checked
-                      )
-                    }
-                    className="mt-1 h-5 w-5 shrink-0"
-                  />
+                      ) =>
+                        setUsageAuthorized(
+                          event.target.checked
+                        )
+                      }
+                      className="mt-1 h-5 w-5 shrink-0"
+                    />
 
-                  <span className="leading-7 text-slate-200">
-                    I authorize
-                    the SGM Chad
-                    Miller
-                    Memorial
-                    Golf
-                    Tournament
-                    to use the
-                    submitted
-                    company
-                    name, logo,
-                    artwork,
-                    and
-                    provided
-                    information
-                    for
-                    tournament
-                    signage,
-                    website
-                    recognition,
-                    communications,
-                    and other
-                    materials
-                    associated
-                    with the
-                    event.
-                  </span>
-                </label>
-              </div>
+                    <span className="leading-7 text-slate-200">
+                      I authorize the SGM Chad Miller Memorial Golf Tournament to
+                      use the submitted company name, logo, artwork, and provided
+                      information for tournament signage, website recognition,
+                      communications, and other materials associated with the
+                      event.
+                    </span>
+                  </label>
+                </div>
 
-              {submitError && (
-                <div className="mt-8 rounded-2xl bg-red-50 p-4 text-sm font-semibold text-red-700">
-                  {
-                    submitError
+                {submitError && (
+                  <div className="mt-8 rounded-2xl bg-red-50 p-4 text-sm font-semibold text-red-700">
+                    {submitError}
+                  </div>
+                )}
+
+                <button
+                  type="submit"
+                  disabled={
+                    submitting
                   }
-                </div>
-              )}
+                  className="mt-8 rounded-full bg-[var(--brand-teal)] px-8 py-4 font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {submitting
+                    ? materialsAlreadySubmitted
+                      ? "Updating Sponsor Materials…"
+                      : "Submitting Sponsor Materials…"
+                    : materialsAlreadySubmitted
+                      ? "Update Sponsor Materials"
+                      : "Submit Sponsor Materials"}
+                </button>
 
-              <button
-                type="submit"
-                disabled={
-                  submitting
-                }
-                className="mt-8 rounded-full bg-[var(--brand-teal)] px-8 py-4 font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
-              >
-                {submitting
-                  ? materialsAlreadySubmitted
-                    ? "Updating Sponsor Materials…"
-                    : "Submitting Sponsor Materials…"
-                  : materialsAlreadySubmitted
-                    ? "Update Sponsor Materials"
-                    : "Submit Sponsor Materials"}
-              </button>
-
-              <p className="mt-5 text-sm leading-6 text-slate-400">
-                Your
-                submission
-                will be
-                reviewed by
-                the
-                tournament
-                team before
-                any materials
-                are published
-                or sent to
-                production.
-              </p>
-            </div>
-          </form>
+                <p className="mt-5 text-sm leading-6 text-slate-400">
+                  Your submission will be reviewed by the tournament team before
+                  any materials are published or sent to production.
+                </p>
+              </div>
+            </form>
+          </div>
         </Container>
       </section>
     </>
