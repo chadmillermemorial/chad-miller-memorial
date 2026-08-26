@@ -349,7 +349,7 @@ export async function POST(
 
                 product_data: {
                   name:
-                    `SGM Chad Miller Memorial — ${sponsorshipName}`,
+                    `CSM Chad Miller Memorial — ${sponsorshipName}`,
 
                   description:
                     includedPlayerCount ===

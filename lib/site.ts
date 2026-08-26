@@ -4,7 +4,7 @@ export const siteConfig = {
   name: tournament.name,
 
   description:
-    "Honoring Sergeant Major Chad Miller through a memorial golf tournament supporting The Honor Foundation Fort Bragg Chapters.",
+    "Honoring Command Sergeant Major Chad Miller through a memorial golf tournament supporting The Honor Foundation Fort Bragg Chapters.",
 
   location: {
     venue: tournament.venue.name,

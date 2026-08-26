@@ -254,7 +254,7 @@ export async function POST(request: Request) {
           price_data: {
             currency: "usd",
             product_data: {
-              name: "SGM Chad Miller Memorial Golf Tournament",
+              name: "CSM Chad Miller Memorial Golf Tournament",
               description: registrationLabel,
             },
             unit_amount: 7500,

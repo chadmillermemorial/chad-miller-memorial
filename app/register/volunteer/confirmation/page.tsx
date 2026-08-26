@@ -13,7 +13,7 @@ export default function VolunteerConfirmationPage() {
         </h1>
 
         <p className="mx-auto mb-8 max-w-2xl text-lg leading-8 text-slate-600">
-          Thank you for volunteering for the Sergeant Major Chad Miller
+          Thank you for volunteering for the Command Sergeant Major Chad Miller
           Memorial Golf Tournament.
         </p>
 

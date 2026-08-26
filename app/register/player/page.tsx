@@ -230,7 +230,7 @@ export default function PlayerRegistrationPage() {
           <div className="grid gap-10 lg:grid-cols-[0.75fr_1.25fr] lg:items-center">
             <Image
               src="/images/logo/logo.png"
-              alt="SGM Chad Miller Memorial logo"
+              alt="CSM Chad Miller Memorial logo"
               width={260}
               height={260}
               className="mx-auto w-full max-w-[220px]"

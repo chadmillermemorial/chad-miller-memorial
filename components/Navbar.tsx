@@ -27,14 +27,14 @@ export default function Navbar() {
         <Link href="/" className="flex items-center gap-3">
           <Image
             src="/images/logo/logo.png"
-            alt="SGM Chad Miller Memorial logo"
+            alt="CSM Chad Miller Memorial logo"
             width={54}
             height={54}
             className="h-12 w-12 object-contain"
           />
 
           <span className="hidden text-sm font-semibold leading-tight text-[var(--brand-navy)] sm:block">
-            SGM Chad Miller Memorial
+            CSM Chad Miller Memorial
           </span>
         </Link>
 

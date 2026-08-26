@@ -13,7 +13,7 @@ export default function PlayerConfirmationPage() {
         </h1>
 
         <p className="mx-auto mb-8 max-w-2xl text-lg leading-8 text-slate-600">
-          Thank you for registering for the Sergeant Major Chad Miller Memorial
+          Thank you for registering for the Command Sergeant Major Chad Miller Memorial
           Golf Tournament.
         </p>
 

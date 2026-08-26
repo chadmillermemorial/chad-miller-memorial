@@ -11,7 +11,7 @@ export default function AboutPage() {
             <div className="mx-auto w-full max-w-md overflow-hidden rounded-3xl bg-white shadow-2xl">
               <Image
                 src="/images/chad/chad-headshot.jpg"
-                alt="Sergeant Major Chad Miller"
+                alt="Command Sergeant Major Chad Miller"
                 width={900}
                 height={1100}
                 priority
@@ -21,7 +21,7 @@ export default function AboutPage() {
 
             <div>
               <p className="text-sm font-semibold uppercase tracking-[0.3em] text-[var(--brand-teal)]">
-                Remembering Sergeant Major Chad Miller
+                Remembering Command Sergeant Major Chad Miller
               </p>
 
               <h1 className="mt-5 text-5xl font-bold leading-tight md:text-7xl">
@@ -29,7 +29,7 @@ export default function AboutPage() {
               </h1>
 
               <p className="mt-8 max-w-2xl text-xl leading-9 text-slate-300">
-                The Sergeant Major Chad Miller Memorial Golf Tournament honors
+                The Command Sergeant Major Chad Miller Memorial Golf Tournament honors
                 a remarkable leader, devoted family man, mentor, and friend
                 whose influence continues to inspire the people who knew and
                 served beside him.

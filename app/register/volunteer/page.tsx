@@ -19,7 +19,7 @@ export default function VolunteerRegistrationPage() {
           <div className="grid gap-10 lg:grid-cols-[0.75fr_1.25fr] lg:items-center">
             <Image
               src="/images/logo/logo.png"
-              alt="SGM Chad Miller Memorial logo"
+              alt="CSM Chad Miller Memorial logo"
               width={260}
               height={260}
               className="mx-auto w-full max-w-[220px]"
@@ -35,7 +35,7 @@ export default function VolunteerRegistrationPage() {
               </h1>
 
               <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-300">
-                Help us honor Sergeant Major Chad Miller and support a great
+                Help us honor Command Sergeant Major Chad Miller and support a great
                 tournament experience for players, sponsors, and guests.
               </p>
             </div>

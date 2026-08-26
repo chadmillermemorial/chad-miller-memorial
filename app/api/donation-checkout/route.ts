@@ -57,9 +57,9 @@ export async function POST(request: Request) {
             currency: "usd",
 
             product_data: {
-              name: "SGM Chad Miller Memorial Donation",
+              name: "CSM Chad Miller Memorial Donation",
               description:
-                "Contribution benefiting the Sergeant Major Chad Miller Memorial Golf Tournament.",
+                "Contribution benefiting the Command Sergeant Major Chad Miller Memorial Golf Tournament.",
             },
 
             unit_amount: Math.round(donationAmount * 100),

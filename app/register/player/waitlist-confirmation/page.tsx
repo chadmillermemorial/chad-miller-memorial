@@ -10,7 +10,7 @@ export default function WaitlistConfirmationPage() {
           <div className="grid gap-10 lg:grid-cols-[0.75fr_1.25fr] lg:items-center">
             <Image
               src="/images/logo/logo.png"
-              alt="SGM Chad Miller Memorial logo"
+              alt="CSM Chad Miller Memorial logo"
               width={260}
               height={260}
               className="mx-auto w-full max-w-[220px]"
@@ -26,7 +26,7 @@ export default function WaitlistConfirmationPage() {
               </h1>
 
               <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-300">
-                Your information has been received for the SGM Chad Miller
+                Your information has been received for the CSM Chad Miller
                 Memorial Golf Tournament.
               </p>
             </div>

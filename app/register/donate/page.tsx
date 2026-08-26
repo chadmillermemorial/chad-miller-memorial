@@ -22,7 +22,7 @@ export default function DonatePage() {
           <div className="grid gap-10 lg:grid-cols-[0.75fr_1.25fr] lg:items-center">
             <Image
               src="/images/logo/logo.png"
-              alt="SGM Chad Miller Memorial logo"
+              alt="CSM Chad Miller Memorial logo"
               width={260}
               height={260}
               className="mx-auto w-full max-w-[220px]"
@@ -38,7 +38,7 @@ export default function DonatePage() {
               </h1>
 
               <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-300">
-                Your contribution helps support the Sergeant Major Chad Miller
+                Your contribution helps support the Command Sergeant Major Chad Miller
                 Memorial Golf Tournament and its mission of benefiting The
                 Honor Foundation.
               </p>

@@ -7,7 +7,7 @@ const tournamentEmail = "chadmillermemorial@gmail.com";
 function buildMailto(subject: string, category: string) {
   const body =
     `Inquiry Category: ${category}\n\n` +
-    `SGM Chad Miller Memorial Golf Tournament\n\n` +
+    `CSM Chad Miller Memorial Golf Tournament\n\n` +
     `Please enter your question below:\n\n`;
 
   return `mailto:${tournamentEmail}?subject=${encodeURIComponent(

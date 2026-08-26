@@ -18,12 +18,12 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://www.chadmillermemorial.org"),
 
   title: {
-    default: "SGM Chad Miller Memorial Golf Tournament",
-    template: "%s | SGM Chad Miller Memorial",
+    default: "CSM Chad Miller Memorial Golf Tournament",
+    template: "%s | CSM Chad Miller Memorial",
   },
 
   description:
-    "Honor Sergeant Major Chad Miller at the SGM Chad Miller Memorial Golf Tournament on October 9, 2026, at Hyland Golf Course in Southern Pines, North Carolina, supporting The Honor Foundation.",
+    "Honor Command Sergeant Major Chad Miller at the CSM Chad Miller Memorial Golf Tournament on October 9, 2026, at Hyland Golf Course in Southern Pines, North Carolina, supporting The Honor Foundation.",
 
   alternates: {
     canonical: "/",
@@ -32,16 +32,16 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     url: "/",
-    siteName: "SGM Chad Miller Memorial Golf Tournament",
-    title: "SGM Chad Miller Memorial Golf Tournament",
+    siteName: "CSM Chad Miller Memorial Golf Tournament",
+    title: "CSM Chad Miller Memorial Golf Tournament",
     description:
-      "Join us October 9, 2026, at Hyland Golf Course in Southern Pines, NC, to honor Sergeant Major Chad Miller and support The Honor Foundation.",
+      "Join us October 9, 2026, at Hyland Golf Course in Southern Pines, NC, to honor Command Sergeant Major Chad Miller and support The Honor Foundation.",
     locale: "en_US",
   },
 
   twitter: {
     card: "summary_large_image",
-    title: "SGM Chad Miller Memorial Golf Tournament",
+    title: "CSM Chad Miller Memorial Golf Tournament",
     description:
       "October 9, 2026 · Hyland Golf Course · Southern Pines, NC · Supporting The Honor Foundation.",
   },

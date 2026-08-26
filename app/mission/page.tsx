@@ -18,7 +18,7 @@ export default function MissionPage() {
             </h1>
 
             <p className="mt-8 max-w-3xl text-xl leading-9 text-slate-300">
-              The tournament honors Sergeant Major Chad Miller by supporting
+              The tournament honors Command Sergeant Major Chad Miller by supporting
               the community and transition programs he worked to strengthen.
             </p>
           </div>

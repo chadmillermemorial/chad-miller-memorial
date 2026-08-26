@@ -180,7 +180,7 @@ export default function SponsorsPage() {
           <div className="grid gap-10 lg:grid-cols-[0.75fr_1.25fr] lg:items-center">
             <Image
               src="/images/logo/logo.png"
-              alt="SGM Chad Miller Memorial logo"
+              alt="CSM Chad Miller Memorial logo"
               width={260}
               height={260}
               className="mx-auto w-full max-w-[220px]"
@@ -227,7 +227,7 @@ export default function SponsorsPage() {
                 <p className="mx-auto mt-5 max-w-3xl text-base leading-7 text-slate-600">
                   We are grateful to the
                   organizations supporting
-                  the SGM Chad Miller
+                  the CSM Chad Miller
                   Memorial Golf Tournament,
                   our memorial mission, and
                   The Honor Foundation.

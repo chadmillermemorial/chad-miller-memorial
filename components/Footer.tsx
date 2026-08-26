@@ -11,14 +11,14 @@ export default function Footer() {
           <div>
             <Image
               src="/images/logo/logo.png"
-              alt="Sergeant Major Chad Miller Memorial Golf Tournament"
+              alt="Command Sergeant Major Chad Miller Memorial Golf Tournament"
               width={110}
               height={110}
               className="mb-6"
             />
 
             <h2 className="text-2xl font-bold">
-              Sergeant Major Chad Miller Memorial Golf Tournament
+              Command Sergeant Major Chad Miller Memorial Golf Tournament
             </h2>
 
             <p className="mt-5 max-w-md leading-7 text-slate-300">
@@ -64,7 +64,7 @@ export default function Footer() {
         </div>
 
         <div className="mt-16 border-t border-white/10 pt-8 text-center text-sm text-slate-400">
-          © {new Date().getFullYear()} Sergeant Major Chad Miller Memorial Golf
+          © {new Date().getFullYear()} Command Sergeant Major Chad Miller Memorial Golf
           Tournament. All Rights Reserved.
         </div>
       </Container>

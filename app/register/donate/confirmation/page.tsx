@@ -13,7 +13,7 @@ export default function DonationConfirmationPage() {
         </h1>
 
         <p className="mx-auto mb-8 max-w-2xl text-lg leading-8 text-slate-600">
-          Your contribution to the Sergeant Major Chad Miller Memorial Golf
+          Your contribution to the Command Sergeant Major Chad Miller Memorial Golf
           Tournament has been successfully received.
         </p>
 

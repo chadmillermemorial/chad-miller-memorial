@@ -1383,7 +1383,7 @@ export default function SponsorFulfillmentPage() {
             </p>
 
             <h1 className="mt-5 text-5xl font-bold md:text-6xl">
-              Thank you for supporting the SGM Chad Miller Memorial.
+              Thank you for supporting the CSM Chad Miller Memorial.
             </h1>
 
             <p className="mt-6 max-w-3xl text-lg leading-8 text-slate-300">
@@ -2576,7 +2576,7 @@ export default function SponsorFulfillmentPage() {
                     />
 
                     <span className="leading-7 text-slate-200">
-                      I authorize the SGM Chad Miller Memorial Golf Tournament to
+                      I authorize the CSM Chad Miller Memorial Golf Tournament to
                       use the submitted company name, logo, artwork, and provided
                       information for tournament signage, website recognition,
                       communications, and other materials associated with the

@@ -13,7 +13,7 @@ export default function SponsorConfirmationPage() {
         </h1>
 
         <p className="mx-auto mb-8 max-w-2xl text-lg leading-8 text-slate-600">
-          Your sponsorship payment for the Sergeant Major Chad Miller Memorial
+          Your sponsorship payment for the Command Sergeant Major Chad Miller Memorial
           Golf Tournament has been successfully received.
         </p>
 

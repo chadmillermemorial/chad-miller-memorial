@@ -1,6 +1,6 @@
 export const tournament = {
-  name: "Sergeant Major Chad Miller Memorial Golf Tournament",
-  shortName: "SGM Chad Miller Memorial",
+  name: "Command Sergeant Major Chad Miller Memorial Golf Tournament",
+  shortName: "CSM Chad Miller Memorial",
   year: 2026,
   date: "October 9, 2026",
 

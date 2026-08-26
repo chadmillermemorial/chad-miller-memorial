@@ -116,7 +116,7 @@ export default function TournamentPage() {
               </h2>
 
               <ul className="mt-8 space-y-3 text-slate-600">
-                <li>Honor Sergeant Major Chad Miller</li>
+                <li>Honor Command Sergeant Major Chad Miller</li>
                 <li>Support {tournament.beneficiary}</li>
                 <li>Strengthen community connections</li>
                 <li>Celebrate service and fellowship</li>

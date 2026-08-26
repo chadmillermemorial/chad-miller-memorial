@@ -17,7 +17,7 @@ export default function RegisterPage() {
 
             <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-300">
               Every golfer, volunteer, sponsor, and donor plays a role in
-              honoring Sergeant Major Chad Miller while supporting The Honor
+              honoring Command Sergeant Major Chad Miller while supporting The Honor
               Foundation.
             </p>
           </div>
