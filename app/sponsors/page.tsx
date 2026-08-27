@@ -197,7 +197,7 @@ export default function SponsorsPage() {
 
               <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-300">
                 Sponsorship helps us host
-                the Sergeant Major Chad
+                the Command Sergeant Major Chad
                 Miller Memorial Golf
                 Tournament, honor members
                 of the U.S. Special
