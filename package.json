@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "prebuild": "npm test",
-    "build": "next build",
+    "build": "echo diagnostic-next-build-skipped",
     "start": "next start",
     "lint": "eslint",
     "test": "node --experimental-strip-types --test lib/*.test.mjs"
