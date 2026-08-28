@@ -6,14 +6,27 @@ import Container from "@/components/ui/Container";
 
 const presetAmounts = [50, 100, 250, 500];
 
+type RegisteredPlayerStatus = "" | "Yes" | "No";
+
 export default function DonatePage() {
   const [amount, setAmount] = useState(100);
   const [customAmount, setCustomAmount] = useState("");
   const [useCustomAmount, setUseCustomAmount] = useState(false);
 
+  const [registeredPlayer, setRegisteredPlayer] =
+    useState<RegisteredPlayerStatus>("");
+
+  const [anonymous, setAnonymous] = useState(false);
+
+  const [publicRecognition, setPublicRecognition] =
+    useState(false);
+
   const donationAmount = useCustomAmount
     ? Math.max(Number(customAmount) || 0, 1)
     : amount;
+
+  const recognitionEligible =
+    registeredPlayer === "No" && !anonymous;
 
   return (
     <>
@@ -38,9 +51,9 @@ export default function DonatePage() {
               </h1>
 
               <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-300">
-                Your contribution helps support the Command Sergeant Major Chad Miller
-                Memorial Golf Tournament and its mission of benefiting The
-                Honor Foundation.
+                Your contribution helps support the Command Sergeant Major
+                Chad Miller Memorial Golf Tournament and its mission of
+                benefiting The Honor Foundation.
               </p>
             </div>
           </div>
@@ -128,6 +141,11 @@ export default function DonatePage() {
                 Donor Information
               </h2>
 
+              <p className="mt-3 leading-7 text-slate-600">
+                We collect contact information for tournament records and
+                donation administration. Public recognition is optional.
+              </p>
+
               <div className="mt-8 grid gap-6 md:grid-cols-2">
                 <label className="block">
                   <span className="font-semibold">Name *</span>
@@ -136,6 +154,7 @@ export default function DonatePage() {
                     required
                     name="donorName"
                     type="text"
+                    autoComplete="name"
                     className="mt-2 w-full rounded-xl border border-slate-300 px-4 py-3"
                   />
                 </label>
@@ -147,32 +166,173 @@ export default function DonatePage() {
                     required
                     name="email"
                     type="email"
+                    autoComplete="email"
                     className="mt-2 w-full rounded-xl border border-slate-300 px-4 py-3"
                   />
                 </label>
+
+                <label className="block">
+                  <span className="font-semibold">Phone *</span>
+
+                  <input
+                    required
+                    name="phone"
+                    type="tel"
+                    autoComplete="tel"
+                    className="mt-2 w-full rounded-xl border border-slate-300 px-4 py-3"
+                  />
+                </label>
+
+                <label className="block">
+                  <span className="font-semibold">
+                    Are you registered to play in the tournament? *
+                  </span>
+
+                  <select
+                    required
+                    name="registeredPlayer"
+                    value={registeredPlayer}
+                    onChange={(event) => {
+                      const value =
+                        event.target.value as RegisteredPlayerStatus;
+
+                      setRegisteredPlayer(value);
+
+                      if (value !== "No") {
+                        setPublicRecognition(false);
+                      }
+                    }}
+                    className="mt-2 w-full rounded-xl border border-slate-300 bg-white px-4 py-3"
+                  >
+                    <option value="">
+                      Select an option
+                    </option>
+
+                    <option value="No">
+                      No
+                    </option>
+
+                    <option value="Yes">
+                      Yes
+                    </option>
+                  </select>
+                </label>
               </div>
 
-              <label className="mt-8 flex items-start gap-3">
-                <input
-                  name="anonymous"
-                  type="checkbox"
-                  className="mt-1 h-5 w-5"
-                />
+              <div className="mt-8 border-t border-slate-200 pt-8">
+                <h3 className="text-xl font-bold text-[var(--brand-navy)]">
+                  Public Recognition
+                </h3>
 
-                <span>
-                  <span className="font-semibold">
-                    Make my donation anonymous
-                  </span>
+                <p className="mt-2 leading-7 text-slate-600">
+                  Non-player donors may choose to be recognized as community
+                  supporters of the tournament. Recognition is completely
+                  optional.
+                </p>
 
-                  <span className="mt-1 block text-sm leading-6 text-slate-500">
-                    We will still retain your information for tournament
-                    records, but your name will not be publicly recognized.
+                <label className="mt-6 flex items-start gap-3">
+                  <input
+                    name="anonymous"
+                    type="checkbox"
+                    checked={anonymous}
+                    onChange={(event) => {
+                      const nextAnonymous =
+                        event.target.checked;
+
+                      setAnonymous(nextAnonymous);
+
+                      if (nextAnonymous) {
+                        setPublicRecognition(false);
+                      }
+                    }}
+                    className="mt-1 h-5 w-5"
+                  />
+
+                  <span>
+                    <span className="font-semibold">
+                      Make my donation anonymous
+                    </span>
+
+                    <span className="mt-1 block text-sm leading-6 text-slate-500">
+                      We will still retain your information privately for
+                      tournament records, but your name will not be publicly
+                      recognized.
+                    </span>
                   </span>
-                </span>
-              </label>
+                </label>
+
+                <label
+                  className={`mt-6 flex items-start gap-3 ${
+                    !recognitionEligible
+                      ? "opacity-50"
+                      : ""
+                  }`}
+                >
+                  <input
+                    name="publicRecognition"
+                    type="checkbox"
+                    checked={publicRecognition}
+                    disabled={!recognitionEligible}
+                    onChange={(event) =>
+                      setPublicRecognition(
+                        event.target.checked
+                      )
+                    }
+                    className="mt-1 h-5 w-5"
+                  />
+
+                  <span>
+                    <span className="font-semibold">
+                      Recognize me publicly as a tournament supporter
+                    </span>
+
+                    <span className="mt-1 block text-sm leading-6 text-slate-500">
+                      Eligible non-player donors may be included in the
+                      tournament&apos;s Community Donors &amp; Silent Auction
+                      Supporters recognition.
+                    </span>
+                  </span>
+                </label>
+
+                {registeredPlayer === "Yes" && !anonymous && (
+                  <p className="mt-4 rounded-xl bg-slate-100 px-4 py-3 text-sm leading-6 text-slate-600">
+                    Community donor recognition is reserved for supporters
+                    who are not registered to play in the tournament.
+                  </p>
+                )}
+
+                {anonymous && (
+                  <p className="mt-4 rounded-xl bg-slate-100 px-4 py-3 text-sm leading-6 text-slate-600">
+                    Anonymous donations are not displayed in public
+                    tournament recognition.
+                  </p>
+                )}
+
+                {publicRecognition && (
+                  <label className="mt-6 block">
+                    <span className="font-semibold">
+                      Public Recognition Name
+                    </span>
+
+                    <input
+                      name="publicRecognitionName"
+                      type="text"
+                      placeholder="Optional — leave blank to use your donor name"
+                      className="mt-2 w-full rounded-xl border border-slate-300 px-4 py-3"
+                    />
+
+                    <span className="mt-2 block text-sm leading-6 text-slate-500">
+                      You may use your individual name, family name, business,
+                      or organization name.
+                    </span>
+                  </label>
+                )}
+              </div>
 
               <label className="mt-8 block">
-                <span className="font-semibold">Message / Notes</span>
+                <span className="font-semibold">
+                  Message / Notes
+                </span>
 
                 <textarea
                   name="notes"
@@ -191,12 +351,13 @@ export default function DonatePage() {
                   </p>
 
                   <h2 className="mt-3 text-3xl font-bold">
-                    Donation Total: ${donationAmount.toLocaleString()}
+                    Donation Total: $
+                    {donationAmount.toLocaleString()}
                   </h2>
 
                   <p className="mt-4 max-w-xl leading-7 text-slate-300">
-                    Your contribution will be recorded after secure payment is
-                    successfully completed.
+                    Your contribution will be recorded after secure payment
+                    is successfully completed.
                   </p>
                 </div>
 

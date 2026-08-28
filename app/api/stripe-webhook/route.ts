@@ -292,6 +292,10 @@ async function processPaidCheckout(
         metadata.email ||
         "",
 
+      phone:
+        metadata.phone ||
+        "",
+
       donationAmount:
         (
           session.amount_total ||
@@ -299,9 +303,21 @@ async function processPaidCheckout(
         ) /
         100,
 
+      registeredPlayer:
+        metadata.registeredPlayer ||
+        "No",
+
       anonymous:
         metadata.anonymous ||
         "No",
+
+      publicRecognition:
+        metadata.publicRecognition ||
+        "No",
+
+      publicRecognitionName:
+        metadata.publicRecognitionName ||
+        "",
 
       notes:
         metadata.notes ||
