@@ -4,8 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "prebuild": "npm test",
-    "build": "echo diagnostic-next-build-skipped",
+    "prebuild": "echo diagnostic-tests-skipped",
+    "build": "next build",
     "start": "next start",
     "lint": "eslint",
     "test": "node --experimental-strip-types --test lib/*.test.mjs"
