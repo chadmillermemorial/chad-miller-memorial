@@ -77,7 +77,6 @@ export function buildFullPaymentRefundPreview({
       grossAmountCents;
 
   const blockedByUnknownRefund =
-    !fullyRefundedOutsideAdmin &&
     activeRefunds.some(
       (refund) =>
         refund !== existingRefund
