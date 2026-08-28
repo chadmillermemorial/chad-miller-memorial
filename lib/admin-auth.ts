@@ -165,3 +165,50 @@ export function verifyAdminSessionToken(
     expected
   );
 }
+
+export function getAdminSessionTokenFromCookieHeader(
+  cookieHeader: string | null
+) {
+  if (!cookieHeader) {
+    return "";
+  }
+
+  const prefix =
+    `${ADMIN_SESSION_COOKIE_NAME}=`;
+
+  const encodedValue =
+    cookieHeader
+      .split(";")
+      .map((part) => part.trim())
+      .find((part) =>
+        part.startsWith(prefix)
+      )
+      ?.slice(prefix.length) || "";
+
+  if (!encodedValue) {
+    return "";
+  }
+
+  try {
+    return decodeURIComponent(encodedValue);
+  } catch {
+    return "";
+  }
+}
+
+export function isAdminCookieHeaderAuthenticated(
+  cookieHeader: string | null,
+  secret: string,
+  nowMs = Date.now()
+) {
+  const token =
+    getAdminSessionTokenFromCookieHeader(
+      cookieHeader
+    );
+
+  return verifyAdminSessionToken(
+    token,
+    secret,
+    nowMs
+  );
+}
