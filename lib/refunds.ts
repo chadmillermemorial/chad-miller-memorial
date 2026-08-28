@@ -1,3 +1,14 @@
+export type RefundSource =
+  | "player_withdrawal"
+  | "admin_player_refund"
+  | "admin_donation_refund"
+  | "admin_sponsor_refund";
+
+type RefundLike = {
+  status?: string | null;
+  metadata?: Record<string, string> | null;
+};
+
 function assertIntegerCents(value: number, label: string) {
   if (!Number.isInteger(value) || value < 0) {
     throw new Error(`${label} must be a non-negative integer number of cents.`);
@@ -58,4 +69,41 @@ export function getNetRefundAmountCents(
   }
 
   return refundAmountCents;
+}
+
+export function isPlayerRefundSource(
+  source?: string | null
+) {
+  return (
+    source === "player_withdrawal" ||
+    source === "admin_player_refund"
+  );
+}
+
+export function isActiveRefund(refund: RefundLike) {
+  const status =
+    String(refund.status || "").toLowerCase();
+
+  return (
+    status !== "failed" &&
+    status !== "canceled"
+  );
+}
+
+export function isRefundForPlayer(
+  refund: RefundLike,
+  checkoutSessionId: string,
+  playerNumber: number
+) {
+  return (
+    isActiveRefund(refund) &&
+    isPlayerRefundSource(
+      refund.metadata?.source
+    ) &&
+    refund.metadata?.checkoutSessionId ===
+      checkoutSessionId &&
+    Number(
+      refund.metadata?.playerNumber || "0"
+    ) === playerNumber
+  );
 }
