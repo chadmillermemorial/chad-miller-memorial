@@ -36,33 +36,6 @@ function sessionSignature(
     .digest("base64url");
 }
 
-export function getAdminEnvironment(
-  source: AdminEnvironmentSource = process.env
-) {
-  const password =
-    source.ADMIN_PASSWORD?.trim() || "";
-
-  const sessionSecret =
-    source.ADMIN_SESSION_SECRET?.trim() || "";
-
-  if (!password) {
-    throw new Error(
-      "Admin password is not configured."
-    );
-  }
-
-  if (!hasValidSessionSecret(sessionSecret)) {
-    throw new Error(
-      "Admin session secret is not configured securely."
-    );
-  }
-
-  return {
-    password,
-    sessionSecret,
-  };
-}
-
 export function verifyAdminPassword(
   submittedPassword: string,
   configuredPassword: string
