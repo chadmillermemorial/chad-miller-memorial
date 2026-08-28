@@ -1,5 +1,11 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
+import {
+  getProcessingFeeShare,
+  isActiveRefund,
+  isPlayerRefundSource,
+  isRefundForPlayer,
+} from "@/lib/refunds";
 
 export const runtime = "nodejs";
 
@@ -12,35 +18,6 @@ const GOOGLE_SCRIPT_URL =
 // Eastern Time is UTC-4 on this date.
 const REFUND_DEADLINE_UTC =
   Date.UTC(2026, 8, 26, 3, 59, 59);
-
-function getProcessingFeeShare(
-  totalProcessingFee: number,
-  playerCount: number,
-  playerNumber: number
-) {
-  const baseFee =
-    Math.floor(totalProcessingFee / playerCount);
-
-  const remainder =
-    totalProcessingFee % playerCount;
-
-  return (
-    baseFee +
-    (playerNumber <= remainder ? 1 : 0)
-  );
-}
-
-function activeRefund(
-  refund: Stripe.Refund
-) {
-  const status =
-    String(refund.status || "").toLowerCase();
-
-  return (
-    status !== "failed" &&
-    status !== "canceled"
-  );
-}
 
 async function updateGoogleSheets(
   data: Record<string, unknown>
@@ -335,15 +312,17 @@ export async function POST(
       through Stripe, we cannot safely know
       which golfer it belongs to.
 
-      In that situation, disable additional
-      self-service refunds for this transaction.
+      Public and authenticated-admin player
+      refunds are both classified because they
+      carry the exact registration and golfer.
     */
     const unclassifiedRefund =
       refunds.data.find(
         (refund) =>
-          activeRefund(refund) &&
-          refund.metadata?.source !==
-            "player_withdrawal"
+          isActiveRefund(refund) &&
+          !isPlayerRefundSource(
+            refund.metadata?.source
+          )
       );
 
     if (unclassifiedRefund) {
@@ -376,29 +355,18 @@ export async function POST(
       /*
         PERMANENT DUPLICATE PROTECTION
 
-        Search Stripe for a refund that is
-        already associated with this exact
-        registration and golfer.
+        Search Stripe for either a public or
+        admin refund already associated with
+        this exact registration and golfer.
       */
       let refund =
         refunds.data.find(
           (existingRefund) =>
-            activeRefund(
-              existingRefund
-            ) &&
-            existingRefund
-              .metadata
-              ?.source ===
-              "player_withdrawal" &&
-            existingRefund
-              .metadata
-              ?.checkoutSessionId ===
-              session.id &&
-            Number(
-              existingRefund
-                .metadata
-                ?.playerNumber || "0"
-            ) === playerNumber
+            isRefundForPlayer(
+              existingRefund,
+              session.id,
+              playerNumber
+            )
         );
 
       const processingFeeShare =
