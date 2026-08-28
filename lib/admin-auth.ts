@@ -166,6 +166,49 @@ export function verifyAdminSessionToken(
   );
 }
 
+export function authenticateAdminLogin(
+  submittedPassword: string,
+  source: AdminEnvironmentSource,
+  nowMs = Date.now()
+) {
+  const {
+    password,
+    sessionSecret,
+  } = getAdminEnvironment(source);
+
+  if (
+    !verifyAdminPassword(
+      submittedPassword,
+      password
+    )
+  ) {
+    return {
+      ok: false as const,
+      token: "",
+    };
+  }
+
+  return {
+    ok: true as const,
+    token: createAdminSessionToken(
+      sessionSecret,
+      nowMs
+    ),
+  };
+}
+
+export function getAdminSessionCookieOptions(
+  isProduction: boolean
+) {
+  return {
+    httpOnly: true,
+    secure: isProduction,
+    sameSite: "strict" as const,
+    path: "/",
+    maxAge: ADMIN_SESSION_MAX_AGE_SECONDS,
+  };
+}
+
 export function getAdminSessionTokenFromCookieHeader(
   cookieHeader: string | null
 ) {
