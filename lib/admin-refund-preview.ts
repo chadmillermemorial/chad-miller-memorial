@@ -5,7 +5,7 @@ import {
   isPlayerRefundSource,
   isRefundForPlayer,
   type RefundSource,
-} from "@/lib/refunds";
+} from "./refunds.ts";
 
 type RefundLike = {
   id?: string;
