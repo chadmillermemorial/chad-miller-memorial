@@ -12,6 +12,11 @@ export const ADMIN_SESSION_MAX_AGE_SECONDS =
 
 const MIN_SESSION_SECRET_LENGTH = 32;
 
+type AdminEnvironmentSource = {
+  ADMIN_PASSWORD?: string;
+  ADMIN_SESSION_SECRET?: string;
+};
+
 function digest(value: string) {
   return createHash("sha256")
     .update(value, "utf8")
@@ -29,6 +34,33 @@ function sessionSignature(
   return createHmac("sha256", secret)
     .update(String(expiresAtSeconds), "utf8")
     .digest("base64url");
+}
+
+export function getAdminEnvironment(
+  source: AdminEnvironmentSource = process.env
+) {
+  const password =
+    source.ADMIN_PASSWORD?.trim() || "";
+
+  const sessionSecret =
+    source.ADMIN_SESSION_SECRET?.trim() || "";
+
+  if (!password) {
+    throw new Error(
+      "Admin password is not configured."
+    );
+  }
+
+  if (!hasValidSessionSecret(sessionSecret)) {
+    throw new Error(
+      "Admin session secret is not configured securely."
+    );
+  }
+
+  return {
+    password,
+    sessionSecret,
+  };
 }
 
 export function verifyAdminPassword(
@@ -132,4 +164,67 @@ export function verifyAdminSessionToken(
     provided,
     expected
   );
+}
+
+export function getAdminSessionTokenFromCookieHeader(
+  cookieHeader: string | null
+) {
+  if (!cookieHeader) {
+    return "";
+  }
+
+  const prefix =
+    `${ADMIN_SESSION_COOKIE_NAME}=`;
+
+  const encodedValue =
+    cookieHeader
+      .split(";")
+      .map((part) => part.trim())
+      .find((part) =>
+        part.startsWith(prefix)
+      )
+      ?.slice(prefix.length) || "";
+
+  if (!encodedValue) {
+    return "";
+  }
+
+  try {
+    return decodeURIComponent(encodedValue);
+  } catch {
+    return "";
+  }
+}
+
+export function isAdminCookieHeaderAuthenticated(
+  cookieHeader: string | null,
+  secret: string,
+  nowMs = Date.now()
+) {
+  const token =
+    getAdminSessionTokenFromCookieHeader(
+      cookieHeader
+    );
+
+  return verifyAdminSessionToken(
+    token,
+    secret,
+    nowMs
+  );
+}
+
+export function isAdminRequestAuthenticated(
+  request: Request
+) {
+  try {
+    const { sessionSecret } =
+      getAdminEnvironment();
+
+    return isAdminCookieHeaderAuthenticated(
+      request.headers.get("cookie"),
+      sessionSecret
+    );
+  } catch {
+    return false;
+  }
 }
