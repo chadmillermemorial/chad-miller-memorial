@@ -192,6 +192,10 @@ export default async function AdminRefundPage({
           })
         : null;
 
+    const historicalFullRefund =
+      fullPreview?.fullyRefundedOutsideAdmin ||
+      false;
+
     const blocked =
       playerPreview?.blockedByUnknownRefund ||
       fullPreview?.blockedByUnknownRefund ||
@@ -278,7 +282,18 @@ export default async function AdminRefundPage({
                 </div>
               </div>
 
-              {blocked && (
+              {historicalFullRefund && fullPreview && (
+                <div className="mt-8 rounded-3xl border border-green-200 bg-green-50 p-8">
+                  <h2 className="text-2xl font-bold text-green-900">
+                    Already fully refunded in Stripe
+                  </h2>
+                  <p className="mt-3 leading-7 text-green-800">
+                    Stripe shows {formatCurrency(fullPreview.activeRefundedAmountCents)} already returned through a refund created outside this admin system. No additional refund can be issued for this payment.
+                  </p>
+                </div>
+              )}
+
+              {blocked && !historicalFullRefund && (
                 <div className="mt-8 rounded-3xl border border-amber-300 bg-amber-50 p-8">
                   <h2 className="text-2xl font-bold text-amber-900">
                     Refund blocked for review
@@ -309,7 +324,9 @@ export default async function AdminRefundPage({
 
                     <div className="rounded-2xl bg-slate-50 p-5">
                       <p className="text-sm text-slate-500">
-                        Stripe fee retained
+                        {historicalFullRefund
+                          ? "Original Stripe fee"
+                          : "Stripe fee retained"}
                       </p>
                       <p className="mt-2 text-xl font-bold">
                         {formatCurrency(
@@ -320,11 +337,15 @@ export default async function AdminRefundPage({
 
                     <div className="rounded-2xl bg-slate-50 p-5">
                       <p className="text-sm text-slate-500">
-                        Customer refund
+                        {historicalFullRefund
+                          ? "Already refunded"
+                          : "Customer refund"}
                       </p>
                       <p className="mt-2 text-xl font-bold text-green-700">
                         {formatCurrency(
-                          fullPreview.refundAmountCents
+                          historicalFullRefund
+                            ? fullPreview.activeRefundedAmountCents
+                            : fullPreview.refundAmountCents
                         )}
                       </p>
                     </div>
@@ -333,6 +354,10 @@ export default async function AdminRefundPage({
                   {fullPreview.alreadyRefunded ? (
                     <div className="mt-7 rounded-2xl border border-green-200 bg-green-50 p-5 font-semibold text-green-800">
                       This transaction already has the matching admin refund: {fullPreview.existingRefundId}
+                    </div>
+                  ) : historicalFullRefund ? (
+                    <div className="mt-7 rounded-2xl border border-slate-200 bg-slate-50 p-5 font-semibold text-slate-700">
+                      Historical refund detected. No refund action is available for this transaction.
                     </div>
                   ) : (
                     !blocked && (
