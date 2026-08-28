@@ -291,6 +291,7 @@ export default async function AdminPage({
                   </span>
 
                   <select
+                    key={selectedType}
                     name="type"
                     defaultValue={selectedType}
                     className="mt-2 w-full rounded-xl border border-slate-300 bg-white px-4 py-3"
