@@ -55,6 +55,13 @@ export function buildFullPaymentRefundPreview({
   const activeRefunds =
     refunds.filter(isActiveRefund);
 
+  const activeRefundedAmountCents =
+    activeRefunds.reduce(
+      (total, refund) =>
+        total + Number(refund.amount || 0),
+      0
+    );
+
   const existingRefund =
     activeRefunds.find(
       (refund) =>
@@ -64,7 +71,13 @@ export function buildFullPaymentRefundPreview({
           checkoutSessionId
     );
 
+  const fullyRefundedOutsideAdmin =
+    !existingRefund &&
+    activeRefundedAmountCents >=
+      grossAmountCents;
+
   const blockedByUnknownRefund =
+    !fullyRefundedOutsideAdmin &&
     activeRefunds.some(
       (refund) =>
         refund !== existingRefund
@@ -79,6 +92,8 @@ export function buildFullPaymentRefundPreview({
     existingRefundId:
       existingRefund?.id || "",
     blockedByUnknownRefund,
+    fullyRefundedOutsideAdmin,
+    activeRefundedAmountCents,
   };
 }
 
