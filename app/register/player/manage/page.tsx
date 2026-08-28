@@ -1,6 +1,12 @@
 import Link from "next/link";
 import Stripe from "stripe";
 import Container from "@/components/ui/Container";
+import {
+  getProcessingFeeShare,
+  isActiveRefund,
+  isPlayerRefundSource,
+  isRefundForPlayer,
+} from "@/lib/refunds";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -25,33 +31,6 @@ function formatCurrency(cents: number) {
     style: "currency",
     currency: "USD",
   }).format(cents / 100);
-}
-
-function getProcessingFeeShare(
-  totalProcessingFee: number,
-  playerCount: number,
-  playerNumber: number
-) {
-  const baseFee =
-    Math.floor(totalProcessingFee / playerCount);
-
-  const remainder =
-    totalProcessingFee % playerCount;
-
-  return (
-    baseFee +
-    (playerNumber <= remainder ? 1 : 0)
-  );
-}
-
-function activeRefund(refund: Stripe.Refund) {
-  const status =
-    String(refund.status || "").toLowerCase();
-
-  return (
-    status !== "failed" &&
-    status !== "canceled"
-  );
 }
 
 function ErrorPage({
@@ -216,9 +195,10 @@ export default async function ManagePlayerRegistrationPage({
     const manualRefundPresent =
       refunds.data.some(
         (refund) =>
-          activeRefund(refund) &&
-          refund.metadata?.source !==
-            "player_withdrawal"
+          isActiveRefund(refund) &&
+          !isPlayerRefundSource(
+            refund.metadata?.source
+          )
       );
 
     const deadlinePassed =
@@ -248,16 +228,11 @@ export default async function ManagePlayerRegistrationPage({
           const existingRefund =
             refunds.data.find(
               (refund) =>
-                activeRefund(refund) &&
-                refund.metadata?.source ===
-                  "player_withdrawal" &&
-                refund.metadata
-                  ?.checkoutSessionId ===
-                  session.id &&
-                Number(
-                  refund.metadata
-                    ?.playerNumber || "0"
-                ) === playerNumber
+                isRefundForPlayer(
+                  refund,
+                  session.id,
+                  playerNumber
+                )
             );
 
           const processingFeeShare =
@@ -339,8 +314,7 @@ export default async function ManagePlayerRegistrationPage({
                 </h2>
 
                 <p className="mt-4 leading-7 text-slate-600">
-                  Self-service refunds are available through
-                  {" "}
+                  Self-service refunds are available through{" "}
                   <strong>
                     September 25, 2026 at 11:59 PM ET
                   </strong>.
@@ -512,8 +486,7 @@ export default async function ManagePlayerRegistrationPage({
                                 Refund:{" "}
                                 {formatCurrency(
                                   player.refundAmount
-                                )}
-                                {" "}
+                                )}{" "}
                                 after retaining the original processing-fee share of{" "}
                                 {formatCurrency(
                                   player.processingFeeShare
