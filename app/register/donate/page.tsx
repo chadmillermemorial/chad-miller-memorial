@@ -62,10 +62,47 @@ export default function DonatePage() {
 
       <section className="bg-slate-50 py-20">
         <Container>
+          <div className="mx-auto mb-10 max-w-4xl">
+            <p className="text-sm font-semibold uppercase tracking-[0.25em] text-[var(--brand-blue)]">
+              Ways to Give
+            </p>
+            <h2 className="mt-3 text-3xl font-bold text-[var(--brand-navy)]">
+              Choose how you would like to support the tournament
+            </h2>
+
+            <div className="mt-7 grid gap-5 md:grid-cols-2">
+              <a
+                href="#monetary-donation"
+                className="rounded-3xl border-2 border-[var(--brand-blue)] bg-white p-7 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+              >
+                <h3 className="text-2xl font-bold text-[var(--brand-navy)]">
+                  Monetary Donation
+                </h3>
+                <p className="mt-3 leading-7 text-slate-600">
+                  Make a secure financial contribution through Stripe.
+                </p>
+              </a>
+
+              <a
+                href="/register/donate/in-kind"
+                className="rounded-3xl border-2 border-slate-200 bg-white p-7 shadow-sm transition hover:-translate-y-0.5 hover:border-[var(--brand-blue)] hover:shadow-md"
+              >
+                <h3 className="text-2xl font-bold text-[var(--brand-navy)]">
+                  In-Kind Donation
+                </h3>
+                <p className="mt-3 leading-7 text-slate-600">
+                  Offer an item, service, experience, prize, supply, or another
+                  non-cash contribution for review.
+                </p>
+              </a>
+            </div>
+          </div>
+
           <form
+            id="monetary-donation"
             action="/api/donation-checkout"
             method="POST"
-            className="mx-auto max-w-4xl"
+            className="mx-auto max-w-4xl scroll-mt-24"
           >
             <input
               type="hidden"
