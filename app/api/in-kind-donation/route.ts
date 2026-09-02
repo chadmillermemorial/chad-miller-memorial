@@ -152,16 +152,15 @@ export async function POST(request: Request) {
     const phase = String(body?.phase || "").trim();
 
     if (phase === "create") {
-      const rawMetadata = body?.metadata || {};
       const companyWebsite = String(
-        rawMetadata?.companyWebsite ?? ""
+        body?.companyWebsite ?? ""
       ).trim();
 
       if (companyWebsite) {
         throw new UserInputError("Automated submission rejected.");
       }
 
-      const metadata = parseInKindMetadata(rawMetadata);
+      const metadata = parseInKindMetadata(body?.metadata || {});
       const result = await callAppsScript(
         buildCreateInKindPayload(metadata)
       );
