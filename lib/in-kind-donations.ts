@@ -18,7 +18,7 @@ export const INTENDED_USES = [
 ] as const;
 
 export const MAX_IN_KIND_FILES = 3;
-export const MAX_IN_KIND_FILE_BYTES = 10 * 1024 * 1024;
+export const MAX_IN_KIND_FILE_BYTES = 4 * 1024 * 1024;
 
 export const ALLOWED_IN_KIND_MIME_TYPES = new Set([
   "application/pdf",
@@ -156,7 +156,7 @@ export function validateInKindFiles<
 
     if (file.size > MAX_IN_KIND_FILE_BYTES) {
       throw new Error(
-        "Each supporting file must be 10 MB or smaller."
+        "Each supporting file must be 4 MB or smaller."
       );
     }
 
