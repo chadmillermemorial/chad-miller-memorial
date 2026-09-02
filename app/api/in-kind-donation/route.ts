@@ -11,18 +11,28 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
 
+const googleScriptInternalKey =
+  process.env.GOOGLE_SCRIPT_INTERNAL_KEY;
+
 const GOOGLE_SCRIPT_URL =
   "https://script.google.com/macros/s/AKfycbz8JNX9r6r5aFIYg3bYpetDnUy54ywxcaoN_qX3upY5TQH_4poQIeXxyWSxL9f22fhHqQ/exec";
 
 class UserInputError extends Error {}
 
 async function callAppsScript(payload: Record<string, unknown>) {
+  if (!googleScriptInternalKey) {
+    throw new Error("GOOGLE_SCRIPT_INTERNAL_KEY is not configured.");
+  }
+
   const response = await fetch(GOOGLE_SCRIPT_URL, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify(payload),
+    body: JSON.stringify({
+      ...payload,
+      internalKey: googleScriptInternalKey,
+    }),
     cache: "no-store",
   });
 
@@ -142,7 +152,16 @@ export async function POST(request: Request) {
     const phase = String(body?.phase || "").trim();
 
     if (phase === "create") {
-      const metadata = parseInKindMetadata(body?.metadata || {});
+      const rawMetadata = body?.metadata || {};
+      const companyWebsite = String(
+        rawMetadata?.companyWebsite ?? ""
+      ).trim();
+
+      if (companyWebsite) {
+        throw new UserInputError("Automated submission rejected.");
+      }
+
+      const metadata = parseInKindMetadata(rawMetadata);
       const result = await callAppsScript(
         buildCreateInKindPayload(metadata)
       );
