@@ -1,1 +1,0 @@
-Implementation is intentionally blocked until the user reviews and approves the in-kind donation design.
