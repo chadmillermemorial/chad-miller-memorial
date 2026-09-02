@@ -1,1 +1,0 @@
-The canonical design is `2026-09-01-in-kind-donations-design.md`. The review note/addendum files only capture final clarifications from the design review and should be consolidated into the canonical spec before implementation.
