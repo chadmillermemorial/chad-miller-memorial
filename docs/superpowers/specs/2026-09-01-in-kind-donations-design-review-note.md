@@ -1,1 +1,0 @@
-Spec self-review note: the design was reviewed for placeholders, contradictions, scope, and ambiguity. The implementation plan must include explicit idempotency for create/finalize calls and status-driven emails, and must preserve the donor's written description as valid supporting detail even when no file is uploaded.
