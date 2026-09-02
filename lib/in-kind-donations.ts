@@ -170,3 +170,36 @@ export function validateInKindFiles<
 
   return files;
 }
+
+export function buildCreateInKindPayload(
+  metadata: Record<string, unknown>
+) {
+  return {
+    action: "createInKindDonation",
+    ...metadata,
+  };
+}
+
+export function buildUploadInKindPayload(
+  submissionId: string,
+  fileName: string,
+  mimeType: string,
+  base64Data: string
+) {
+  return {
+    action: "uploadInKindDonationFile",
+    submissionId,
+    fileName,
+    mimeType,
+    base64Data,
+  };
+}
+
+export function buildFinalizeInKindPayload(
+  submissionId: string
+) {
+  return {
+    action: "finalizeInKindDonation",
+    submissionId,
+  };
+}
