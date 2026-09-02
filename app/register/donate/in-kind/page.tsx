@@ -147,6 +147,19 @@ export default function InKindDonationPage() {
             onSubmit={handleSubmit}
             className="mx-auto max-w-4xl space-y-8"
           >
+            <label
+              aria-hidden="true"
+              className="absolute left-[-10000px] top-auto h-px w-px overflow-hidden"
+            >
+              Company Website
+              <input
+                name="companyWebsite"
+                type="text"
+                tabIndex={-1}
+                autoComplete="off"
+              />
+            </label>
+
             <div className="rounded-3xl bg-white p-8 shadow-sm md:p-10">
               <h2 className="text-3xl font-bold text-[var(--brand-navy)]">
                 Donor Information
