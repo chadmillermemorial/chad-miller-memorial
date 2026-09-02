@@ -47,8 +47,11 @@ export default function InKindDonationPage() {
 
       validateInKindFiles(files);
 
+      const companyWebsite = String(
+        formData.get("companyWebsite") || ""
+      ).trim();
       const metadataEntries = Array.from(formData.entries()).filter(
-        ([key]) => key !== "files"
+        ([key]) => key !== "files" && key !== "companyWebsite"
       );
       const metadata = parseInKindMetadata(
         Object.fromEntries(metadataEntries)
@@ -62,6 +65,7 @@ export default function InKindDonationPage() {
         body: JSON.stringify({
           phase: "create",
           metadata,
+          companyWebsite,
         }),
       });
       const createResult = await readApiResponse(createResponse);
