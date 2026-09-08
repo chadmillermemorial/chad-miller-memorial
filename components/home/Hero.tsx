@@ -18,7 +18,7 @@ export default function Hero() {
           />
 
           <p className="text-sm font-semibold uppercase tracking-[0.35em] text-[var(--brand-teal)]">
-            {tournament.venue.city} • {tournament.venue.state}
+            Friday, {tournament.date} • {tournament.venue.city}, {tournament.venue.state}
           </p>
 
           <h1 className="mt-6 max-w-5xl text-5xl font-bold leading-tight md:text-7xl">
