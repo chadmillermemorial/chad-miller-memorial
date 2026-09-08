@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import Container from "@/components/ui/Container";
+import { tournament } from "@/lib/tournament";
 
 export default function Footer() {
   return (
@@ -55,8 +56,9 @@ export default function Footer() {
             <h3 className="mb-5 text-lg font-semibold">Event</h3>
 
             <ul className="space-y-3 text-slate-300">
-              <li>Hyland Golf Course</li>
-              <li>Southern Pines, NC</li>
+              <li className="font-semibold text-white">Friday, {tournament.date}</li>
+              <li>{tournament.venue.name}</li>
+              <li>{tournament.venue.city}, NC</li>
               <li>The Honor Foundation</li>
               <li>Fort Bragg Chapters</li>
             </ul>
