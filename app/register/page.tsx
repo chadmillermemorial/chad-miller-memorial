@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Container from "@/components/ui/Container";
+import { tournament } from "@/lib/tournament";
 
 export default function RegisterPage() {
   return (
@@ -9,6 +10,10 @@ export default function RegisterPage() {
           <div className="max-w-3xl">
             <p className="text-sm font-semibold uppercase tracking-[0.3em] text-[var(--brand-teal)]">
               Join Us
+            </p>
+
+            <p className="mt-4 text-sm font-semibold uppercase tracking-[0.22em] text-slate-300">
+              Friday, {tournament.date} • {tournament.venue.name}
             </p>
 
             <h1 className="mt-5 text-5xl font-bold md:text-6xl">
