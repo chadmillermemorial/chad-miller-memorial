@@ -3,6 +3,7 @@ import Container from "@/components/ui/Container";
 import Card from "@/components/ui/Card";
 import SectionHeading from "@/components/ui/SectionHeading";
 import { siteConfig } from "@/lib/site";
+import { tournament } from "@/lib/tournament";
 
 export default function TournamentPreview() {
   return (
@@ -21,7 +22,11 @@ export default function TournamentPreview() {
 
         <div className="mt-10">
           <Card>
-            <h3 className="text-2xl font-bold text-[var(--brand-navy)]">
+            <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[var(--brand-blue)]">
+              Friday, {tournament.date} • {tournament.venue.name}
+            </p>
+
+            <h3 className="mt-3 text-2xl font-bold text-[var(--brand-navy)]">
               Tournament Information
             </h3>
 
