@@ -84,14 +84,32 @@ export async function POST(
     }
 
     /*
-      We process successful Checkout payments.
+      We process successful Checkout payments and expired player checkouts.
 
-      The Apps Script write must finish successfully
-      BEFORE we return HTTP 200 to Stripe.
+      Successful payments are persisted before returning HTTP 200.
+      Expired player checkouts release their temporary capacity hold.
 
-      If Apps Script fails, this route returns HTTP
-      500 so Stripe can retry the webhook.
+      If Apps Script fails, this route returns HTTP 500 so Stripe can retry
+      the webhook.
     */
+    const session =
+      event.data.object as
+        Stripe.Checkout.Session;
+
+    if (
+      event.type ===
+      "checkout.session.expired"
+    ) {
+      await processExpiredCheckout(
+        session
+      );
+
+      return NextResponse.json({
+        received:
+          true,
+      });
+    }
+
     if (
       event.type !==
       "checkout.session.completed"
@@ -101,10 +119,6 @@ export async function POST(
           true,
       });
     }
-
-    const session =
-      event.data.object as
-        Stripe.Checkout.Session;
 
     if (
       session.payment_status !==
@@ -151,6 +165,56 @@ export async function POST(
       }
     );
   }
+}
+
+async function processExpiredCheckout(
+  session:
+    Stripe.Checkout.Session
+) {
+  const metadata =
+    session.metadata ||
+    {};
+
+  /*
+    Only player-registration Checkout Sessions are eligible here.
+
+    Sponsor and donation sessions set paymentType, while player
+    registrations carry playerCount and capacityHoldId. This prevents
+    an expired sponsor or donor checkout from being treated as a player
+    registration capacity release.
+  */
+  if (
+    metadata.paymentType ||
+    !metadata.playerCount ||
+    !metadata.capacityHoldId
+  ) {
+    return;
+  }
+
+  const playerCount =
+    Number(
+      metadata.playerCount
+    );
+
+  if (
+    !Number.isInteger(
+      playerCount
+    ) ||
+    playerCount <
+      1 ||
+    playerCount >
+      4
+  ) {
+    return;
+  }
+
+  await sendToGoogleSheets({
+    action:
+      "releaseCapacity",
+
+    holdId:
+      metadata.capacityHoldId,
+  });
 }
 
 async function processPaidCheckout(
