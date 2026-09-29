@@ -59,7 +59,16 @@ export default function Footer() {
               <li className="font-semibold text-white">Friday, {tournament.date}</li>
               <li>{tournament.venue.name}</li>
               <li>{tournament.venue.city}, NC</li>
-              <li>The Honor Foundation</li>
+              <li>
+                <a
+                  href="https://www.honor.org/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="transition hover:text-white hover:underline"
+                >
+                  The Honor Foundation
+                </a>
+              </li>
               <li>Fort Bragg Chapters</li>
             </ul>
           </div>
