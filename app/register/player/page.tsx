@@ -169,7 +169,7 @@ export default function PlayerRegistrationPage() {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const submittingRef = useRef(false);
-  const [registrationAttemptId] = useState(() => crypto.randomUUID());
+  const [registrationAttemptId, setRegistrationAttemptId] = useState("");
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -179,6 +179,7 @@ export default function PlayerRegistrationPage() {
     setWaitlistId(id);
     setOfferToken(token);
     setIncompleteWaitlistLink(Boolean(id) !== Boolean(token));
+    setRegistrationAttemptId(crypto.randomUUID());
   }, []);
 
   useEffect(() => {
@@ -734,6 +735,7 @@ export default function PlayerRegistrationPage() {
                       type="submit"
                       disabled={
                         isSubmitting ||
+                        !registrationAttemptId ||
                         incompleteWaitlistLink ||
                         optionUnavailable(playerCount)
                       }
