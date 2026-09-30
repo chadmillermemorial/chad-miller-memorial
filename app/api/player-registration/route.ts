@@ -47,6 +47,20 @@ export async function POST(request: Request) {
     const playerCount = playerCounts[registrationType];
 
     /*
+     * Stable browser-generated ID for this registration attempt.
+     * It prevents repeated clicks/retries from creating multiple Stripe
+     * Checkout Sessions for the same form submission.
+     *
+     * The fallback keeps an already-open pre-deployment form working.
+     */
+    const registrationAttemptId =
+      formData.get("registrationAttemptId")?.toString().trim() || randomUUID();
+
+    if (registrationAttemptId.length > 100) {
+      throw new Error("Invalid registration attempt ID.");
+    }
+
+    /*
      * Private waitlist registration information.
      *
      * These values will normally be blank for public registrations.
@@ -159,6 +173,7 @@ export async function POST(request: Request) {
         playerCount,
         waitlistId,
         offerToken,
+        registrationAttemptId,
       }),
     });
 
@@ -178,7 +193,13 @@ export async function POST(request: Request) {
       );
     }
 
-    capacityHoldId = capacityResult.holdId;
+    capacityHoldId = String(capacityResult.holdId || "").trim();
+
+    if (!capacityHoldId) {
+      throw new Error(
+        "Tournament capacity was reserved but no hold ID was returned."
+      );
+    }
 
     const metadata: Record<string, string> = {
       registrationType,
@@ -194,6 +215,7 @@ export async function POST(request: Request) {
       processingFeeNonRefundable: "Yes",
       withdrawalToken,
       capacityHoldId,
+      registrationAttemptId,
     };
 
     /*
@@ -237,12 +259,16 @@ export async function POST(request: Request) {
      * If a waitlisted golfer cancels Stripe Checkout, return them to the
      * same private registration URL instead of dropping their offer token.
      */
-    const cancelUrl =
-      waitlistId && offerToken
-        ? `${origin}/register/player?waitlistId=${encodeURIComponent(
-            waitlistId
-          )}&offerToken=${encodeURIComponent(offerToken)}`
-        : `${origin}/register/player`;
+    const cancelParams = new URLSearchParams({
+      holdId: capacityHoldId,
+    });
+
+    if (waitlistId && offerToken) {
+      cancelParams.set("waitlistId", waitlistId);
+      cancelParams.set("offerToken", offerToken);
+    }
+
+    const cancelUrl = `${origin}/api/player-cancel?${cancelParams.toString()}`;
 
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
@@ -276,6 +302,8 @@ export async function POST(request: Request) {
 
       expires_at:
         Math.floor(Date.now() / 1000) + 30 * 60,
+    }, {
+      idempotencyKey: `player-registration:${registrationAttemptId}`,
     });
 
     if (!session.url) {
@@ -289,19 +317,10 @@ export async function POST(request: Request) {
     // If Stripe fails after spots were reserved, release the hold.
     if (capacityHoldId) {
       try {
-        await fetch(GOOGLE_SCRIPT_URL, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            action: "releaseCapacity",
-            holdId: capacityHoldId,
-          }),
-        });
+        await releaseCapacityHold(capacityHoldId);
       } catch (releaseError) {
         console.error(
-          "Could not release capacity hold:",
+          "Could not release capacity hold after retries:",
           releaseError
         );
       }
@@ -323,4 +342,50 @@ export async function POST(request: Request) {
       { status: 500 }
     );
   }
+}
+
+async function releaseCapacityHold(holdId: string) {
+  let lastError: unknown;
+
+  for (let attempt = 1; attempt <= 3; attempt++) {
+    try {
+      const response = await fetch(GOOGLE_SCRIPT_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          action: "releaseCapacity",
+          holdId,
+        }),
+        cache: "no-store",
+      });
+
+      if (!response.ok) {
+        throw new Error(
+          `Capacity release returned status ${response.status}.`
+        );
+      }
+
+      const result = await response.json();
+
+      if (!result.ok) {
+        throw new Error(
+          result.error || result.message || "Capacity release was rejected."
+        );
+      }
+
+      return;
+    } catch (error) {
+      lastError = error;
+
+      if (attempt < 3) {
+        await new Promise((resolve) => setTimeout(resolve, attempt * 250));
+      }
+    }
+  }
+
+  throw lastError instanceof Error
+    ? lastError
+    : new Error("Unable to release capacity hold.");
 }
