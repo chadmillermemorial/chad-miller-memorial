@@ -819,14 +819,19 @@ export default function SponsorsPage() {
                 )}
 
                 <p className="mt-2 text-sm leading-6 text-slate-600">
-                  Sponsor materials are
-                  due by{" "}
+                  Sponsorships are still
+                  being accepted. To
+                  guarantee inclusion in
+                  printed tournament
+                  materials, sponsor
+                  materials should be
+                  submitted by{" "}
                   <strong>
-                    Friday, September 11,
+                    Friday, October 2,
                     2026
                   </strong>
                   . Materials received
-                  after that date may not
+                  after October 2 may not
                   be guaranteed inclusion
                   in printed tournament
                   materials.
