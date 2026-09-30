@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
 import Container from "@/components/ui/Container";
 
 const shirtSizes = ["S", "M", "L", "XL", "2XL", "3XL"];
@@ -167,6 +167,10 @@ export default function PlayerRegistrationPage() {
   const [incompleteWaitlistLink, setIncompleteWaitlistLink] =
     useState(false);
 
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const submittingRef = useRef(false);
+  const [registrationAttemptId, setRegistrationAttemptId] = useState("");
+
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const id = params.get("waitlistId")?.trim() || "";
@@ -175,6 +179,7 @@ export default function PlayerRegistrationPage() {
     setWaitlistId(id);
     setOfferToken(token);
     setIncompleteWaitlistLink(Boolean(id) !== Boolean(token));
+    setRegistrationAttemptId(crypto.randomUUID());
   }, []);
 
   useEffect(() => {
@@ -211,6 +216,16 @@ export default function PlayerRegistrationPage() {
 
   const registrationFull =
     !privateWaitlistOffer && remainingSpots === 0;
+
+  function handleRegistrationSubmit(event: FormEvent<HTMLFormElement>) {
+    if (submittingRef.current) {
+      event.preventDefault();
+      return;
+    }
+
+    submittingRef.current = true;
+    setIsSubmitting(true);
+  }
 
   function optionUnavailable(players: number) {
     if (privateWaitlistOffer) {
@@ -445,7 +460,13 @@ export default function PlayerRegistrationPage() {
               <form
                 action="/api/player-registration"
                 method="POST"
+                onSubmit={handleRegistrationSubmit}
               >
+                <input
+                  type="hidden"
+                  name="registrationAttemptId"
+                  value={registrationAttemptId}
+                />
                 <input
                   type="hidden"
                   name="registrationType"
@@ -713,12 +734,16 @@ export default function PlayerRegistrationPage() {
                     <button
                       type="submit"
                       disabled={
+                        isSubmitting ||
+                        !registrationAttemptId ||
                         incompleteWaitlistLink ||
                         optionUnavailable(playerCount)
                       }
                       className="shrink-0 rounded-full bg-[var(--brand-teal)] px-8 py-4 font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
                     >
-                      Continue to Secure Payment — ${registrationTotal}
+                      {isSubmitting
+                        ? "Opening Secure Payment..."
+                        : `Continue to Secure Payment — ${registrationTotal}`}
                     </button>
                   </div>
                 </div>
