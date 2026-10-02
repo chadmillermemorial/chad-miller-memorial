@@ -79,7 +79,6 @@ const SHIRT_SIZES = [
   "L",
   "XL",
   "2XL",
-  "3XL",
 ];
 
 const MAX_FILE_SIZE =
