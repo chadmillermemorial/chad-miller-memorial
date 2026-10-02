@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Container from "@/components/ui/Container";
 
-const shirtSizes = ["S", "M", "L", "XL", "2XL", "3XL"];
+const shirtSizes = ["S", "M", "L", "XL", "2XL"];
 
 const assignments = [
   "Sign-In / Silent Auction",
