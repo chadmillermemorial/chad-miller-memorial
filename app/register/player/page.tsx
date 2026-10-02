@@ -4,7 +4,7 @@ import Image from "next/image";
 import { FormEvent, useEffect, useRef, useState } from "react";
 import Container from "@/components/ui/Container";
 
-const shirtSizes = ["S", "M", "L", "XL", "2XL", "3XL"];
+const shirtSizes = ["S", "M", "L", "XL", "2XL"];
 
 type RegistrationType =
   | "individual"
