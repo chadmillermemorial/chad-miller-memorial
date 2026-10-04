@@ -25,7 +25,7 @@ const sponsorLevels = [
       "Honor a fallen member of the U.S. Special Operations community with dedicated memorial recognition on the course.",
     benefits: [
       "Dedicated Memorial Hole Sign honoring a fallen U.S. Special Operations service member",
-      "Sponsor name or logo respectfully incorporated into the Memorial Hole Sign",
+      "Sponsor name or logo on the Memorial Hole Sign, subject to printing availability",
       "Company name or logo on the tournament website",
       "Recognition as a tournament sponsor",
     ],
@@ -39,7 +39,7 @@ const sponsorLevels = [
     benefits: [
       "Everything included with Hole Sponsorship",
       "One tournament foursome (4 golfers)",
-      "Enhanced placement on the Main Sponsor Recognition Board",
+      "Enhanced placement on the Main Sponsor Recognition Board, subject to printing availability",
       "Expanded visibility in major tournament gathering areas",
       "Recognition in selected tournament-wide communications",
     ],
@@ -52,11 +52,11 @@ const sponsorLevels = [
       "Premier tournament partnership with priority recognition at major events, contests, and activity areas.",
     benefits: [
       "One tournament foursome (4 golfers)",
-      "Premier placement on the Main Sponsor Recognition Board",
+      "Premier placement on the Main Sponsor Recognition Board, subject to printing availability",
       "Premier website recognition",
       "Prominent recognition during the tribute and awards program",
       "Priority consideration for a major tournament event, contest, or activity area",
-      "Dedicated Blue Sponsor feature signage or banner at the assigned area",
+      "Dedicated Blue Sponsor feature signage or banner, subject to printing availability",
       "Recognition in selected tournament-wide communications",
     ],
   },
@@ -422,6 +422,11 @@ export default function SponsorsPage() {
               <h2 className="mt-3 text-3xl font-bold text-[var(--brand-navy)]">
                 Choose your sponsorship
               </h2>
+
+              <div className="mt-6 rounded-2xl bg-slate-50 p-5">
+                <p className="font-semibold text-[var(--brand-navy)]">Sponsor Printing Notice</p>
+                <p className="mt-2 text-sm leading-6 text-slate-600">New sponsors cannot be guaranteed inclusion in printed tournament materials. Sponsors may bring their own signage on Friday, October 9, 2026.</p>
+              </div>
 
               <div className="mt-8 grid gap-5 md:grid-cols-3">
                 {sponsorLevels.map(
@@ -819,22 +824,7 @@ export default function SponsorsPage() {
                 )}
 
                 <p className="mt-2 text-sm leading-6 text-slate-600">
-                  Sponsorships are still
-                  being accepted. To
-                  guarantee inclusion in
-                  printed tournament
-                  materials, sponsor
-                  materials should be
-                  submitted by{" "}
-                  <strong>
-                    Friday, October 2,
-                    2026
-                  </strong>
-                  . Materials received
-                  after October 2 may not
-                  be guaranteed inclusion
-                  in printed tournament
-                  materials.
+                  Sponsorships are still being accepted. New sponsors cannot be guaranteed inclusion in printed tournament materials. Sponsors may bring their own signage on Friday, October 9, 2026.
                 </p>
               </div>
             </div>

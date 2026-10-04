@@ -1882,18 +1882,20 @@ export default function SponsorFulfillmentPage() {
             >
               <div className="rounded-3xl border border-[var(--brand-teal)]/30 bg-[var(--brand-sky)] p-8 shadow-sm md:p-10">
                 <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[var(--brand-blue)]">
-                  Materials Deadline
+                  Sponsor Printing Notice
                 </p>
 
                 <h2 className="mt-3 text-3xl font-bold text-[var(--brand-navy)]">
-                  {sponsor.materialsDue ||
-                    "September 11, 2026"}
+                  Printed recognition is subject to availability
                 </h2>
 
                 <p className="mt-4 leading-7 text-slate-600">
-                  Please submit your sponsor materials by this date to guarantee
-                  inclusion in printed tournament signage and scheduled
-                  recognition.
+                  New sponsors cannot be guaranteed inclusion in printed tournament materials. Sponsors may bring their own signage on Friday, October 9, 2026.
+                </p>
+
+                <p className="mt-3 leading-7 text-slate-600">
+                  Please still submit your sponsor materials so we can prepare
+                  website recognition and coordinate your sponsorship.
                 </p>
               </div>
 

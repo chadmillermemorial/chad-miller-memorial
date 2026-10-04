@@ -106,6 +106,11 @@ export default function SponsorConfirmationPage() {
           </div>
         )}
 
+        <div className="mb-8 rounded-2xl bg-slate-100 p-6 text-left">
+          <h2 className="mb-2 text-xl font-bold text-slate-900">Sponsor Printing Notice</h2>
+          <p className="leading-7 text-slate-600">New sponsors cannot be guaranteed inclusion in printed tournament materials. Sponsors may bring their own signage on Friday, October 9, 2026.</p>
+        </div>
+
         {loading && (
           <p className="mb-8 text-sm text-slate-500">
             Confirming sponsorship details…
