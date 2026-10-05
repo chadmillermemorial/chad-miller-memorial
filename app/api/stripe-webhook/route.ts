@@ -563,47 +563,83 @@ async function sendToGoogleSheets(
   data:
     Record<string, unknown>
 ) {
-  const response =
-    await fetch(
-      GOOGLE_SCRIPT_URL,
-      {
-        method:
-          "POST",
+  // Apps Script de-duplicates paid records and confirmation emails by
+  // checkout ID under its script lock. Reuse the exact payload on every
+  // attempt, including after a response is lost following a successful save.
+  const body = JSON.stringify(data);
 
-        headers: {
-          "Content-Type":
-            "application/json",
-        },
+  // Three 15-second attempts plus backoff fit inside maxDuration (60s).
+  // Exhaustion still reaches POST's HTTP 500, preserving Stripe redelivery.
+  for (let attempt = 1; attempt <= 3; attempt += 1) {
+    let response: Response | undefined;
+    let reason = "network";
+    let retryable = true;
 
-        body:
-          JSON.stringify(
-            data
-          ),
+    try {
+      response = await fetch(GOOGLE_SCRIPT_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body,
+        cache: "no-store",
+        signal: AbortSignal.timeout(15000),
+      });
 
-        cache:
-          "no-store",
+      if (!response.ok) {
+        reason = "http_error";
+        retryable = response.status === 408 || response.status === 429 ||
+          response.status >= 500;
+        throw new Error(`Google Sheets returned status ${response.status}`);
       }
-    );
 
-  if (
-    !response.ok
-  ) {
-    throw new Error(
-      `Google Sheets returned status ${response.status}`
-    );
+      let result: { ok?: unknown; error?: unknown; [key: string]: unknown };
+      try {
+        result = await response.json();
+      } catch {
+        reason = "invalid_json";
+        throw new Error("Google Sheets returned an invalid JSON response.");
+      }
+
+      if (!result || typeof result !== "object" ||
+        typeof result.ok !== "boolean") {
+        reason = "invalid_acknowledgement";
+        throw new Error("Google Sheets did not acknowledge the payment save.");
+      }
+
+      if (result.ok !== true) {
+        reason = "script_rejected";
+        const message = typeof result.error === "string"
+          ? result.error : "Google Sheets rejected the payment.";
+        retryable = /lock timeout|timed out|too many times|rate limit|temporar|service unavailable|internal error|try again/i.test(message);
+        throw new Error(message);
+      }
+
+      return result;
+    } catch (error) {
+      if (reason === "network") {
+        const name = error && typeof error === "object" && "name" in error
+          ? String(error.name) : "";
+        retryable = name === "TypeError" || name === "TimeoutError" ||
+          name === "AbortError";
+      }
+
+      // Never log the payload, response body, contact details or private token.
+      console.warn("Tournament payment sync attempt failed:", {
+        attempt,
+        reason,
+        retryable,
+        stripeSessionId: data.stripeSessionId || data.registrationId || "",
+        action: data.action || data.paymentType || "player_registration",
+        status: response?.status,
+        contentType: response?.headers.get("content-type"),
+      });
+
+      if (!retryable || attempt === 3) {
+        throw error;
+      }
+
+      await new Promise(resolve => setTimeout(resolve, attempt * 500));
+    }
   }
 
-  const result =
-    await response.json();
-
-  if (
-    !result.ok
-  ) {
-    throw new Error(
-      result.error ||
-        "Google Sheets rejected the payment."
-    );
-  }
-
-  return result;
+  throw new Error("Google Sheets payment sync attempts were exhausted.");
 }
