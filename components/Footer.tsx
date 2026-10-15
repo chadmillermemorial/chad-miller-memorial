@@ -46,17 +46,17 @@ export default function Footer() {
                 <Link href="/sponsors">Sponsors</Link>
               </li>
               <li>
-                <Link href="/register">Register</Link>
+                <Link href="/register">Stay Connected</Link>
               </li>
             </ul>
           </div>
 
           {/* Event */}
           <div>
-            <h3 className="mb-5 text-lg font-semibold">Event</h3>
+            <h3 className="mb-5 text-lg font-semibold">2026 Inaugural</h3>
 
             <ul className="space-y-3 text-slate-300">
-              <li className="font-semibold text-white">Friday, {tournament.date}</li>
+              <li className="font-semibold text-white">Completed · {tournament.date}</li>
               <li>{tournament.venue.name}</li>
               <li>{tournament.venue.city}, NC</li>
               <li>

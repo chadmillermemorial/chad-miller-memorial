@@ -1,3 +1,4 @@
+import { eventStatus, registrationClosed } from "@/lib/event-lifecycle";
 import { NextResponse } from "next/server";
 import {
   buildCreateInKindPayload,
@@ -102,6 +103,7 @@ function donorSafeError(error: unknown) {
 }
 
 export async function POST(request: Request) {
+  if (!eventStatus.registrationOpen) return registrationClosed(request);
   try {
     const contentType = request.headers.get("content-type") || "";
 

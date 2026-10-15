@@ -1,3 +1,4 @@
+import { eventStatus, registrationClosed } from "@/lib/event-lifecycle";
 import { createHash, createHmac, randomUUID, timingSafeEqual } from "crypto";
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
@@ -287,6 +288,7 @@ async function findExistingSession(
 }
 
 export async function POST(request: Request) {
+  if (!eventStatus.registrationOpen) return registrationClosed(request);
   const deadline = Date.now() + 55000;
   let form: FormData | undefined;
 

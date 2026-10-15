@@ -23,7 +23,7 @@ export const metadata: Metadata = {
   },
 
   description:
-    "Honor Command Sergeant Major Chad Miller at the CSM Chad Miller Memorial Golf Tournament on October 9, 2026, at Hyland Golf Course in Southern Pines, North Carolina, supporting The Honor Foundation.",
+    "Celebrating our successful 2026 inaugural outing honoring CSM Chad Miller and supporting The Honor Foundation. Coming in 2027: Kings Grant in Fayetteville, NC.",
 
   alternates: {
     canonical: "/",
@@ -35,7 +35,7 @@ export const metadata: Metadata = {
     siteName: "CSM Chad Miller Memorial Golf Tournament",
     title: "CSM Chad Miller Memorial Golf Tournament",
     description:
-      "Join us October 9, 2026, at Hyland Golf Course in Southern Pines, NC, to honor Command Sergeant Major Chad Miller and support The Honor Foundation.",
+      "Thank you for an incredible 2026 inaugural tournament. Looking ahead to 2027 at Kings Grant in Fayetteville, NC.",
     locale: "en_US",
   },
 
@@ -43,7 +43,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "CSM Chad Miller Memorial Golf Tournament",
     description:
-      "October 9, 2026 · Hyland Golf Course · Southern Pines, NC · Supporting The Honor Foundation.",
+      "2026 Inaugural: thank you. Coming in 2027: Kings Grant · Fayetteville, NC.",
   },
 
   robots: {

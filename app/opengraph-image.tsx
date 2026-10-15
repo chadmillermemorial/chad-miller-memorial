@@ -3,7 +3,7 @@ import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 
 export const alt =
-  "Command Sergeant Major Chad Miller Memorial Golf Tournament — October 9, 2026 at Hyland Golf Course in Southern Pines, North Carolina";
+  "CSM Chad Miller Memorial — Thank you for an incredible 2026 inaugural. Coming in 2027: Kings Grant, Fayetteville, NC.";
 
 export const size = {
   width: 1200,
@@ -116,8 +116,8 @@ export default async function OpenGraphImage() {
               flexDirection: "column",
             }}
           >
-            <span>Friday, October 9, 2026</span>
-            <span>Hyland Golf Course · Southern Pines, NC</span>
+            <span>2026 Inaugural · Thank you!</span>
+            <span>2027 · Kings Grant · Fayetteville, NC</span>
           </div>
 
           <div

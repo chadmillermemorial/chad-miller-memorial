@@ -1,3 +1,4 @@
+import { eventStatus, registrationClosed } from "@/lib/event-lifecycle";
 import { NextResponse } from "next/server";
 
 export const runtime = "nodejs";
@@ -6,6 +7,7 @@ const GOOGLE_SCRIPT_URL =
   "https://script.google.com/macros/s/AKfycbz8JNX9r6r5aFIYg3bYpetDnUy54ywxcaoN_qX3upY5TQH_4poQIeXxyWSxL9f22fhHqQ/exec";
 
 export async function POST(request: Request) {
+  if (!eventStatus.registrationOpen) return registrationClosed(request);
   try {
     const formData = await request.formData();
 
