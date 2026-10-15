@@ -1,3 +1,4 @@
+import { eventStatus, registrationClosed } from "@/lib/event-lifecycle";
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
 
@@ -20,6 +21,7 @@ type SponsorLevel =
 export async function POST(
   request: Request
 ) {
+  if (!eventStatus.registrationOpen) return registrationClosed(request);
   let capacityHoldId = "";
 
   const origin =

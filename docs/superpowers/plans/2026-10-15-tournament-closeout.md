@@ -1,0 +1,45 @@
+# Tournament Closeout Implementation Plan
+
+> **For agentic workers:** Use superpowers:executing-plans to implement this plan task-by-task.
+
+**Goal:** Close 2026 enrollment, celebrate the event, and prepare a separately tracked 2027 experience.
+**Architecture:** Retain Next.js, Stripe, and the existing Apps Script/Sheets integration. Use a central closed-event response before any enrollment side effects. Keep historical handlers intact. Release 2027 intake only after its separate storage contract is verified.
+**Tech Stack:** Next.js 16, React 19, TypeScript, Stripe, Google Sheets / Apps Script.
+**Spec:** ../specs/2026-10-15-tournament-closeout.md
+
+## Global Constraints
+- Preserve all 2026 records; no email outreach or financial movements.
+- 2027 registration and paid sponsorships remain closed.
+- Keep Hyland imagery until registration launch; no public results or fundraising totals.
+
+## Review Focus
+- Direct old form POSTs must not reach Stripe or Apps Script.
+- Historical confirmations, webhooks and refunds must continue to work.
+- Legacy data without year metadata belongs to 2026.
+- Interest is not registration or reserved capacity.
+- Gallery must not request 1,020 originals on initial load.
+
+### Task 1: Preserve records and close enrollment
+- [x] Copy the management workbook and inspect current repository baseline.
+- [ ] Test JSON and browser HTML closed-event responses.
+- [ ] Add lib/event-lifecycle.ts and guard player, sponsor, waitlist, volunteer and in-kind POST handlers.
+- [ ] Replace public enrollment pages with closed-event messaging, preserving original code in git history.
+- [ ] Run full npm test and npm run build.
+
+### Task 2: Public closeout
+- [ ] Update Hero, homepage, TournamentPreview, tournament, sponsor, register and navigation/footer copy.
+- [ ] Retain the existing approved sponsor list and website links.
+- [ ] Update metadata and social image to completed-2026 / upcoming-2027 messaging.
+- [ ] Verify route HTML and closed API behavior; publish a verified release.
+
+### Task 3: Year-separated 2027 intake and donations
+- [ ] Verify an authenticated Apps Script update path and current source before changing its router.
+- [ ] Add year-specific inquiry and donation tabs without touching historical data.
+- [ ] Implement schema validation, idempotent storage, year filter and acknowledgment.
+- [ ] Verify storage and confirmation content before exposing forms. Prepare email workflow without sending outreach.
+
+### Task 4: Photos and recognition
+- [ ] Obtain the current sponsor banner and complete uploaded image inventory.
+- [ ] Produce optimized display assets, preserve original downloads and build paged gallery with accessible modal.
+- [ ] Add 2026/2027 views, sponsor links, verified credit and removal contact.
+- [ ] Check mobile layouts, network payloads, links and production deployment.

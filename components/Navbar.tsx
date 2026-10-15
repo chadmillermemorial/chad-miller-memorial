@@ -10,7 +10,7 @@ const navItems = [
   { href: "/mission", label: "Mission" },
   { href: "/tournament", label: "Tournament" },
   { href: "/sponsors", label: "Sponsors" },
-  { href: "/register", label: "Join Us" },
+  { href: "/register", label: "2027" },
   { href: "/contact", label: "Contact" },
 ];
 
@@ -57,7 +57,7 @@ export default function Navbar() {
             href="/register"
             className="rounded-full bg-[var(--brand-blue)] px-5 py-2.5 text-sm font-semibold text-white transition hover:opacity-90"
           >
-            Register
+            Stay Connected
           </Link>
         </div>
 
@@ -95,7 +95,7 @@ export default function Navbar() {
               onClick={() => setMenuOpen(false)}
               className="mt-2 rounded-full bg-[var(--brand-blue)] px-5 py-3 text-center font-semibold text-white"
             >
-              Register
+              Stay Connected
             </Link>
           </div>
         </div>

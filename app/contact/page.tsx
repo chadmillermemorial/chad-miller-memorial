@@ -17,11 +17,11 @@ function buildMailto(subject: string, category: string) {
 
 const contactOptions = [
   {
-    title: "Player Registration",
+    title: "2027 Player Interest",
     description:
-      "Questions about player registration, team entries, pairings, or tournament availability.",
+      "Ask about playing in 2027 or contact us about your completed 2026 registration. Player interest does not reserve a spot.",
     href: buildMailto(
-      "Player Registration Question",
+      "2027 Player Interest",
       "Player Registration"
     ),
     button: "Email About Registration",
@@ -29,9 +29,9 @@ const contactOptions = [
   {
     title: "Sponsorship",
     description:
-      "Discuss sponsorship opportunities, recognition, signage, and tournament participation.",
+      "Express interest in sponsoring the 2027 tournament at Kings Grant. Packages and pricing are forthcoming; inquiries do not create a paid sponsorship.",
     href: buildMailto(
-      "Sponsorship Question",
+      "2027 Sponsorship Inquiry",
       "Sponsorship"
     ),
     button: "Email About Sponsorship",
@@ -39,7 +39,7 @@ const contactOptions = [
   {
     title: "Volunteer",
     description:
-      "Questions about volunteering, assignments, arrival information, or ways to help on tournament day.",
+      "Stay in touch about helping with the 2027 tournament or ask about your 2026 volunteer record.",
     href: buildMailto(
       "Volunteer Question",
       "Volunteer"
@@ -96,6 +96,7 @@ export default function ContactPage() {
           <div className="mt-16 grid gap-8 md:grid-cols-2">
             {contactOptions.map((option, index) => (
               <article
+                id={index === 1 ? "sponsorship" : undefined}
                 key={option.title}
                 className={`flex flex-col rounded-3xl p-9 shadow-lg ${
                   index === 0
