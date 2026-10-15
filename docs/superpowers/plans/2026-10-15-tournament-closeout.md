@@ -21,20 +21,20 @@
 
 ### Task 1: Preserve records and close enrollment
 - [x] Copy the management workbook and inspect current repository baseline.
-- [ ] Test JSON and browser HTML closed-event responses.
-- [ ] Add lib/event-lifecycle.ts and guard player, sponsor, waitlist, volunteer and in-kind POST handlers.
-- [ ] Replace public enrollment pages with closed-event messaging, preserving original code in git history.
-- [ ] Run full npm test and npm run build.
+- [x] Test JSON and browser HTML closed-event responses.
+- [x] Add lib/event-lifecycle.ts and guard player, sponsor, waitlist, volunteer and in-kind POST handlers.
+- [x] Replace public enrollment pages with closed-event messaging, preserving original code in git history.
+- [x] Run full npm test and npm run build.
 
 ### Task 2: Public closeout
-- [ ] Update Hero, homepage, TournamentPreview, tournament, sponsor, register and navigation/footer copy.
-- [ ] Retain the existing approved sponsor list and website links.
-- [ ] Update metadata and social image to completed-2026 / upcoming-2027 messaging.
-- [ ] Verify route HTML and closed API behavior; publish a verified release.
+- [x] Update Hero, homepage, TournamentPreview, tournament, sponsor, register and navigation/footer copy.
+- [x] Retain the existing approved sponsor list and website links.
+- [x] Update metadata and social image to completed-2026 / upcoming-2027 messaging.
+- [x] Verify route HTML and closed API behavior; publish a verified release.
 
 ### Task 3: Year-separated 2027 intake and donations
 - [ ] Verify an authenticated Apps Script update path and current source before changing its router.
-- [ ] Add year-specific inquiry and donation tabs without touching historical data.
+- [x] Add year-specific inquiry and donation tabs without touching historical data.
 - [ ] Implement schema validation, idempotent storage, year filter and acknowledgment.
 - [ ] Verify storage and confirmation content before exposing forms. Prepare email workflow without sending outreach.
 
@@ -43,3 +43,5 @@
 - [ ] Produce optimized display assets, preserve original downloads and build paged gallery with accessible modal.
 - [ ] Add 2026/2027 views, sponsor links, verified credit and removal contact.
 - [ ] Check mobile layouts, network payloads, links and production deployment.
+
+2026-10-15 checkpoint: Inquiry forms, validation, capability gate, and Apps Script storage functions implemented and tested. Live service capability read confirms 2027 routing is absent. Need current bound Code.gs to create a complete replacement while preserving live 2026 changes. Forms are not active and no records were submitted.
