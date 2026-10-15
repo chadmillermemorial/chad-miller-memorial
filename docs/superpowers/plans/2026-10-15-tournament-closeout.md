@@ -33,10 +33,12 @@
 - [x] Verify route HTML and closed API behavior; publish a verified release.
 
 ### Task 3: Year-separated 2027 intake and donations
-- [ ] Verify an authenticated Apps Script update path and current source before changing its router.
+- [x] Verify an authenticated Apps Script update path and current source before changing its router.
 - [x] Add year-specific inquiry and donation tabs without touching historical data.
 - [ ] Implement schema validation, idempotent storage, year filter and acknowledgment.
 - [ ] Verify storage and confirmation content before exposing forms. Prepare email workflow without sending outreach.
+
+2026-10-15 script checkpoint: `apps-script/Code.gs` is the complete replacement for the production project's Code.gs, including the helper in `Year2027Inquiries.gs`. Do not also add that helper as another live file. Production project `1_yCZJNnLlA3ZEAJPZt2WxEN3uVFtW4KTxfyHbIkTuJU5lktP3JkLoonN` deployed version 37 through the existing web-app URL. Its original Code.gs matched the supplied source exactly before editing. A separate undeployed copy exists; it was left untouched. The original source is backed up separately. All preexisting handlers after the router remain byte-for-byte unchanged. The router now closes old enrollment, routes authenticated year-specific inquiries, and refuses unknown actions and future-year data on legacy payment handlers. 119 tests pass. Live capabilities report `2027-inquiry-v1`; direct closed enrollment requests and an unauthorized inquiry were rejected. Successful inquiry storage is covered with simulated Sheets tests; public website intake remains in draft PR #8. The 2027 donation checkout, storage and receipt transition remains pending and must ship together.
 
 ### Task 4: Photos and recognition
 - [ ] Obtain the current sponsor banner and complete uploaded image inventory.
