@@ -4,7 +4,7 @@ import { parseDonation2027 } from '@/lib/donation-2027';
 import { donation2027Ready } from '@/lib/year-2027-service';
 
 export const runtime = 'nodejs';
-export const maxDuration = 30;
+export const maxDuration = 60;
 
 export async function POST(request: Request) {
   const origin = new URL(request.url).origin;

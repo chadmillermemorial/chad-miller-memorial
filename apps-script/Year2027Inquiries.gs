@@ -50,7 +50,9 @@ function save2027Inquiry(data) {
   var details = data.type === 'player'
     ? [2027,name,email,phone,count,notes,'Yes','New interest']
     : [2027,organization,name,email,phone,website,interest,notes,'Yes','New inquiry'];
-  var lock = LockService.getScriptLock();
+  // This web app executes as its owner. All 2027 writers share this owner
+  // lock, separate from the script lock held by legacy dashboard jobs.
+  var lock = LockService.getUserLock();
   lock.waitLock(10000);
   try {
     var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(sheetName);
