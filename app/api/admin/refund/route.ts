@@ -288,6 +288,7 @@ export async function POST(request: Request) {
           getAppsScriptRefundAction(
             record.type
           ),
+        ...(record.type === "donation" && session.metadata?.eventYear === "2027" ? { eventYear: 2027 } : {}),
         internalKey:
           googleScriptInternalKey,
         stripeSessionId:

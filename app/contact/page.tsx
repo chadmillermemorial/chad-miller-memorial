@@ -20,21 +20,15 @@ const contactOptions = [
     title: "2027 Player Interest",
     description:
       "Ask about playing in 2027 or contact us about your completed 2026 registration. Player interest does not reserve a spot.",
-    href: buildMailto(
-      "2027 Player Interest",
-      "Player Registration"
-    ),
-    button: "Email About Registration",
+    href: "/2027#interest",
+    button: "2027 Player Interest",
   },
   {
     title: "Sponsorship",
     description:
       "Express interest in sponsoring the 2027 tournament at Kings Grant. Packages and pricing are forthcoming; inquiries do not create a paid sponsorship.",
-    href: buildMailto(
-      "2027 Sponsorship Inquiry",
-      "Sponsorship"
-    ),
-    button: "Email About Sponsorship",
+    href: "/2027?type=sponsor#interest",
+    button: "2027 Sponsorship Inquiry",
   },
   {
     title: "Volunteer",
@@ -87,9 +81,8 @@ export default function ContactPage() {
             title="How can we help?"
           >
             <p>
-              Choose the topic that best matches your question. Each button
-              opens an email addressed to the tournament team and identifies
-              the inquiry category for faster routing.
+              Use the 2027 interest form for player and sponsor inquiries, or
+              email the tournament team with volunteer, donation, and other questions.
             </p>
           </SectionHeading>
 

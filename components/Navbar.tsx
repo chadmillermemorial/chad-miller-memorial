@@ -10,7 +10,8 @@ const navItems = [
   { href: "/mission", label: "Mission" },
   { href: "/tournament", label: "Tournament" },
   { href: "/sponsors", label: "Sponsors" },
-  { href: "/register", label: "2027" },
+  { href: "/2027", label: "2027" },
+  { href: "/register/donate", label: "Donate" },
   { href: "/contact", label: "Contact" },
 ];
 
@@ -38,7 +39,7 @@ export default function Navbar() {
           </span>
         </Link>
 
-        <div className="hidden items-center gap-6 md:flex">
+        <div className="hidden items-center gap-6 xl:flex">
           {navItems.map((item) => (
             <Link
               key={item.href}
@@ -54,7 +55,7 @@ export default function Navbar() {
           ))}
 
           <Link
-            href="/register"
+            href="/2027#interest"
             className="rounded-full bg-[var(--brand-blue)] px-5 py-2.5 text-sm font-semibold text-white transition hover:opacity-90"
           >
             Stay Connected
@@ -66,14 +67,14 @@ export default function Navbar() {
           aria-label="Toggle navigation menu"
           aria-expanded={menuOpen}
           onClick={() => setMenuOpen((current) => !current)}
-          className="flex h-11 w-11 items-center justify-center rounded-full border border-slate-200 text-[var(--brand-navy)] md:hidden"
+          className="flex h-11 w-11 items-center justify-center rounded-full border border-slate-200 text-[var(--brand-navy)] xl:hidden"
         >
           <span className="text-2xl leading-none">{menuOpen ? "×" : "☰"}</span>
         </button>
       </div>
 
       {menuOpen && (
-        <div className="border-t border-slate-200 bg-white px-6 py-5 md:hidden">
+        <div className="border-t border-slate-200 bg-white px-6 py-5 xl:hidden">
           <div className="flex flex-col gap-4">
             {navItems.map((item) => (
               <Link
@@ -91,7 +92,7 @@ export default function Navbar() {
             ))}
 
             <Link
-              href="/register"
+              href="/2027#interest"
               onClick={() => setMenuOpen(false)}
               className="mt-2 rounded-full bg-[var(--brand-blue)] px-5 py-3 text-center font-semibold text-white"
             >

@@ -333,7 +333,7 @@ export default function SponsorsPage() {
       <section className="bg-slate-50 py-20"><Container>
         <h2 className="text-3xl font-bold text-[var(--brand-navy)]">Looking ahead to 2027</h2>
         <p className="mt-5 max-w-3xl text-lg leading-8 text-slate-600">Thank you to our 2026 supporters. Paid sponsorship enrollment for the inaugural tournament is closed. We welcome inquiries about supporting the 2027 First Annual tournament at Kings Grant in Fayetteville, NC. Packages and pricing will be announced when ready.</p>
-        <Link href="/contact#sponsorship" className="mt-8 inline-flex rounded-full bg-[var(--brand-blue)] px-7 py-3 font-semibold text-white">2027 Sponsorship Inquiry</Link>
+        <Link href="/2027?type=sponsor#interest" className="mt-8 inline-flex rounded-full bg-[var(--brand-blue)] px-7 py-3 font-semibold text-white">2027 Sponsorship Inquiry</Link>
       </Container></section>
     </>
   );
