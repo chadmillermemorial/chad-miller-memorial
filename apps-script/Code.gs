@@ -3457,7 +3457,9 @@ function save2027Inquiry(data) {
   var details = data.type === 'player'
     ? [2027,name,email,phone,count,notes,'Yes','New interest']
     : [2027,organization,name,email,phone,website,interest,notes,'Yes','New inquiry'];
-  var lock = LockService.getScriptLock();
+  // This web app executes as its owner. All 2027 writers share this owner
+  // lock, separate from the script lock held by legacy dashboard jobs.
+  var lock = LockService.getUserLock();
   lock.waitLock(10000);
   try {
     var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(sheetName);
@@ -3520,7 +3522,9 @@ function save2027Donation(data) {
   var received = new Date(data.receivedAt);
   if (!data.receivedAt || isNaN(received.getTime())) throw new Error('Invalid payment date.');
   var details = [2027,name,email,phone,cents/100,'Yes',anonymous,recognition,notes];
-  var lock = LockService.getScriptLock();
+  // This web app executes as its owner. All 2027 writers share this owner
+  // lock, separate from the script lock held by legacy dashboard jobs.
+  var lock = LockService.getUserLock();
   lock.waitLock(10000);
   try {
     var sheet = donation2027Sheet_();
@@ -3567,7 +3571,9 @@ function save2027DonationRefund(data) {
   var feeCents = Number(data.processingFeeCents);
   var refundedAt = new Date(data.refundDate);
   if (!/^re_[A-Za-z0-9_]+$/.test(refundId) || !Number.isSafeInteger(refundCents) || refundCents<=0 || !Number.isSafeInteger(feeCents) || feeCents<0 || isNaN(refundedAt.getTime())) throw new Error('Invalid donation refund details.');
-  var lock = LockService.getScriptLock();
+  // This web app executes as its owner. All 2027 writers share this owner
+  // lock, separate from the script lock held by legacy dashboard jobs.
+  var lock = LockService.getUserLock();
   lock.waitLock(10000);
   try {
     var sheet = donation2027Sheet_();
