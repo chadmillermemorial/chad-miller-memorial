@@ -2,7 +2,7 @@ import { parse2027Inquiry } from '@/lib/year-2027-inquiry';
 import { saveInquiry2027 } from '@/lib/year-2027-service';
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
-export const maxDuration = 30;
+export const maxDuration = 60;
 
 export async function POST(request: Request) {
   const origin = request.headers.get('origin');
