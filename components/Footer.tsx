@@ -46,7 +46,10 @@ export default function Footer() {
                 <Link href="/sponsors">Sponsors</Link>
               </li>
               <li>
-                <Link href="/register">Stay Connected</Link>
+                <Link href="/2027#interest">Stay Connected for 2027</Link>
+              </li>
+              <li>
+                <Link href="/register/donate">Donate for 2027</Link>
               </li>
             </ul>
           </div>

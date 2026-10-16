@@ -25,3 +25,13 @@ export async function saveInquiry2027(payload: Record<string, unknown>) {
   if (result?.ok !== true || result?.eventYear !== 2027 || result?.submissionId !== payload.submissionId || result?.inquiryType !== payload.type) throw new Error('Inquiry save was not acknowledged.');
   return result;
 }
+
+export async function donation2027Ready(): Promise<boolean> {
+  if (!process.env.GOOGLE_SCRIPT_INTERNAL_KEY) return false;
+  try {
+    const response = await fetch(`${scriptUrl}?action=get2027Capabilities`, { cache:'no-store', signal:AbortSignal.timeout(8000) });
+    if (!response.ok) return false;
+    const result = await response.json();
+    return result?.ok === true && result?.eventYear === 2027 && result?.donationSchema === '2027-donation-v1';
+  } catch { return false; }
+}

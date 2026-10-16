@@ -112,7 +112,8 @@ export async function POST(
 
     if (
       event.type !==
-      "checkout.session.completed"
+      "checkout.session.completed" &&
+      event.type !== "checkout.session.async_payment_succeeded"
     ) {
       return NextResponse.json({
         received:
@@ -341,7 +342,19 @@ async function processPaidCheckout(
     metadata.paymentType ===
     "donation"
   ) {
+    const year = metadata.eventYear || "2026";
+    if (year !== "2026" && year !== "2027") throw new Error("Unsupported donation event year.");
+    const is2027 = year === "2027";
+    const internalKey = process.env.GOOGLE_SCRIPT_INTERNAL_KEY;
+    if (is2027 && (!internalKey || metadata.donation2027Acknowledgment !== "Yes")) {
+      throw new Error("2027 donation storage authorization or acknowledgment is missing.");
+    }
     await sendToGoogleSheets({
+      ...(is2027 ? {
+        action: "save2027Donation", eventYear: 2027, internalKey,
+        donation2027Acknowledgment: true,
+        receivedAt: new Date(session.created * 1000).toISOString(),
+      } : {}),
       paymentType:
         "donation",
 
@@ -611,6 +624,12 @@ async function sendToGoogleSheets(
           ? result.error : "Google Sheets rejected the payment.";
         retryable = /lock timeout|timed out|too many times|rate limit|temporar|service unavailable|internal error|try again/i.test(message);
         throw new Error(message);
+      }
+
+      if (data.action === "save2027Donation" &&
+        (result.eventYear !== 2027 || result.stripeSessionId !== data.stripeSessionId || result.donationSaved !== true)) {
+        reason = "invalid_acknowledgement";
+        throw new Error("2027 donation save was not acknowledged.");
       }
 
       return result;

@@ -12,7 +12,9 @@ function get2027Capabilities() {
   if (!ss.getSheetByName('2027 Player Interest') || !ss.getSheetByName('2027 Sponsor Inquiries')) {
     return jsonResponse({ ok: false, eventYear: 2027 });
   }
-  return jsonResponse({ ok: true, eventYear: 2027, inquirySchema: '2027-inquiry-v1' });
+  var result = { ok: true, eventYear: 2027, inquirySchema: '2027-inquiry-v1' };
+  try { donation2027Sheet_(); result.donationSchema = '2027-donation-v1'; } catch (error) { /* Keep inquiries available while donation storage is unavailable. */ }
+  return jsonResponse(result);
 }
 
 function inquiry2027Text_(value, label, max, required) {
@@ -21,11 +23,9 @@ function inquiry2027Text_(value, label, max, required) {
   return result;
 }
 function inquiry2027Cell_(value) {
-  return typeof value === 'string' && /^[=+\-@]/.test(value) ? "'" + value : value;
-}
-
-function inquiry2027CompareCell_(value) {
-  return typeof value === 'string' && /^'[=+\-@]/.test(value) ? value.slice(1) : value;
+  // Sheets interprets numeric/date-like strings even after text formatting.
+  // A leading apostrophe preserves all text and prevents formula execution.
+  return typeof value === 'string' ? "'" + value : value;
 }
 
 function save2027Inquiry(data) {
@@ -50,7 +50,6 @@ function save2027Inquiry(data) {
   var details = data.type === 'player'
     ? [2027,name,email,phone,count,notes,'Yes','New interest']
     : [2027,organization,name,email,phone,website,interest,notes,'Yes','New inquiry'];
-  details = details.map(inquiry2027Cell_);
   var lock = LockService.getScriptLock();
   lock.waitLock(10000);
   try {
@@ -64,12 +63,12 @@ function save2027Inquiry(data) {
       for (var i = 0; i < existing.length; i++) {
         if (existing[i][0] === data.submissionId) {
           // Keep human-managed Status out of the retry comparison.
-          if (JSON.stringify(existing[i].slice(2,-1).map(inquiry2027CompareCell_)) !== JSON.stringify(details.slice(0,-1).map(inquiry2027CompareCell_))) throw new Error('This reference already has different details. Reload the form before a new inquiry.');
+          if (JSON.stringify(existing[i].slice(2,-1)) !== JSON.stringify(details.slice(0,-1))) throw new Error('This reference already has different details. Reload the form before a new inquiry.');
           return jsonResponse({ ok: true, eventYear: 2027, inquiryType: data.type, submissionId: data.submissionId, reused: true });
         }
       }
     }
-    sheet.appendRow([data.submissionId,new Date().toISOString()].concat(details));
+    sheet.appendRow([data.submissionId,new Date().toISOString()].concat(details).map(inquiry2027Cell_));
     return jsonResponse({ ok: true, eventYear: 2027, inquiryType: data.type, submissionId: data.submissionId });
   } finally { lock.releaseLock(); }
 }

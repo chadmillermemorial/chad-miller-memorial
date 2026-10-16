@@ -2,8 +2,8 @@
 import { useRef, useState } from 'react';
 
 const inputClass = 'mt-2 w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 focus:border-[var(--brand-blue)]';
-export default function Inquiry2027Form({ ready }: { ready: boolean }) {
-  const [type, setType] = useState('player');
+export default function Inquiry2027Form({ ready, initialType = 'player' }: { ready: boolean; initialType?: 'player' | 'sponsor' }) {
+  const [type, setType] = useState(initialType);
   const [status, setStatus] = useState<'idle' | 'saving' | 'saved'>('idle');
   const [error, setError] = useState('');
   const submissionId = useRef('');
@@ -33,7 +33,7 @@ export default function Inquiry2027Form({ ready }: { ready: boolean }) {
     <p className="mt-4 leading-7 text-slate-600">Choose player interest or a sponsorship inquiry. Registration and pricing are not open yet. No payment is collected.</p>
     {!ready && <p role="status" className="mt-5 rounded-xl bg-amber-50 p-4 text-amber-900">This form is being prepared. For now, please email <a href="mailto:chadmillermemorial@gmail.com?subject=2027%20Tournament%20Inquiry" className="underline">chadmillermemorial@gmail.com</a> with your 2027 inquiry.</p>}
     <fieldset disabled={!ready || status === 'saving'} className="mt-8 space-y-6 disabled:opacity-60">
-      <label className="block font-semibold">I’m interested in<select name="type" value={type} onChange={e => { setType(e.target.value); submissionId.current = ''; }} className={inputClass}><option value="player">Playing in 2027</option><option value="sponsor">Sponsoring in 2027</option></select></label>
+      <label className="block font-semibold">I’m interested in<select name="type" value={type} onChange={e => { setType(e.target.value === 'sponsor' ? 'sponsor' : 'player'); submissionId.current = ''; }} className={inputClass}><option value="player">Playing in 2027</option><option value="sponsor">Sponsoring in 2027</option></select></label>
       <div className="grid gap-6 md:grid-cols-2">
         <label className="block font-semibold">Your name<input required name="name" autoComplete="name" maxLength={120} className={inputClass} /></label>
         <label className="block font-semibold">Email<input required type="email" name="email" autoComplete="email" maxLength={254} className={inputClass} /></label>

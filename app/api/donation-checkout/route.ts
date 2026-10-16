@@ -1,261 +1,35 @@
-import { NextResponse } from "next/server";
-import Stripe from "stripe";
+import { NextResponse } from 'next/server';
+import Stripe from 'stripe';
+import { parseDonation2027 } from '@/lib/donation-2027';
+import { donation2027Ready } from '@/lib/year-2027-service';
 
-export const runtime = "nodejs";
-
-const stripeSecretKey =
-  process.env.STRIPE_SECRET_KEY;
+export const runtime = 'nodejs';
+export const maxDuration = 30;
 
 export async function POST(request: Request) {
+  const origin = new URL(request.url).origin;
+  if (request.headers.get('origin') && request.headers.get('origin') !== origin) return NextResponse.json({ok:false,error:'Please submit from the tournament website.'},{status:403});
+  let parsed: ReturnType<typeof parseDonation2027>;
+  let attemptId = "";
+  try { const form = await request.formData(); parsed = parseDonation2027(form); attemptId = String(form.get("checkoutAttemptId") || ""); if (attemptId && !/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/.test(attemptId)) throw new Error("Please reload the donation form."); }
+  catch (error) { return NextResponse.json({ok:false,error:error instanceof Error ? error.message : 'Please check your donation details.'},{status:400}); }
   try {
-    if (!stripeSecretKey) {
-      throw new Error(
-        "STRIPE_SECRET_KEY is not configured."
-      );
-    }
-
-    const stripe =
-      new Stripe(stripeSecretKey);
-
-    const formData =
-      await request.formData();
-
-    const donorName =
-      formData
-        .get("donorName")
-        ?.toString()
-        .trim() || "";
-
-    const email =
-      formData
-        .get("email")
-        ?.toString()
-        .trim() || "";
-
-    const phone =
-      formData
-        .get("phone")
-        ?.toString()
-        .trim() || "";
-
-    const registeredPlayer =
-      formData
-        .get("registeredPlayer")
-        ?.toString()
-        .trim() || "";
-
-    const anonymous =
-      formData.get("anonymous") === "on";
-
-    const requestedPublicRecognition =
-      formData.get("publicRecognition") ===
-      "on";
-
-    const requestedPublicRecognitionName =
-      formData
-        .get("publicRecognitionName")
-        ?.toString()
-        .trim() || "";
-
-    const notes =
-      formData
-        .get("notes")
-        ?.toString()
-        .trim() || "";
-
-    const requestedAmount =
-      Number(
-        formData
-          .get("donationAmount")
-          ?.toString()
-      );
-
-    /*
-     * Required donor information.
-     */
-    if (
-      !donorName ||
-      !email ||
-      !phone
-    ) {
-      throw new Error(
-        "Donor name, email, and phone are required."
-      );
-    }
-
-    if (
-      registeredPlayer !== "Yes" &&
-      registeredPlayer !== "No"
-    ) {
-      throw new Error(
-        "Please indicate whether you are registered to play in the tournament."
-      );
-    }
-
-    if (
-      !Number.isFinite(
-        requestedAmount
-      ) ||
-      requestedAmount < 1
-    ) {
-      throw new Error(
-        "Donation amount must be at least $1."
-      );
-    }
-
-    const donationAmount =
-      Math.round(
-        requestedAmount * 100
-      ) / 100;
-
-    /*
-     * Public recognition rules are enforced
-     * on the server as well as in the form.
-     *
-     * A donor may only receive community-donor
-     * recognition when:
-     *
-     * - they are NOT registered to play;
-     * - the donation is NOT anonymous; and
-     * - they explicitly request recognition.
-     */
-    const publicRecognition =
-      registeredPlayer === "No" &&
-      !anonymous &&
-      requestedPublicRecognition;
-
-    /*
-     * If an eligible donor requests recognition
-     * but leaves the recognition name blank,
-     * use the donor's entered name.
-     */
-    const publicRecognitionName =
-      publicRecognition
-        ? (
-            requestedPublicRecognitionName ||
-            donorName
-          ).slice(0, 450)
-        : "";
-
-    const metadata: Record<
-      string,
-      string
-    > = {
-      paymentType: "donation",
-
-      donorName:
-        donorName.slice(0, 450),
-
-      email:
-        email.slice(0, 450),
-
-      phone:
-        phone.slice(0, 450),
-
-      registeredPlayer,
-
-      anonymous:
-        anonymous
-          ? "Yes"
-          : "No",
-
-      publicRecognition:
-        publicRecognition
-          ? "Yes"
-          : "No",
-
-      publicRecognitionName,
-
-      notes:
-        notes.slice(0, 450),
-    };
-
-    const origin =
-      new URL(
-        request.url
-      ).origin;
-
-    const session =
-      await stripe.checkout.sessions.create({
-        mode: "payment",
-
-        customer_email:
-          email,
-
-        line_items: [
-          {
-            price_data: {
-              currency:
-                "usd",
-
-              product_data: {
-                name:
-                  "CSM Chad Miller Memorial Donation",
-
-                description:
-                  "Contribution benefiting the Command Sergeant Major Chad Miller Memorial Golf Tournament.",
-              },
-
-              unit_amount:
-                Math.round(
-                  donationAmount *
-                    100
-                ),
-            },
-
-            quantity: 1,
-          },
-        ],
-
-        /*
-         * Session metadata is what our Stripe
-         * webhook reads after successful payment.
-         */
-        metadata,
-
-        /*
-         * Also store the same metadata on the
-         * PaymentIntent for payment/refund auditing.
-         */
-        payment_intent_data: {
-          metadata,
-        },
-
-        success_url:
-          `${origin}/register/donate/confirmation?session_id={CHECKOUT_SESSION_ID}`,
-
-        cancel_url:
-          `${origin}/register/donate`,
-      });
-
-    if (!session.url) {
-      throw new Error(
-        "Stripe did not return a checkout URL."
-      );
-    }
-
-    return NextResponse.redirect(
-      session.url,
-      303
-    );
-  } catch (error) {
-    console.error(
-      "Donation checkout error:",
-      error
-    );
-
-    return NextResponse.json(
-      {
-        ok: false,
-
-        error:
-          error instanceof Error
-            ? error.message
-            : "An unknown donation error occurred.",
-      },
-      {
-        status: 500,
-      }
-    );
+    const key = process.env.STRIPE_SECRET_KEY;
+    if (!key || !await donation2027Ready()) return NextResponse.json({ok:false,error:'2027 donations are temporarily unavailable. Please try again shortly.'},{status:503});
+    const stripe = new Stripe(key);
+    const {amountCents, metadata} = parsed;
+    const session = await stripe.checkout.sessions.create({
+      mode:'payment', customer_email:metadata.email,
+      line_items:[{price_data:{currency:'usd',product_data:{name:'2027 CSM Chad Miller Memorial Donation',description:'Supports the 2027 tournament at Kings Grant, Fayetteville, NC. Does not reserve players or purchase a sponsorship.'},unit_amount:amountCents},quantity:1}],
+      metadata, payment_intent_data:{metadata},
+      success_url:`${origin}/register/donate/confirmation?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url:`${origin}/register/donate`,
+    }, attemptId ? {idempotencyKey:`donation-2027-${attemptId}`} : undefined);
+    if (!session.url) throw new Error('Missing checkout URL');
+    if (request.headers.get('accept')?.includes('application/json')) return NextResponse.json({ok:true,url:session.url});
+    return NextResponse.redirect(session.url,303);
+  } catch {
+    console.error('2027 donation checkout could not be created.');
+    return NextResponse.json({ok:false,error:'Secure checkout is temporarily unavailable. Please try again.'},{status:503});
   }
 }
