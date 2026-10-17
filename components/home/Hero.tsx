@@ -13,7 +13,7 @@ export default function Hero() {
           fill
           priority
           sizes="100vw"
-          className="-z-20 object-cover object-center"
+          className="-z-20 object-contain object-center"
         />
         <div className="absolute inset-0 -z-10 bg-[linear-gradient(90deg,rgba(12,25,37,0.94)_0%,rgba(12,25,37,0.78)_48%,rgba(12,25,37,0.28)_100%)]" />
         <Container>
