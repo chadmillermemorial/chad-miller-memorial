@@ -35,7 +35,7 @@ export default function SponsorsPage() {
               {group.items.map(sponsor=>(
                 <article key={sponsor.name} className="flex flex-col justify-between rounded-2xl border border-slate-200 bg-slate-50 p-6">
                   <h3 className="text-xl font-bold leading-7 text-[var(--brand-navy)]">{sponsor.name}</h3>
-                  <a href={sponsor.website} target="_blank" rel="noopener noreferrer" aria-label={`Visit ${sponsor.name}`} className="mt-5 inline-flex self-start font-semibold text-[var(--brand-blue)] underline underline-offset-4">Visit website ↗</a>
+                  <a href={sponsor.website} target="_blank" rel="noopener noreferrer" aria-label={`Visit ${sponsor.name}`} className="mt-5 inline-flex self-start font-semibold text-[var(--brand-blue)] underline underline-offset-4">Visit website</a>
                 </article>
               ))}
             </div>
@@ -48,9 +48,9 @@ export default function SponsorsPage() {
           <h2 className="text-3xl font-bold text-[var(--brand-navy)]">Our host and food partners</h2>
           <p className="mt-4 max-w-3xl leading-7 text-slate-600">Special thanks to Hyland Golf Course for hosting us, Limitless for breakfast, and Embers for lunch. You helped make everyone feel welcome and brought us together throughout the day.</p>
           <div className="mt-7 flex flex-wrap gap-x-8 gap-y-4 font-semibold text-[var(--brand-blue)]">
-            <a href="https://www.hylandgolfclub.com/" target="_blank" rel="noopener noreferrer" className="underline underline-offset-4">Hyland Golf Course ↗</a>
-            <a href={tournament.food.breakfast.website} target="_blank" rel="noopener noreferrer" className="underline underline-offset-4">Limitless ↗</a>
-            <a href={tournament.food.lunch.website} target="_blank" rel="noopener noreferrer" className="underline underline-offset-4">Embers ↗</a>
+            <a href="https://www.hylandgolfclub.com/" target="_blank" rel="noopener noreferrer" className="underline underline-offset-4">Hyland Golf Course</a>
+            <a href={tournament.food.breakfast.website} target="_blank" rel="noopener noreferrer" className="underline underline-offset-4">Limitless</a>
+            <a href={tournament.food.lunch.website} target="_blank" rel="noopener noreferrer" className="underline underline-offset-4">Embers</a>
           </div>
           <p className="mt-8 max-w-3xl leading-7 text-slate-700">To our prize and auction donors, volunteers, and every player who joined us: thank you. Your generosity, time, and presence helped make this tribute to Chad so meaningful.</p>
         </Container>
