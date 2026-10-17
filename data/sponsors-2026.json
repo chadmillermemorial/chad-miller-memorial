@@ -1,0 +1,21 @@
+{
+  "grey": [
+    {"name":"Mister Sparky of the Sandhills","website":"https://www.mistersparky.com/the-sandhills/"},
+    {"name":"Watchtower","website":"https://www.watchtowerus.org/"},
+    {"name":"Sandhills Community College","website":"https://www.sandhills.edu/"},
+    {"name":"ReLaunch Advisors","website":"https://relaunchadvisors.com/Home"},
+    {"name":"Double Eagle Indoor Golf & Lounge","website":"https://www.doubleeaglenc.com/"},
+    {"name":"Furniture in the Pines","website":"https://furnitureinthepines.com/"},
+    {"name":"DAHR","website":"https://dahrlifestyle.com/"}
+  ],
+  "hole": [
+    {"name":"Bahls HVAC Service and Repair LLC","website":"https://bahlshvac.com"},
+    {"name":"Buffalo Wild Wings","website":"https://www.buffalowildwings.com/"},
+    {"name":"GFY Logistics","website":"https://gfy-logistics.com/"},
+    {"name":"Alpha Health","website":"https://goalphahealth.com/"},
+    {"name":"Task Force Dagger Special Operations Foundation","website":"https://www.taskforcedagger.org/"},
+    {"name":"Polar Skin","website":"https://polarskin.com/"},
+    {"name":"Computers 4 People","website":"https://www.computers4people.org/"},
+    {"name":"Spartan Blades","website":"https://spartanbladesusa.com/"}
+  ]
+}
