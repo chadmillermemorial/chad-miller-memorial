@@ -41,7 +41,11 @@ export default function PhotoGallery({photos}:{photos:GalleryPhoto[]}) {
    <h2 className="text-3xl font-bold">2026 Inaugural</h2>
    <p className="mt-3 text-slate-600">October 9, 2026 · Hyland Golf Course · {photos.length.toLocaleString()} photos</p>
    <p className="mt-3 max-w-3xl leading-7 text-slate-600">Select a photo to enlarge it or download the uploaded JPEG. Use the arrows to keep browsing. Downloads are the resized photos shared for this gallery.</p>
-   <p className="mt-3 text-sm leading-6 text-slate-600">Photography by <a href="https://www.cedarlanephotography.com" target="_blank" rel="noopener noreferrer" className="font-semibold text-[var(--brand-blue)] underline">Cedar Lane Photography</a>. When sharing photos, please credit Cedar Lane Photography or tag @cedarlanephoto.usa.</p>
+   <aside aria-labelledby="photography-credit-heading" className="mt-6 rounded-2xl border-l-4 border-[var(--brand-teal)] bg-[var(--brand-navy)] p-6 text-white md:p-8">
+    <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[#8ce4dc]">2026 tournament photography</p>
+    <h3 id="photography-credit-heading" className="mt-3 text-3xl font-bold md:text-4xl"><a href="https://www.cedarlanephotography.com" target="_blank" rel="noopener noreferrer" className="underline decoration-white/50 underline-offset-8 hover:decoration-white">Cedar Lane Photography</a></h3>
+    <p className="mt-4 max-w-3xl leading-7 text-slate-200">Thank you for capturing this day of remembrance, fellowship, and community. When sharing photos, please credit Cedar Lane Photography or tag <span className="font-semibold text-white">@cedarlanephoto.usa</span>.</p>
+   </aside>
    {paging}
    <p role="status" aria-live="polite" className="mb-4 text-sm text-slate-500">Showing photos {page*PHOTOS_PER_PAGE+1}–{Math.min((page+1)*PHOTOS_PER_PAGE,photos.length)} of {photos.length.toLocaleString()}</p>
    <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">

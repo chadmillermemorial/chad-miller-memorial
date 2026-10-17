@@ -6,7 +6,7 @@ export default function NextTournament() {
   <p className="mt-5 max-w-2xl text-lg leading-8 text-slate-300">Join us on Friday, October 8, 2027, at Kings Grant in Fayetteville, North Carolina. Registration details and sponsorship pricing will be announced when ready.</p>
   <p className="mt-4 leading-7 text-slate-300">2027 player registration is not open. Sponsorships are inquiries only; no payment or player places are being reserved.</p>
   <div className="mt-8 flex flex-wrap gap-4">
-   <a href="https://kingsgrantgolfcc.com/" target="_blank" rel="noopener noreferrer" className="rounded-full border border-white/40 px-6 py-3 font-semibold">Visit Kings Grant ↗</a>
+   <a href="https://kingsgrantgolfcc.com/" target="_blank" rel="noopener noreferrer" className="rounded-full border border-white/40 px-6 py-3 font-semibold">Visit Kings Grant</a>
    <Link href="/2027?type=sponsor#interest" className="rounded-full bg-[var(--brand-teal)] px-6 py-3 font-semibold">2027 Sponsorship Inquiry</Link>
    <Link href="/2027#interest" className="rounded-full border border-white/40 px-6 py-3 font-semibold">2027 Player Interest</Link>
   </div>

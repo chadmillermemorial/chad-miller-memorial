@@ -11,7 +11,6 @@ const navItems = [
   { href: "/tournament", label: "Tournament" },
   { href: "/sponsors", label: "Sponsors" },
   { href: "/photos", label: "Photos" },
-  { href: "/2027", label: "2027" },
   { href: "/register/donate", label: "Donate" },
   { href: "/contact", label: "Contact" },
 ];
@@ -56,10 +55,10 @@ export default function Navbar() {
           ))}
 
           <Link
-            href="/2027#interest"
+            href="/2027"
             className="rounded-full bg-[var(--brand-blue)] px-5 py-2.5 text-sm font-semibold text-white transition hover:opacity-90"
           >
-            Stay Connected
+            2027 / Stay Connected
           </Link>
         </div>
 
@@ -93,11 +92,11 @@ export default function Navbar() {
             ))}
 
             <Link
-              href="/2027#interest"
+              href="/2027"
               onClick={() => setMenuOpen(false)}
               className="mt-2 rounded-full bg-[var(--brand-blue)] px-5 py-3 text-center font-semibold text-white"
             >
-              Stay Connected
+              2027 / Stay Connected
             </Link>
           </div>
         </div>
