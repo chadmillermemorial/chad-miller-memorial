@@ -41,6 +41,7 @@ export default function PhotoGallery({photos}:{photos:GalleryPhoto[]}) {
    <h2 className="text-3xl font-bold">2026 Inaugural</h2>
    <p className="mt-3 text-slate-600">October 9, 2026 · Hyland Golf Course · {photos.length.toLocaleString()} photos</p>
    <p className="mt-3 max-w-3xl leading-7 text-slate-600">Select a photo to enlarge it or download the uploaded JPEG. Use the arrows to keep browsing. Downloads are the resized photos shared for this gallery.</p>
+   <p className="mt-3 text-sm leading-6 text-slate-600">Photography by <a href="https://www.cedarlanephotography.com" target="_blank" rel="noopener noreferrer" className="font-semibold text-[var(--brand-blue)] underline">Cedar Lane Photography</a>. When sharing photos, please credit Cedar Lane Photography or tag @cedarlanephoto.usa.</p>
    {paging}
    <p role="status" aria-live="polite" className="mb-4 text-sm text-slate-500">Showing photos {page*PHOTOS_PER_PAGE+1}–{Math.min((page+1)*PHOTOS_PER_PAGE,photos.length)} of {photos.length.toLocaleString()}</p>
    <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">
