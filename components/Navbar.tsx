@@ -10,6 +10,7 @@ const navItems = [
   { href: "/mission", label: "Mission" },
   { href: "/tournament", label: "Tournament" },
   { href: "/sponsors", label: "Sponsors" },
+  { href: "/photos", label: "Photos" },
   { href: "/2027", label: "2027" },
   { href: "/register/donate", label: "Donate" },
   { href: "/contact", label: "Contact" },
@@ -39,7 +40,7 @@ export default function Navbar() {
           </span>
         </Link>
 
-        <div className="hidden items-center gap-6 xl:flex">
+        <div className="hidden items-center gap-4 xl:flex">
           {navItems.map((item) => (
             <Link
               key={item.href}

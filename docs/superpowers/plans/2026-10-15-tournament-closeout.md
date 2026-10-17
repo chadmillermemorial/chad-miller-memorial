@@ -36,14 +36,16 @@
 - [x] Verify an authenticated Apps Script update path and current source before changing its router.
 - [x] Add year-specific inquiry and donation tabs without touching historical data.
 - [x] Implement schema validation, idempotent storage, year filter and acknowledgment.
-- [ ] Verify storage and confirmation content before exposing forms. Prepare email workflow without sending outreach.
+- [x] Verify storage and confirmation content before exposing forms. Prepare email workflow without sending outreach.
 
 2026-10-15 script checkpoint: `apps-script/Code.gs` is the complete replacement for the production project's Code.gs, including the helper in `Year2027Inquiries.gs`. Do not also add that helper as another live file. Production project `1_yCZJNnLlA3ZEAJPZt2WxEN3uVFtW4KTxfyHbIkTuJU5lktP3JkLoonN` deployed version 37 through the existing web-app URL. Its original Code.gs matched the supplied source exactly before editing. A separate undeployed copy exists; it was left untouched. The original source is backed up separately. All preexisting handlers after the router remain byte-for-byte unchanged. The router now closes old enrollment, routes authenticated year-specific inquiries, and refuses unknown actions and future-year data on legacy payment handlers. 119 tests pass. Live capabilities report `2027-inquiry-v1`; direct closed enrollment requests and an unauthorized inquiry were rejected. Successful inquiry storage is covered with simulated Sheets tests; public website intake remains in draft PR #8. The 2027 donation checkout, storage and receipt transition remains pending and must ship together.
 
 ### Task 4: Photos and recognition
-- [ ] Obtain the current sponsor banner and complete uploaded image inventory.
-- [ ] Produce optimized display assets, preserve original downloads and build paged gallery with accessible modal.
-- [ ] Add 2026/2027 views, sponsor links, verified credit and removal contact.
+- [x] Obtain the current sponsor banner and complete uploaded image inventory.
+- [x] Produce optimized display assets, preserve uploaded JPEG downloads and build paged gallery with accessible modal.
+- [x] Add 2026/2027 views, sponsor links and removal contact; omit unverified photographer credit.
 - [ ] Check mobile layouts, network payloads, links and production deployment.
 
 2026-10-16 checkpoint: 2027 inquiry and donation website implementation complete, with required acknowledgment, capability-gated checkout, year-tagged Stripe Session/PaymentIntent metadata, authenticated donation storage, historical-year compatibility, paid status verification, updated receipts and isolated refund recording. Pending refunds cannot be labeled complete. 139 tests pass; production build passed. Independent review found no confirmed blocker. Native Sheets validation caught numeric/date coercion despite text formatting; all string writes now use an explicit literal prefix and duplicate matching compares the original values. Native Sheets verification passed for player, sponsor and donation storage, duplicate retries, exact leading-zero/date-like/formula-like text, and captured 2027 receipt content. No email was sent and no money moved. Temporary test records and verification code were removed. The public website release is in progress. Grey sponsor follow-up remains a later, inactive workflow; no outreach is sent.
+
+2026-10-16 gallery checkpoint: all 1,020 source JPEGs copied and preserved exactly in 85 seekable static albums. 43 WebP preview sheets load 24 photos per page; largest preview 341,324 bytes. Source Drive sharing unchanged. Actual saved sponsor banner verified from the October 5 review PDF. 2026/2027 pages, modal viewer, JPEG downloads, removal contact and navigation links implemented. Review found a revoked-URL issue on close/reopen, fixed with selection-owned viewer state and regression coverage. All 145 tests and production build pass. Publishing and public browser verification pending.

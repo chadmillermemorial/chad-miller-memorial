@@ -34,10 +34,10 @@ export default function Home() {
             </Link>
 
             <Link
-              href="/about"
+              href="/photos"
               className="rounded-full border border-white/40 px-8 py-4 font-semibold text-white hover:-translate-y-1 hover:bg-white hover:text-[var(--brand-navy)]"
             >
-              Learn About Chad
+              View Tournament Photos
             </Link>
           </div>
         </Container>

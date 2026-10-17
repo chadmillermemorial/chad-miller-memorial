@@ -46,6 +46,9 @@ export default function Footer() {
                 <Link href="/sponsors">Sponsors</Link>
               </li>
               <li>
+                <Link href="/photos">Tournament Photos</Link>
+              </li>
+              <li>
                 <Link href="/2027#interest">Stay Connected for 2027</Link>
               </li>
               <li>
