@@ -20,7 +20,10 @@ export default function TournamentPage() {
  <p className="mt-6 text-lg leading-8 text-slate-600">Thank you to Hyland Golf Course for hosting us, Limitless and Embers for bringing everyone together over great food, and our Grey Sponsors, Hole Sponsors, donors, and volunteers for their generous support.</p>
  <p className="mt-5 text-lg leading-8 text-slate-600">Most importantly, thank you to our players. Your presence, camaraderie, and commitment to remembering Chad made this day so meaningful to his family and our community.</p>
  <p className="mt-5 text-lg leading-8 text-slate-600">2026 registration and the waitlist are now closed. We look forward to gathering again in 2027.</p>
- <Link href="/sponsors" className="mt-6 inline-block font-semibold text-[var(--brand-blue)] underline">Meet our 2026 supporters</Link>
+ <div className="mt-6 flex flex-wrap gap-x-8 gap-y-3">
+ <Link href="/sponsors" className="font-semibold text-[var(--brand-blue)] underline">Meet our 2026 supporters</Link>
+ <Link href="/photos" className="font-semibold text-[var(--brand-blue)] underline">See our 2026 Tournament Photos</Link>
+ </div>
  </div><NextTournament /></Container></section>
  </main>;
 }
