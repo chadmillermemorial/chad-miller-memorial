@@ -3,7 +3,7 @@ import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 
 export const alt =
-  "CSM Chad Miller Memorial — Thank you for an incredible 2026 inaugural. Coming in 2027: Kings Grant, Fayetteville, NC.";
+  "CSM Chad Miller Memorial — Thank you for an incredible 2026 inaugural. October 8, 2027: Kings Grant, Fayetteville, NC.";
 
 export const size = {
   width: 1200,
@@ -117,7 +117,7 @@ export default async function OpenGraphImage() {
             }}
           >
             <span>2026 Inaugural · Thank you!</span>
-            <span>2027 · Kings Grant · Fayetteville, NC</span>
+            <span>October 8, 2027 · Kings Grant</span>
           </div>
 
           <div
